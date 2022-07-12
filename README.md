@@ -36,7 +36,7 @@ Archaeological dataset records often give a textual expression of dating rather 
 		
 Normalising this data can make later search and comparison of the records easier. We can do this by supplementing the original values with additional attributes defining the start and end dates of the timespan. This application attempts to match a set of textual values representing timespans to a number of known patterns, and from there to derive the intended start/end dates of the timespan. For some cases the start/end dates are present and can be extracted directly from the textual string, however in most cases a degree of additional processing is required after the initial pattern match is made. The output facilitates the fairer comparison of textual date spans as often expressed in datasets. Due to the wide variety of formats possible (including punctuation and spurious extra text), the matching patterns developed cannot comprehensively cater for every possible free-text variation present, so any remaining records not processed by this initial automated method (start/end years are zero) can be manually reviewed and assigned suitable start/end dates.
 
-## Issues to note ##
+## Century Subdivisions ##
 The output dates produced are relative to Common Era (CE). Centuries are set to start at year 1 and end at year 100. Prefix modifiers for centuries take the following meaning in this application:
 
 | Prefix | Start | End |
@@ -77,28 +77,15 @@ If the language parameter is omitted or is not one of the recognised values then
 ### Examples ###
 ---
 
-#### English examples ####
-Command: `python yearspanmatcher.py -i:"Early 2nd Century BC" -l:en`
-Output: `-0199/-0159 (Early 2nd Century BC)`
-
-myoutput.txt: The output is a tab delimited text file with dates assigned to the timespan values
-
 | input | language | output |
 |-------|----------|--------|
 | Early 2nd Century BC | en | -0199/-0159 (Early 2nd Century BC) | 
-| 1839-1895 |  en | 1839 | 1895 |
-| 1839-75 |  en | 1839 | 1875 |
-| c.1521 |  en | 1521 | 1521 |
+| 1839-1895 | en | 1839/1895 (1839-1895) |
+| 1839-75 | en | 1839/1875 (1839-75) |
+| c. 1521 | en | 1521/1521 (c. 1521) |
+| 140-144 d.C. | it |  |
+| III e lo II secolo a.C. | it |  |
+| intorno a VI sec. d.C. | it |  |
+| tra IV e III secolo a.C. | it |  |
+| 575-400 a.C. | it |  |
 
-
-#### Italian examples: ####
-Command: `timespans -i:myinput.txt -o:myoutput.txt -l:it`
-
-myinput.txt: 
-```
-140-144 d.C.
-III e lo II secolo a.C.
-intorno a VI sec. d.C.
-tra IV e III secolo a.C.
-575-400 a.C.
-```

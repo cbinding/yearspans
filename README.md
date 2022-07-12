@@ -56,12 +56,12 @@ In the case of decades, centuries or stated tolerances, an offset is added or su
 For matches on known named periods (e.g. Georgian, Victorian etc.) the start/end years are derived from suitable authority list lookups. 
 
 ## Usage ##
-Command: python yearspanmatcher.py -i:"{input}" [-l:{languageCode}] 
+Command: python yearspanmatcher.py -i "{input}" [-l {language}] 
 
 ### Input (required) ###
 The timespan expressions to be processed. The matching patterns used are case insensitive.
 
-### Language Code (optional) ###
+### Language (optional) ###
 The [ISO639-1:2002](https://www.iso.org/iso-639-language-codes.html) language code corresponding to the language of the input data. This hints to the underlying matching process the most appropriate matching patterns to use. Languages supported (to a greater or lesser degree) are:
 
 * English ('en') [default]

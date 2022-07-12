@@ -5,42 +5,42 @@ Note this is a Python reworking of some earlier C# .NET project work (https://gi
 ## Background ##
 Archaeological dataset records often give a textual expression of dating rather than absolute numeric years for the dating of artefacts. These textual data values can be in a variety of formats, sometimes expressed in different languages. There can be prefixes present such as 'Circa', 'Early', 'Mid', 'Late' - and suffixes such as 'A.D.', 'B.C.', 'C.E.', 'B.P.' that may influence the dates intended. This can present a data integration issue, as illustrated in the table below:
 
-| Type | Language | Input |
-|------|----------|-------|-----|-----|
-| Ordinal named or numbered century | en | Early 2nd Century |
-| | en | Circa Second Century BC |
-| | it | XV secolo d.C. |
-| | it | intorno a VI sec. d.C. | 
-| | cy | pymthegfed ganrif |  
-| | cy | Canol y15fed ganrif | 
-| Year span |	en	| 1450-1460 | 
-| | en | 1485-86 | 
-| Single year (with tolerance) | en | C. 1485 | 
-| | en | 1540±9 | 
-| | en | AD400+ | 
-| | en | 400 AD | 
-| Decade | en | Circa 1860s | 
-| | it | intorno al decennio 1910 | 
-| | cy | 1930au | 
-| Century span | en | 5th – 6th century AD	| 
-| | it | VIII-VII secolo a.C. | 
-| | cy | 5ed 6ed ganrif | 
-| Month and year | en | July 1855 | 
-| | it | Luglio 1855 | 
-| | cy | Gorffennaf 1855 | 
-| Season and year | en | Summer 1855 | 
-| | it | Estate 1855 | 
-| | cy | Haf 1855 | 
-| Named periods (from lookup) | en | Georgian | 
-| | en | Victorian | 
+| Type | Language | Expresssion |
+|------|----------|-------------|
+| Ordinal century | English | Early 2nd Century |
+| | English | Circa Second Century BC |
+| | Italian | XV secolo d.C. |
+| | Italian | intorno a VI sec. d.C. | 
+| | Welsh | pymthegfed ganrif |  
+| | Welsh | Canol y15fed ganrif | 
+| Year span | English | 1450-1460 | 
+| | English | 1485-86 | 
+| Single year (with tolerance) | English | C. 1485 | 
+| | English | 1540±9 | 
+| | English | AD400+ | 
+| | English | 400 AD | 
+| Decade | English | Circa 1860s | 
+| | Italian | intorno al decennio 1910 | 
+| | Welsh | 1930au | 
+| Century span | English | 5th – 6th century AD	| 
+| | Italian | VIII-VII secolo a.C. | 
+| | Welsh | 5ed 6ed ganrif | 
+| Month and year | English | July 1855 | 
+| | Italian | Luglio 1855 | 
+| | Welsh | Gorffennaf 1855 | 
+| Season and year | English | Summer 1855 | 
+| | Italian | Estate 1855 | 
+| | Welsh | Haf 1855 | 
+| Named periods (from lookup) | English | Georgian | 
+| | English | Victorian | 
 		
 Normalising this data can make later search and comparison of the records easier. We can do this by supplementing the original values with additional attributes defining the start and end dates of the timespan. This application attempts to match a set of textual values representing timespans to a number of known patterns, and from there to derive the intended start/end dates of the timespan. For some cases the start/end dates are present and can be extracted directly from the textual string, however in most cases a degree of additional processing is required after the initial pattern match is made. The output facilitates the fairer comparison of textual date spans as often expressed in datasets. Due to the wide variety of formats possible (including punctuation and spurious extra text), the matching patterns developed cannot comprehensively cater for every possible free-text variation present, so any remaining records not processed by this initial automated method (start/end years are zero) can be manually reviewed and assigned suitable start/end dates.
 
 ## Century Subdivisions ##
 The output dates produced are relative to Common Era (CE). Centuries are set to start at year 1 and end at year 100. Prefix modifiers for centuries take the following meaning in this application:
 
-| Prefix | Start | End |
-|--------|-------|-----|
+| Prefix | Start |  End  |
+|--------|------:|------:|
 | Early | 1 | 40 |
 | Mid | 30 | 70 |
 | Late | 60 | 100 |
@@ -56,7 +56,10 @@ In the case of decades, centuries or stated tolerances, an offset is added or su
 For matches on known named periods (e.g. Georgian, Victorian etc.) the start/end years are derived from suitable authority list lookups. 
 
 ## Usage ##
-Command: python3 yearspanmatcher.py -i "{input}" [-l {language}] 
+Command: 
+```python
+python3 yearspanmatcher.py -i "{input}" [-l {language}]
+```
 
 ### Input (required) ###
 The timespan expressions to be processed. The matching patterns used are case insensitive.
@@ -76,9 +79,8 @@ If the language parameter is omitted or is not one of the recognised values then
 
 ### Examples ###
 
-| input | language |        output       |
-|       |          | min year | max year |
-|-------|----------|----------|----------|
+| input | language | min year | max year |
+|-------|----------|---------:|---------:|
 | Early 2nd Century BC | en | -0199 | -0159 |
 | 1839-1895 | en | 1839 | 1895 |
 | 1839-75 | en | 1839 | 1875 |
@@ -88,5 +90,5 @@ If the language parameter is omitted or is not one of the recognised values then
 | III e lo II secolo a.C. | it | -0299 | -0100 |
 | intorno a VI secolo d.C. | it | 0501 | 0600 |
 | tra IV e III secolo a.C. | it |  |
-| 575-400 a.C. | it | -0574/-0399 |
+| 575-400 a.C. | it | -0574 | -0399 |
 

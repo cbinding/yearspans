@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Collections xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <records>
+               <record type="record">
+                    <dc:title>A medieval system of ridge...</dc:title>
+                    <dc:creator>Historic England</dc:creator>
+                    <dc:subject>CROPMARK</dc:subject>
+                    <dc:subject>EARTHWORK</dc:subject>
+                    <dc:subject>FIELD SYSTEM</dc:subject>
+                    <dc:subject>RIDGE AND FURROW</dc:subject>
+                    <dcterms:temporal>MEDIEVAL</dcterms:temporal>
+                    <dc:description>A medieval system of ridge and furrow was seen as cropmarks and earthworks on air photographs in the parish of Melbourne. The majority of the system has been plough-levelled, although in an area called Ross Moor there are a few extant fields showing on 1970s photography.</dc:description>
+                    <dc:identifier>Depositor ID: SE 74 SW 8</dc:identifier>
+                    <dc:identifier>NMR_NATINV-1229473</dc:identifier>
+                    <dc:source>https://archaeologydataservice.ac.uk/archsearch/record?titleId=1324463</dc:source>
+                    <dc:language xsi:type="dcterms:ISO639-2">eng</dc:language>
+                    <dcterms:spatial>MELBOURNE, EAST RIDING OF YORKSHIRE, HUMBERSIDE, ENGLAND</dcterms:spatial>
+                    <dcterms:spatial xsi:type="dcterms:POINT">-0.852882, 53.8802</dcterms:spatial>
+                    <dc:rights>http://archaeologydataservice.ac.uk/advice/termsOfUseAndAccess</dc:rights>
+                    <dc:relation>1000398</dc:relation>
+               <minYear xsi:type="http://www.w3.org/2001/XMLSchema#gYear">1066</minYear>
+<maxYear xsi:type="http://www.w3.org/2001/XMLSchema#gYear">1540</maxYear>
+</record>
+               <record type="record">
+                    <dc:title>CAROLINA</dc:title>
+                    <dc:creator>Historic England</dc:creator>
+                    <dc:subject>CRAFT</dc:subject>
+                    <dc:subject>WRECK</dc:subject>
+                    <dcterms:temporal>POST MEDIEVAL</dcterms:temporal>
+                    <dcterms:temporal>1768</dcterms:temporal>
+                    <dc:description>BRITISH CRAFT, 1768</dc:description>
+                    <dc:identifier>Depositor ID: SW 97 NW 314</dc:identifier>
+                    <dc:identifier>NMR_NATINV-1229474</dc:identifier>
+                    <dc:source>https://archaeologydataservice.ac.uk/archsearch/record?titleId=1324464</dc:source>
+                    <dc:language xsi:type="dcterms:ISO639-2">eng</dc:language>
+                    <dcterms:spatial>NORTH CORNWALL, CORNWALL, ENGLAND</dcterms:spatial>
+                    <dcterms:spatial xsi:type="dcterms:POINT">-4.941393, 50.579097</dcterms:spatial>
+                    <dc:rights>http://archaeologydataservice.ac.uk/advice/termsOfUseAndAccess</dc:rights>
+                    <dc:relation>1000398</dc:relation>
+               <minYear xsi:type="http://www.w3.org/2001/XMLSchema#gYear">1066</minYear>
+<maxYear xsi:type="http://www.w3.org/2001/XMLSchema#gYear">1540</maxYear>
+<minYear xsi:type="http://www.w3.org/2001/XMLSchema#gYear">1768</minYear>
+<maxYear xsi:type="http://www.w3.org/2001/XMLSchema#gYear">1768</maxYear>
+</record>
+               <record type="record">
+                    <dc:title>A system of narrow post-medieval...</dc:title>
+                    <dc:creator>Historic England</dc:creator>
+                    <dc:subject>CROPMARK</dc:subject>
+                    <dc:subject>EARTHWORK</dc:subject>
+                    <dc:subject>FIELD SYSTEM</dc:subject>
+                    <dc:subject>RIDGE AND FURROW</dc:subject>
+                    <dcterms:temporal>POST MEDIEVAL</dcterms:temporal>
+                    <dc:description>A system of narrow post-medieval ridge and furrow was seen as cropmarks and earthworks on air photographs in the parish of Melbourne. The majority of the system has been plough-levelled.</dc:description>
+                    <dc:identifier>Depositor ID: SE 74 SW 9</dc:identifier>
+                    <dc:identifier>NMR_NATINV-1229476</dc:identifier>
+                    <dc:source>https://archaeologydataservice.ac.uk/archsearch/record?titleId=1324465</dc:source>
+                    <dc:language xsi:type="dcterms:ISO639-2">eng</dc:language>
+                    <dcterms:spatial>MELBOURNE, EAST RIDING OF YORKSHIRE, HUMBERSIDE, ENGLAND</dcterms:spatial>
+                    <dcterms:spatial xsi:type="dcterms:POINT">-0.877339, 53.875937</dcterms:spatial>
+                    <dc:rights>http://archaeologydataservice.ac.uk/advice/termsOfUseAndAccess</dc:rights>
+                    <dc:relation>1000398</dc:relation>
+               <minYear xsi:type="http://www.w3.org/2001/XMLSchema#gYear">1066</minYear>
+<maxYear xsi:type="http://www.w3.org/2001/XMLSchema#gYear">1540</maxYear>
+</record>
+          </records>
+</Collections>

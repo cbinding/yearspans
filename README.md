@@ -36,7 +36,7 @@ Archaeological dataset records often give a textual expression of dating rather 
 		
 Normalising this data can make later search and comparison of the records easier. We can do this by supplementing the original values with additional attributes defining the start and end dates of the timespan. This application attempts to match a set of textual values representing timespans to a number of known patterns, and from there to derive the intended start/end dates of the timespan. For some cases the start/end dates are present and can be extracted directly from the textual string, however in most cases a degree of additional processing is required after the initial pattern match is made. The output facilitates the fairer comparison of textual date spans as often expressed in datasets. Due to the wide variety of formats possible (including punctuation and spurious extra text), the matching patterns developed cannot comprehensively cater for every possible free-text variation present, so any remaining records not processed by this initial automated method (start/end years are zero) can be manually reviewed and assigned suitable start/end dates.
 
-## Issues to note ##
+## Century Subdivisions ##
 The output dates produced are relative to Common Era (CE). Centuries are set to start at year 1 and end at year 100. Prefix modifiers for centuries take the following meaning in this application:
 
 | Prefix | Start | End |
@@ -56,59 +56,37 @@ In the case of decades, centuries or stated tolerances, an offset is added or su
 For matches on known named periods (e.g. Georgian, Victorian etc.) the start/end years are derived from suitable authority list lookups. 
 
 ## Usage ##
-Command: timespans -i:{inputFileName} [-o:{outputFileName}] [-l:{languageCode}] 
+Command: python yearspanmatcher.py -i "{input}" [-l {language}] 
 
-### Input File Name (required) ###
-The name (including path) of a text file containing a list of the timespan expressions to be matched, one per line. The matching patterns used are case insensitive. If no match is found then a result is still returned, having zero dates - indicating no appropriate match.
+### Input (required) ###
+The timespan expressions to be processed. The matching patterns used are case insensitive.
 
-### Output File Name (optional) ###
-The name (including path) of a text file to write the output to. If this file is not present it will be created, otherwise it will be overwritten. If this parameter is not present then the file name used will be the input file name appended with ".out.txt"
-The output data format is tab delimited UTF-8 text, this can be easily used within spreadsheet applications for further processing as required. 
-
-### Language Code (optional) ###
+### Language (optional) ###
 The [ISO639-1:2002](https://www.iso.org/iso-639-language-codes.html) language code corresponding to the language of the input data. This hints to the underlying matching process the most appropriate matching patterns to use. Languages supported (to a greater or lesser degree) are:
 
-* English ('en')
+* English ('en') [default]
 * Italian ('it') 
 * German ('de')
 * French ('fr')
 * Spanish ('es')
 * Swedish ('sv') 
-* 
-If the language parameter is omitted or is not one of the recognised values then it will default to 'en' (English).
+* Welsh('cy')
+
+If the language parameter is omitted or is not one of the recognised values then the default will be 'en' (English).
 
 ### Examples ###
 ---
-Command: `python yearspans.py -i:{inputFileNameWithPath} [-o:{outputFileNameWithPath}] [-l:{languageCode}]` 
 
-#### English examples ####
-Command: `python yearspans.py -i:myinput.txt -o:myoutput.txt -l:en`
+| input | language | output |
+|-------|----------|--------|
+| Early 2nd Century BC | en | -0199/-0159 | 
+| 1839-1895 | en | 1839/1895 |
+| 1839-75 | en | 1839/1875 |
+| c. 1521 | en | 1521/1521 |
+| 140-144 d.C. | it | 0140/0144 |
+| Inizio undicesimo secolo d.C. | it | 1001/1040 |
+| III e lo II secolo a.C. | it | -0299/-0100 |
+| intorno a VI secolo d.C. | it | 0501/0600 |
+| tra IV e III secolo a.C. | it |  |
+| 575-400 a.C. | it | -0574/-0399 |
 
-myinput.txt: The input is a text file containing one timespan value per line e.g.
-```
-1839-1895
-1839-75
-c.1521
-Early 2nd Century
-```
-
-myoutput.txt: The output is a tab delimited text file with dates assigned to the timespan values
-
-| Text Value | Min year | Max year |
-|------------|----------|----------|
-| 1839-1895 | 1839 | 1895 |
-| 1839-75 | 1839 | 1875 |
-| c.1521 | 1521 | 1521 |
-| Early 2nd Century | 101 | 140 |
-
-#### Italian examples: ####
-Command: `timespans -i:myinput.txt -o:myoutput.txt -l:it`
-
-myinput.txt: 
-```
-140-144 d.C.
-III e lo II secolo a.C.
-intorno a VI sec. d.C.
-tra IV e III secolo a.C.
-575-400 a.C.
-```

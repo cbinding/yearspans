@@ -79,13 +79,14 @@ If the language parameter is omitted or is not one of the recognised values then
 
 | input | language | output |
 |-------|----------|--------|
-| Early 2nd Century BC | en | -0199/-0159 (Early 2nd Century BC) | 
-| 1839-1895 | en | 1839/1895 (1839-1895) |
-| 1839-75 | en | 1839/1875 (1839-75) |
-| c. 1521 | en | 1521/1521 (c. 1521) |
-| 140-144 d.C. | it |  |
-| III e lo II secolo a.C. | it |  |
-| intorno a VI sec. d.C. | it |  |
+| Early 2nd Century BC | en | -0199/-0159 | 
+| 1839-1895 | en | 1839/1895 |
+| 1839-75 | en | 1839/1875 |
+| c. 1521 | en | 1521/1521 |
+| 140-144 d.C. | it | 0140/0144 |
+| Inizio undicesimo secolo d.C. | it | 1001/1040 |
+| III e lo II secolo a.C. | it | -0299/-0100 |
+| intorno a VI secolo d.C. | it | 0501/0600 |
 | tra IV e III secolo a.C. | it |  |
-| 575-400 a.C. | it |  |
+| 575-400 a.C. | it | -0574/-0399 |
 

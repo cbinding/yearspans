@@ -56,50 +56,40 @@ In the case of decades, centuries or stated tolerances, an offset is added or su
 For matches on known named periods (e.g. Georgian, Victorian etc.) the start/end years are derived from suitable authority list lookups. 
 
 ## Usage ##
-Command: timespans -i:{inputFileName} [-o:{outputFileName}] [-l:{languageCode}] 
+Command: python yearspanmatcher.py -i:"{input}" [-l:{languageCode}] 
 
-### Input File Name (required) ###
-The name (including path) of a text file containing a list of the timespan expressions to be matched, one per line. The matching patterns used are case insensitive. If no match is found then a result is still returned, having zero dates - indicating no appropriate match.
-
-### Output File Name (optional) ###
-The name (including path) of a text file to write the output to. If this file is not present it will be created, otherwise it will be overwritten. If this parameter is not present then the file name used will be the input file name appended with ".out.txt"
-The output data format is tab delimited UTF-8 text, this can be easily used within spreadsheet applications for further processing as required. 
+### Input (required) ###
+The timespan expressions to be processed. The matching patterns used are case insensitive.
 
 ### Language Code (optional) ###
 The [ISO639-1:2002](https://www.iso.org/iso-639-language-codes.html) language code corresponding to the language of the input data. This hints to the underlying matching process the most appropriate matching patterns to use. Languages supported (to a greater or lesser degree) are:
 
-* English ('en')
+* English ('en') [default]
 * Italian ('it') 
 * German ('de')
 * French ('fr')
 * Spanish ('es')
 * Swedish ('sv') 
-* 
-If the language parameter is omitted or is not one of the recognised values then it will default to 'en' (English).
+* Welsh('cy')
+
+If the language parameter is omitted or is not one of the recognised values then the default will be 'en' (English).
 
 ### Examples ###
 ---
-Command: `python yearspans.py -i:{inputFileNameWithPath} [-o:{outputFileNameWithPath}] [-l:{languageCode}]` 
 
 #### English examples ####
-Command: `python yearspans.py -i:myinput.txt -o:myoutput.txt -l:en`
-
-myinput.txt: The input is a text file containing one timespan value per line e.g.
-```
-1839-1895
-1839-75
-c.1521
-Early 2nd Century
-```
+Command: `python yearspanmatcher.py -i:"Early 2nd Century BC" -l:en`
+Output: `-0199/-0159 (Early 2nd Century BC)`
 
 myoutput.txt: The output is a tab delimited text file with dates assigned to the timespan values
 
-| Text Value | Min year | Max year |
-|------------|----------|----------|
-| 1839-1895 | 1839 | 1895 |
-| 1839-75 | 1839 | 1875 |
-| c.1521 | 1521 | 1521 |
-| Early 2nd Century | 101 | 140 |
+| input | language | output |
+|-------|----------|--------|
+| Early 2nd Century BC | en | -0199/-0159 (Early 2nd Century BC) | 
+| 1839-1895 |  en | 1839 | 1895 |
+| 1839-75 |  en | 1839 | 1875 |
+| c.1521 |  en | 1521 | 1521 |
+
 
 #### Italian examples: ####
 Command: `timespans -i:myinput.txt -o:myoutput.txt -l:it`

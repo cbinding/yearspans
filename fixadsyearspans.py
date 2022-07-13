@@ -29,9 +29,8 @@ import os, sys
 from os.path import dirname, abspath, join
 
 #import yearspanmatcher.enums as enums
-from yearspan import YearSpan
-from yearspanmatcher_en import YearSpanMatcherEN
-
+from yearspanmatcher.yearspan import YearSpan
+from yearspanmatcher.yearspanmatcher_en import YearSpanMatcherEN
 
 def main():
     

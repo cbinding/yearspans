@@ -3,7 +3,7 @@ Utility to determine start/end years from textual expressions of year periods.
 Note this is a Python reworking of some earlier C# .NET project work (https://github.com/cbinding/timespans)
 
 ## Background ##
-Archaeological dataset records often use a textual expression of dating rather than absolute numeric years for the dating of artefacts. These textual data values can be in a variety of formats and different languages. There can be prefixes present such as 'Circa', 'Early', 'Mid', 'Late' - and suffixes such as 'A.D.', 'B.C.', 'C.E.', 'B.C.E.', 'B.P.' that may influence the dates intended. This situation presents potential problems for temporal comparison of records in a single dataset, but also introduces wider data integration issues, as illustrated in the table below:
+Archaeological dataset records often use a textual expression of dating rather than absolute numeric years for the dating of artefacts. These textual data values can be in a variety of formats and different languages. There can be prefixes present such as _Circa_, _Early_, _Mid_, _Late_ - and suffixes such as _A.D._, _B.C._, _C.E._, _B.C.E._, _B.P._ that may influence the dates intended. This situation presents potential problems for temporal comparison of records in a single dataset, but also introduces wider data integration issues, as illustrated in the table below:
 
 | Category | Language | Expresssion |
 |------|----------|-------------|
@@ -45,7 +45,7 @@ The output dates produced are derived relative to Common Era (CE). Centuries are
 | Prefix | Start |  End  |
 |--------|------:|------:|
 | Early* | 1 | 40 |
-| Mid*| 30 | 70 |
+| Mid* | 30 | 70 |
 | Late* | 60 | 100 |
 | First Half | 1 | 50 |
 | Second Half | 51 | 100 |
@@ -54,11 +54,11 @@ The output dates produced are derived relative to Common Era (CE). Centuries are
 | Third Quarter | 51 | 75 |
 | Fourth Quarter | 76 | 100 |
 
-*Note the boundaries of 'Early' 'Mid' and 'Late' overlap, suggesting a level of approximation when using such terms.
+*Note the boundaries of _Early_, _Mid_ and _Late_ overlap, suggesting a level of approximation when using such terms.
 
-In the case of decades, centuries or stated tolerances, an offset is added or subtracted from the initial extracted year in order to interpret the overall extents of the year span being expressed. (e.g. "1540±9" = start year 1531, end year 1549)
+In the case of decades, centuries or stated tolerances, an offset is added or subtracted from the initial extracted year in order to interpret the overall extents of the year span being expressed. (e.g. _1540±9_ = start year 1531, end year 1549)
 
-For matches on known named periods (e.g. Georgian, Victorian etc.) the start/end years are derived from suitable authority list lookups. 
+For matches on known named periods (e.g. _Georgian_, _Victorian_ etc.) the start/end years are derived from suitable authority list lookups. 
 
 ## Usage ##
 Command: 
@@ -68,7 +68,7 @@ python3 yearspanmatcher.py -i "Early 2nd Century" -l "en"
 ```
 
 ### Input (required) ###
-The timespan expression to be processed. The matching patterns employed are all case insensitive, e.g. "2nd Century AD" and "2nd century ad" would yield identical results.
+The timespan expression to be processed. The matching patterns employed are all case insensitive, e.g. _2nd Century AD_ and _2nd century ad_ would yield identical results.
 
 ### Language (optional) ###
 The [ISO639-1:2002](https://www.iso.org/iso-639-language-codes.html) language code corresponding to the language of the input data. This hints to the underlying matching process the most appropriate matching patterns to use. Languages currently supported (to a greater or lesser degree) are:
@@ -81,7 +81,7 @@ The [ISO639-1:2002](https://www.iso.org/iso-639-language-codes.html) language co
 * Swedish ('sv') 
 * Welsh('cy')
 
-If the language parameter is omitted or is not one of the recognised values then the default will be 'en' (English).
+If the language parameter is omitted or is not one of the recognised values then the default will be _en_ (English).
 
 ### Example Output ###
 
@@ -114,4 +114,4 @@ If the language parameter is omitted or is not one of the recognised values then
 
 
 ## Testing ##
-A suite of tests using the Python 'unittest' framework are located under the 'tests' directory. There are 280 tests in all, covering the various categories of year span textual expressions in each supported language.
+A suite of tests using the Python _unittest_ framework are located under the _tests_ directory. There are 280 tests in all, covering the various categories of year span textual expressions in each supported language.

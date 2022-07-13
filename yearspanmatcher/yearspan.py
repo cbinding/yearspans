@@ -4,7 +4,7 @@
 # Version   : Draft 0.1
 # Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
 # Contact   : ceri.binding@southwales.ac.uk
-# Project   : ReMatch
+# Project   : ARIADNEplus
 # Summary   : YearSpan class
 # Imports   : enums, util
 # Example   :
@@ -13,13 +13,8 @@
 # History
 # 18/02/2020 CFB Initially created script
 # =============================================================================
-import os.path
-import sys
-
-from enums import DatePrefix, DateSuffix
-import util
-
-import os, sys
+from . import enums
+from . import util
         
 class YearSpan(object):
     

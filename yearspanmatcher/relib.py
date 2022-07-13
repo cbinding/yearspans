@@ -15,13 +15,12 @@
 # History
 # 22/01/2020 CFB Initially created script (ported from Javascript prototype)
 # =============================================================================
-import os.path
-import sys
-
+#import os.path
+#import sys
 from collections import defaultdict 
 import regex
-import enums
-from yearspan import YearSpan 
+from . import enums
+from .yearspan import YearSpan
 
 # common regex patterns as constant strings
 START = r"^"

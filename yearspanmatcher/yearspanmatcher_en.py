@@ -14,14 +14,12 @@
 # History
 # 14/02/2020 CFB Initially created script
 # =============================================================================
-import os.path
-import sys
-
 import regex
-import enums
-from relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
-from yearspan import YearSpan
-from yearspanmatcher_base import YearSpanMatcherBase
+
+from . import enums
+from .relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
+from .yearspan import YearSpan
+from .yearspanmatcher_base import YearSpanMatcherBase
 
 
 class YearSpanMatcherEN(YearSpanMatcherBase):

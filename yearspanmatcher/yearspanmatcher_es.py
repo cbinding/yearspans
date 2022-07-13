@@ -15,14 +15,12 @@
 # 14/02/2020 CFB Initially created script
 # =============================================================================
 # from enums import Day, Month, Season, DatePrefix, DateSuffix
-import os.path
-import sys
 
 import regex
-import enums
-from relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
-from yearspan import YearSpan
-from yearspanmatcher_en import YearSpanMatcherEN
+from . import enums
+from .relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
+from .yearspan import YearSpan
+from .yearspanmatcher_en import YearSpanMatcherEN
 
 
 class YearSpanMatcherES(YearSpanMatcherEN):

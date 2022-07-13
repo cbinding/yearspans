@@ -15,8 +15,12 @@
 # 14/02/2020 CFB Initially created script
 # =============================================================================
 import unittest
-from yearspan import YearSpan
-from yearspanmatcher_nl import YearSpanMatcherNL
+
+import sys 
+sys.path.append("..")
+
+from yearspanmatcher.yearspan import YearSpan
+from yearspanmatcher.yearspanmatcher_nl import YearSpanMatcherNL
 
 class TestYearSpanMatcherNL(unittest.TestCase):
     matcher = YearSpanMatcherNL()

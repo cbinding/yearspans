@@ -14,15 +14,12 @@
 # History
 # 14/02/2020 CFB Initially created script
 # =============================================================================
-import os.path
-import sys
-
 import abc      # for Abstract Base Classes
 #import regex
-import enums  # Useful enumerations for use in ReMatch
-import relib # Regular Expressions pattern library and associated functionality
+from . import enums # Useful enumerations for use in ReMatch
+from . import relib # Regular Expressions pattern library and associated functionality
 #from relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR
-from yearspan import YearSpan
+from .yearspan import YearSpan
 
 class YearSpanMatcherBase(object):
     __metaclass__ = abc.ABCMeta
@@ -47,28 +44,28 @@ class YearSpanMatcherBase(object):
     def getDayNameEnum(self, s: str) -> enums.Day:
         value = relib.getValue(s, self.patterns["daynames"])
         if(value is None):
-            value = enums.Day.NONE
+            value = Day.NONE
         return value
 
     def getMonthNameEnum(self, s: str) -> enums.Month:
         value = relib.getValue(s, self.patterns["monthnames"])
         if(value is None):
-            value = enums.Month.NONE
+            value = Month.NONE
         return value
 
     def getSeasonNameEnum(self, s: str) -> enums.Season:
         value = relib.getValue(s, self.patterns["seasonnames"])
         if(value is None):
-            value = enums.Season.NONE
+            value = Season.NONE
         return value
 
-    def getCardinalValue(self, s: str) -> int: # enums.Cardinal:
+    def getCardinalValue(self, s: str) -> int: # Cardinal:
         value = relib.getValue(s, self.patterns["cardinals"])
         if(value is None):
              value = 0
         return value
 
-    def getOrdinalValue(self, s: str) -> int: #enums.Ordinal:
+    def getOrdinalValue(self, s: str) -> int: #Ordinal:
         value = relib.getValue(s, self.patterns["ordinals"])
         if(value is None):
             value = 0

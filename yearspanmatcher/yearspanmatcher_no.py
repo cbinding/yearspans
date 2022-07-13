@@ -16,10 +16,10 @@
 # =============================================================================
 # from enums import Day, Month, Season, DatePrefix, DateSuffix
 import regex
-import enums
-from relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
-from yearspan import YearSpan
-from yearspanmatcher_en import YearSpanMatcherEN
+from . import enums
+from .relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
+from .yearspan import YearSpan
+from .yearspanmatcher_en import YearSpanMatcherEN
 
 
 class YearSpanMatcherNO(YearSpanMatcherEN):

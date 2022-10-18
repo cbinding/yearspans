@@ -26,7 +26,7 @@ class YearSpanMatcherIT(YearSpanMatcherEN):
     def __init__(self):
         super(YearSpanMatcherEN, self).__init__("it")  
         self.MILLENNIUM = r"millennio"
-        self.CENTURY = r"secolo"             
+        self.CENTURY = r"sec(\.|olo)"             
     
 
     def matchLoneDecade(self, value: str) -> YearSpan:

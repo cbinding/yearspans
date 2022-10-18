@@ -30,22 +30,24 @@ from .yearspan import YearSpan
 
 
 def getMatcherForLanguage(language="en") -> YearSpanMatcherBase:
+    lang = language.strip().lower()
     matcher = None
-    if language == "cy":
+
+    if lang == "cy":
         matcher = YearSpanMatcherCY()
-    elif language == "de": 
+    elif lang == "de": 
         matcher = YearSpanMatcherDE()
-    elif language == "es": 
+    elif lang == "es": 
         matcher = YearSpanMatcherES()  
-    elif language == "fr": 
+    elif lang == "fr": 
         matcher = YearSpanMatcherFR() 
-    elif language == "it": 
+    elif lang == "it": 
         matcher = YearSpanMatcherIT() 
-    elif language == "nl": 
+    elif lang == "nl": 
         matcher = YearSpanMatcherNL() 
-    elif language == "no": 
+    elif lang == "no": 
         matcher = YearSpanMatcherNO()
-    elif language == "sv": 
+    elif lang == "sv": 
         matcher = YearSpanMatcherSV()         
     else:
         matcher = YearSpanMatcherEN()

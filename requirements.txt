@@ -1,2 +1,3 @@
 # pip install -r requirements.txt
 regex>=2022.7.9
+pandas>=1.5.0

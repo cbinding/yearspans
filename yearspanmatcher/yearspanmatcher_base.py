@@ -89,7 +89,6 @@ class YearSpanMatcherBase(object):
             value = YearSpan()
         return value
   
-
     def match(self, value: str) -> YearSpan:
         span = None
         if not span:
@@ -130,7 +129,6 @@ class YearSpanMatcherBase(object):
             span.label = value
         return span
     
-
     @abc.abstractmethod
     def matchMonthYear(self, value):
         return

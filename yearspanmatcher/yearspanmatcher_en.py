@@ -193,7 +193,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             oneof(self.DATESEPARATORS),
             maybe(oneof(self.DATEPREFIXES, "datePrefix2") + maybe(SPACE)),
             oneof(self.ORDINALS, "toOrdinal"),
-            (SPACEORDASH + self.CENTURY),
+            maybe(SPACEORDASH + self.CENTURY),
             maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))
         ])    
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
@@ -286,7 +286,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         
         pattern= "".join([
             oneof(self.DATEPREFIXES, "datePrefix"),
-            SPACE,
+            maybe(SPACE),
             group(NUMERICYEAR, "year"),
             maybe(SPACEORDASH + oneof(self.DATESUFFIXES, "dateSuffix"))
         ])
@@ -363,10 +363,12 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             toYear = fromYear
         elif(toYear is not None and fromYear is None):
             fromYear = toYear
-        if(toYear < 10):
+        
+        if (toYear < 10):
             toYear = fromYear - (fromYear % 10) + toYear
         else:
             toYear = fromYear - (fromYear % 100) + toYear
+        
         if(suffixEnum == enums.DateSuffix.BC):
             fromYear *= -1
             toYear *= -1            

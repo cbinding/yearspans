@@ -1,25 +1,26 @@
 # =============================================================================
 # Project   : ARIADNEplus
 # Package   : yearspans
-# Module    : fixadsyearspans.py
+# Module    : fix_ads_yearspans.py
 # Version   : 1.0.0
 # Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
 # Contact   : ceri.binding@southwales.ac.uk
 # Summary   :
 # Custom python script specifically written for enriching XML data files from 
-# Archaeology Data Service (ADS).Derives start/end years for dcterms:temporal 
+# Archaeology Data Service (ADS). Derives start/end years for dcterms:temporal 
 # values in ADS XML aggregation files prior to data ingest. Derives new
 # (minYear, maxYear) elements and adds to existing XML structure as inline siblings
-# of the dcterms:temporal element, writes resultant structure to new XML file
+# of the dcterms:temporal element, writes resultant enriched structure to new XML file
 # (to ensure existing XML data is not changed).
 # Imports   : argparse, shutil, xml.etree, datetime
-# Example   : PYTHON fixadsyearspans.py -i "mydatafile.xml" -o "myoutput.xml"
+# Example   : PYTHON3 fix_ads_yearspans.py -i "mydatafile.xml" -o "myoutput.xml"
 #             if -o parameter is omitted, outputs "mydatafile.xml.temporal.xml"
 # License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
 # =============================================================================
 # History
 # 0.0.1 14/02/2020 CFB Initially created script
 # 1.0.0 11/03/2020 CFB Revised to insert derived minYear and maxYear elements
+# 1.0.1 13/10/2022 CFB Made yearspanmatcher imports more modular
 # =============================================================================
 import argparse                         # for argument parsing
 import shutil                           # for file copying
@@ -28,9 +29,9 @@ from datetime import datetime as DT     # For process timestamps
 import os, sys
 from os.path import dirname, abspath, join
 
-#import yearspanmatcher.enums as enums
-from yearspanmatcher.yearspan import YearSpan
-from yearspanmatcher.yearspanmatcher_en import YearSpanMatcherEN
+#from yearspanmatcher.yearspan import YearSpan
+#from yearspanmatcher.yearspanmatcher_en import YearSpanMatcherEN
+from yearspanmatcher import YearSpan, YearSpanMatcherEN
 
 def main():
     

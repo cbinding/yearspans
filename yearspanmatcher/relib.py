@@ -1833,9 +1833,11 @@ patterns["it"]["dateprefix"] = [
     {"value": enums.DatePrefix.QUARTER2, "pattern": r"(?:2\s?[°º]|secondo) (?:quarto|trimestre)(\sdel)?"},
     {"value": enums.DatePrefix.QUARTER3, "pattern": r"(?:3\s?[°º]|terzo) (?:quarto|trimestre)(\sdel)?"},
     {"value": enums.DatePrefix.QUARTER4, "pattern": r"(?:4\s?[°º]|quarto|ultimo) (?:quarto|trimestre)(\sdel)?"},
+    {"pattern": r"tra(?:\slo)?"},             # between / between the
+    {"pattern": r"in"},                      # from
     {"pattern": r"dal"},                      # from
     {"pattern": r"prima(?:\sdell?'?)?"},      # before
-    {"pattern": r"nel"},                      # During
+    {"pattern": r"nel"},                      # during
     {"pattern": r"(?:post|dopo il|dal)"},       # post " after " since
     {"pattern": r"(?:fino al|entro il)"}        # until " by
 ]
@@ -1851,7 +1853,8 @@ patterns["it"]["dateseparator"] = [
     {"pattern": r"\s?/\s?"},
     {"pattern": r"\sa\s"},
     {"pattern": r"\sall(?:a\s|')"},
-    {"pattern": r"\sed?\slo\s"}         
+    {"pattern": r"\sed?\slo\s"} ,
+    {"pattern": r"\se\s"}
 ]
 
 patterns["it"]["periodnames"] = [

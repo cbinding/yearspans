@@ -16,11 +16,10 @@
 # =============================================================================
 import unittest
 
-import sys 
-sys.path.append("..")
+#import sys 
+#sys.path.append("..")
 
-from yearspanmatcher.yearspan import YearSpan
-from yearspanmatcher.yearspanmatcher_it import YearSpanMatcherIT
+from yearspanmatcher import YearSpan, YearSpanMatcherIT
 
 class TestYearSpanMatcherIT(unittest.TestCase):
     matcher = YearSpanMatcherIT()

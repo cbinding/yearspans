@@ -5,10 +5,10 @@
 # Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
 # Contact   : ceri.binding@southwales.ac.uk
 # Project   : ReMatch
-# Summary   : YearSpanMatcherBase - abstract class for concrete language specific 
-# Require   : 
+# Summary   : YearSpanMatcherBase - abstract class for concrete language specific
+# Require   :
 # Imports   : abc, enums, relib, yearspan
-# Example   : 
+# Example   :
 # License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
 # =============================================================================
 # History
@@ -16,123 +16,144 @@
 # =============================================================================
 import abc      # for Abstract Base Classes
 #import regex
-from . import enums # Useful enumerations for use in ReMatch
-from . import relib # Regular Expressions pattern library and associated functionality
+from . import enums  # Useful enumerations for use in ReMatch
+from . import relib  # Regular Expressions pattern library and associated functionality
 #from relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR
 from .yearspan import YearSpan
+
 
 class YearSpanMatcherBase(object):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, language="en", present=2000):
-    
-        self.LANGUAGE = language # default overridden in concrete classes
-        self.PRESENT = present # for use in calculating BP dates; may be overridden (sometimes BP refers to 1950)
-        
-        self.patterns = relib.patterns[language] # restrict to language specific patterns         
-        self.DATEPREFIXES = list(map(lambda item: item['pattern'], self.patterns["dateprefix"]))  # ["EARLY", "MID", "LATE", "etc."]
-        self.DATESUFFIXES = list(map(lambda item: item['pattern'], self.patterns["datesuffix"]))  # ["AD", "BC", "BP", "etc."]
-        self.DATESEPARATORS = list(map(lambda item: item['pattern'], self.patterns["dateseparator"]))  # ["to", "-", "and", "etc."]
-        self.DAYNAMES = list(map(lambda item: item['pattern'], self.patterns["daynames"]))        # ["Monday", "Tuesday", "etc."]
-        self.MONTHNAMES = list(map(lambda item: item['pattern'], self.patterns["monthnames"]))    # ["January", "February", "etc."]
-        self.SEASONNAMES = list(map(lambda item: item['pattern'], self.patterns["seasonnames"]))  # ["Spring", "Summer", "etc."]
-        self.CARDINALS = list(map(lambda item: item['pattern'], self.patterns["cardinals"]))      # ["one", "two", "three", "etc."]
-        self.ORDINALS = list(map(lambda item: item['pattern'], self.patterns["ordinals"]))        # ["first", "second", "third", "etc."]
-        self.PERIODNAMES = list(map(lambda item: item['pattern'], self.patterns["periodnames"]))  # ["Elizabethan", "Victorian", "etc."]
-    
+
+        self.LANGUAGE = language  # default overridden in concrete classes
+        # for use in calculating BP dates; may be overridden (sometimes BP refers to 1950)
+        self.PRESENT = present
+
+        # restrict to language specific patterns
+        self.patterns = relib.patterns[language]
+        # ["EARLY", "MID", "LATE", "etc."]
+        self.DATEPREFIXES = list(
+            map(lambda item: item['pattern'], self.patterns["dateprefix"]))
+        # ["AD", "BC", "BP", "etc."]
+        self.DATESUFFIXES = list(
+            map(lambda item: item['pattern'], self.patterns["datesuffix"]))
+        # ["to", "-", "and", "etc."]
+        self.DATESEPARATORS = list(
+            map(lambda item: item['pattern'], self.patterns["dateseparator"]))
+        # ["Monday", "Tuesday", "etc."]
+        self.DAYNAMES = list(
+            map(lambda item: item['pattern'], self.patterns["daynames"]))
+        # ["January", "February", "etc."]
+        self.MONTHNAMES = list(
+            map(lambda item: item['pattern'], self.patterns["monthnames"]))
+        # ["Spring", "Summer", "etc."]
+        self.SEASONNAMES = list(
+            map(lambda item: item['pattern'], self.patterns["seasonnames"]))
+        # ["one", "two", "three", "etc."]
+        self.CARDINALS = list(
+            map(lambda item: item['pattern'], self.patterns["cardinals"]))
+        # ["first", "second", "third", "etc."]
+        self.ORDINALS = list(
+            map(lambda item: item['pattern'], self.patterns["ordinals"]))
+        # ["Elizabethan", "Victorian", "etc."]
+        self.PERIODNAMES = list(
+            map(lambda item: item['pattern'], self.patterns["periodnames"]))
 
     def getDayNameEnum(self, s: str) -> enums.Day:
         value = relib.getValue(s, self.patterns["daynames"])
-        if(value is None):
+        if (value is None):
             value = Day.NONE
         return value
 
     def getMonthNameEnum(self, s: str) -> enums.Month:
         value = relib.getValue(s, self.patterns["monthnames"])
-        if(value is None):
+        if (value is None):
             value = Month.NONE
         return value
 
     def getSeasonNameEnum(self, s: str) -> enums.Season:
         value = relib.getValue(s, self.patterns["seasonnames"])
-        if(value is None):
+        if (value is None):
             value = Season.NONE
         return value
 
-    def getCardinalValue(self, s: str) -> int: # Cardinal:
+    def getCardinalValue(self, s: str) -> int:  # Cardinal:
         value = relib.getValue(s, self.patterns["cardinals"])
-        if(value is None):
-             value = 0
+        if (value is None):
+            value = 0
         return value
 
-    def getOrdinalValue(self, s: str) -> int: #Ordinal:
+    def getOrdinalValue(self, s: str) -> int:  # Ordinal:
         value = relib.getValue(s, self.patterns["ordinals"])
-        if(value is None):
+        if (value is None):
             value = 0
         return value
 
     def getDatePrefixEnum(self, s: str) -> enums.DatePrefix:
         value = relib.getValue(s, self.patterns["dateprefix"])
-        if(value is None):
+        if (value is None):
             value = enums.DatePrefix.NONE
         return value
 
     def getDateSuffixEnum(self, s: str) -> enums.DateSuffix:
         return relib.getValue(s, self.patterns["datesuffix"])
-        if(value is None):
+        if (value is None):
             value = enums.DateSuffix.NONE
         return value
 
     def getNamedPeriodValue(self, s: str) -> YearSpan:
         value = relib.getValue(s, self.patterns["periodnames"])
-        if(value is None):
+        if (value is None):
             value = YearSpan()
         return value
-  
+
     def match(self, value: str) -> YearSpan:
         span = None
+        cleanValue = (value or "").strip()
         if not span:
-            span = self.matchMonthYear(value)
+            span = self.matchMonthYear(cleanValue)
         if not span:
-            span = self.matchSeasonYear(value)
+            span = self.matchSeasonYear(cleanValue)
         if not span:
-            span = self.matchCardinalCentury(value)
+            span = self.matchCardinalCentury(cleanValue)
         if not span:
-            span = self.matchOrdinalCentury(value)
+            span = self.matchOrdinalCentury(cleanValue)
         if not span:
-            span = self.matchCardinalToCardinalCentury(value)
+            span = self.matchCardinalToCardinalCentury(cleanValue)
         if not span:
-            span = self.matchOrdinalToOrdinalCentury(value)
+            span = self.matchOrdinalToOrdinalCentury(cleanValue)
         if not span:
-            span = self.matchOrdinalMillennium(value)
+            span = self.matchOrdinalMillennium(cleanValue)
         if not span:
-            span = self.matchOrdinalToOrdinalMillennium(value)
+            span = self.matchOrdinalToOrdinalMillennium(cleanValue)
         if not span:
-            span = self.matchYearWithPrefix(value)
+            span = self.matchYearWithPrefix(cleanValue)
         if not span:
-            span = self.matchYearWithSuffix(value)
+            span = self.matchYearWithSuffix(cleanValue)
         if not span:
-            span = self.matchYearToYear2(value)
+            span = self.matchYearToYear2(cleanValue)
         if not span:
-            span = self.matchYearToYear(value)
+            span = self.matchYearToYear(cleanValue)
         if not span:
-            span = self.matchLoneDecade(value)
+            span = self.matchLoneDecade(cleanValue)
         if not span:
-            span = self.matchDecadeToDecade(value)
+            span = self.matchDecadeToDecade(cleanValue)
         if not span:
-            span = self.matchNamedPeriod(value)
+            span = self.matchNamedPeriod(cleanValue)
         if not span:
-            span = self.matchNamedToNamedPeriod(value)
+            span = self.matchNamedToNamedPeriod(cleanValue)
         if not span:
-            span = self.matchLoneYear(value)
+            span = self.matchLoneYear(cleanValue)
         if span:
-            span.label = value
+            span.label = cleanValue
         return span
-    
+
     @abc.abstractmethod
     def matchMonthYear(self, value):
         return
-    
+
     @abc.abstractmethod
     def matchSeasonYear(self, value):
         return
@@ -224,8 +245,8 @@ class YearSpanMatcherBase(object):
             elif datePrefix == enums.DatePrefix.QUARTER4:
                 span.minYear += 75
                 span.maxYear = span.minYear + 24
-            else: # There is no year zero...
-                span.maxYear = span.minYear + 99      
+            else:  # There is no year zero...
+                span.maxYear = span.minYear + 99
         elif dateSuffix == enums.DateSuffix.BP:
             span.minYear = self.PRESENT - (centuryNo * 100) + 1
             if datePrefix == enums.DatePrefix.HALF1:
@@ -260,9 +281,9 @@ class YearSpanMatcherBase(object):
             elif datePrefix == enums.DatePrefix.QUARTER4:
                 span.minYear += 75
                 span.maxYear = span.minYear + 24
-            else: # There is no year zero...
+            else:  # There is no year zero...
                 span.maxYear = span.minYear + 99
-        else: # AD, CE or NONE
+        else:  # AD, CE or NONE
             span.minYear = (centuryNo * 100) - 99
             if datePrefix == enums.DatePrefix.HALF1:
                 span.maxYear = span.minYear + 49
@@ -296,13 +317,13 @@ class YearSpanMatcherBase(object):
             elif datePrefix == enums.DatePrefix.QUARTER4:
                 span.minYear += 74
                 span.maxYear = span.minYear + 25
-            else: 
+            else:
                 span.maxYear = span.minYear + 99
         # TODO: not currently accounting for earlymid, or midlate
         return span
 
-
     # ported from RxMatcher.cs 10/02/20 CFB
+
     def getMillenniumYearSpan(self, millenniumNo, datePrefix=None, dateSuffix=None):
         span = YearSpan()
 
@@ -343,7 +364,7 @@ class YearSpanMatcherBase(object):
             elif datePrefix == enums.DatePrefix.QUARTER4:
                 span.minYear += 750
                 span.maxYear = span.minYear + 249
-            else: # There is no year zero...
+            else:  # There is no year zero...
                 span.maxYear = span.minYear + 999
         elif dateSuffix == enums.DateSuffix.BP:
             span.minYear = self.PRESENT - (millenniumNo * 1000) + 1
@@ -379,9 +400,9 @@ class YearSpanMatcherBase(object):
             elif datePrefix == enums.DatePrefix.QUARTER4:
                 span.minYear += 750
                 span.maxYear = span.minYear + 249
-            else: # There is no year zero...
+            else:  # There is no year zero...
                 span.maxYear = span.minYear + 999
-        else: # AD, CE or NONE
+        else:  # AD, CE or NONE
             span.minYear = (millenniumNo * 1000) - 999
             if datePrefix == enums.DatePrefix.HALF1:
                 span.maxYear = span.minYear + 499

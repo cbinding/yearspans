@@ -1,144 +1,144 @@
-value,minYear,maxYear
-140-144 d.C.,140,144
-208-150 a.C.,-208,-150
-211 a.C.,-211,-211
-211-209 a.C.,-211,-209
-212 a.C.,-212,-212
-214-212 a.C.,-214,-212
-216 a.C.,-216,-216
-23-19 a.C.,-23,-19
-300-250 a.C.,-300,-250
-395-403 d.C.,395,403
-520-400 a.C.,-520,-400
-575-400 a.C.,-575,-400
-575-520 a.C.,-575,-520
-580-540 a.C.,-580,-540
-Dal 1925,1925,1925
-Dal 2010,2010,2010
-I a.C.,,
-I d.C.,,
-I sec. a.C.,-100,-1
-I sec. d.C.,1,100
-I secolo a.C.,-100,-1
-I secolo d.C.,1,100
-I-III,1,300
-II a.C.,,
-II d.C.,,
-II ed lo I secolo a.C.,-200,-1
-II sec. a.C.,-200,-101
-II sec. d.C.,101,200
-II secolo a.C.,-200,-101
-II secolo d.C.,101,200
-II-III sec. d.C.,101,300
-II-III secolo d.C.,101,300
-III a.C.,,
-III e IV secolo d.C.,201,400
-III e lo II sec. a.C.,-300,-101
-III e lo II secolo a.C.,-300,-101
-III sec. a.C.,-300,-201
-III sec. d.C.,201,300
-III secolo a.C.,-300,-201
-III secolo d.C.,201,300
-III-II d.C.,200,201
-III-II secolo a.C.,-300,-101
-IV a.C.,,
-IV ed a V sec. d.C.,,
-IV sec.,301,400
-IV sec. a.C.,-400,-301
-IV sec. d.C.,301,400
-IV secolo a.C.,-400,-301
-IV secolo d.C.,301,400
-IV-III secolo a.C.,-400,-201
-IV-V secolo d.C.,301,500
-IV-VII,301,700
-IX e lo VI secolo a.C.,-900,-501
-Nel 1897,1897,1897
-Nel 2010,2010,2010
-Tra lo 1952 e lo 1965,1952,1965
-V a.C.,,
-V e VI,401,600
-V sec. d.C.,401,500
-V secolo,401,500
-V secolo a.C.,-500,-401
-V-IV sec. a.C.,-500,-301
-VI a.C.,,
-VI e V secolo a.C.,-600,-401
-VI sec. a.C.,-600,-501
-VI sec. d.C.,501,600
-VI secolo,501,600
-VI secolo a.C.,-600,-501
-VI-VII sec. d.C.,501,700
-VII sec .,,
-VII sec. d.C.,601,700
-VII secolo,601,700
-VII secolo d.C.,601,700
-VII-VI secolo,600,601
-VIII secolo a.C.,-800,-701
-VIII-VII secolo a.C.,-800,-601
-VIII-X,701,1000
-X sec. d.C.,901,1000
-XIV-XVI secolo,1301,1600
-XIX secolo,1801,1900
-XV secolo d.C.,1401,1500
-XV-XVI secolo,1401,1600
-XVI e XVIII secolo,1501,1800
-XX secolo,1901,2000
-XX secolo d.C.,1901,2000
-agosto,,
-aprile 1986,1986,1986
-da 2000,,
-da 2005,,
-da 2007,,
-decennio,,
-e Aprile Luglio 2003,,
-e ottobre 2004 febbraio 2005,,
-estate,,
-estate 2009,2009,2009
-estate 2012,2012,2012
-in 1191,1191,1191
-in 1422,1422,1422
-in 148 a.C.,-148,-148
-in 1609,1609,1609
-in 1775,1775,1775
-in 1897,1897,1897
-in 1898,1898,1898
-in 1905,1905,1905
-in 1939-1940,1939,1940
-in 1951,1951,1951
-in 1975,1975,1975
-in 1990,1990,1990
-in 1997,1997,1997
-in 2000,2000,2000
-in 2002,2002,2002
-in 2009,2009,2009
-in 2010,2010,2010
-in 2011,2011,2011
-in 2015,2015,2015
-intorno a II sec. d.C.,101,200
-intorno a VI sec. d.C.,501,600
-inverno,,
-maggio,,
-marzo,,
-novembre,,
-secolo,,
-secolo d.C.,,
-settembre,,
-tra IV e III secolo a.C.,-400,-201
-tra IV e V sec. d.C.,301,500
-tra V e IV secolo a.C.,-500,-301
-tra VII e VI a.C.,-700,-501
-tra VIII e IX secolo,701,900
-tra XII e IX secolo a.C.,-1200,-801
-tra lo 141 ed lo 91 a.C.,-191,-141
-tra lo 1790 ed lo 1797,1790,1797
-tra lo 1861 ed lo 1887,1861,1887
-tra lo 1895 ed lo 1896,1895,1896
-tra lo 1985 e lo 1990,1985,1990
-tra lo 217 e lo 206 a.C.,-217,-206
-tra lo 241 e lo 238 a.C.,-241,-238
-tra lo I e lo VI sec.,1,600
-tra lo III e lo IV sec. d.C.,201,400
-tra lo III ed lo II,200,201
-tra lo III ed lo II secolo a.C.,-300,-101
-tra lo ed lo III a.C. V d.C.,,
-,,
+value,minYear,maxYear,isoSpan
+140-144 d.C.,140,144,0140/0144
+208-150 a.C.,-208,-150,-0207/-0149
+211 a.C.,-211,-211,-0210/-0210
+211-209 a.C.,-211,-209,-0210/-0208
+212 a.C.,-212,-212,-0211/-0211
+214-212 a.C.,-214,-212,-0213/-0211
+216 a.C.,-216,-216,-0215/-0215
+23-19 a.C.,-23,-19,-0022/-0018
+300-250 a.C.,-300,-250,-0299/-0249
+395-403 d.C.,395,403,0395/0403
+520-400 a.C.,-520,-400,-0519/-0399
+575-400 a.C.,-575,-400,-0574/-0399
+575-520 a.C.,-575,-520,-0574/-0519
+580-540 a.C.,-580,-540,-0579/-0539
+Dal 1925,1925,1925,1925/1925
+Dal 2010,2010,2010,2010/2010
+I a.C.,,,
+I d.C.,,,
+I sec. a.C.,-100,-1,-0099/0000
+I sec. d.C.,1,100,0001/0100
+I secolo a.C.,-100,-1,-0099/0000
+I secolo d.C.,1,100,0001/0100
+I-III,1,300,0001/0300
+II a.C.,,,
+II d.C.,,,
+II ed lo I secolo a.C.,-200,-1,-0199/0000
+II sec. a.C.,-200,-101,-0199/-0100
+II sec. d.C.,101,200,0101/0200
+II secolo a.C.,-200,-101,-0199/-0100
+II secolo d.C.,101,200,0101/0200
+II-III sec. d.C.,101,300,0101/0300
+II-III secolo d.C.,101,300,0101/0300
+III a.C.,,,
+III e IV secolo d.C.,201,400,0201/0400
+III e lo II sec. a.C.,-300,-101,-0299/-0100
+III e lo II secolo a.C.,-300,-101,-0299/-0100
+III sec. a.C.,-300,-201,-0299/-0200
+III sec. d.C.,201,300,0201/0300
+III secolo a.C.,-300,-201,-0299/-0200
+III secolo d.C.,201,300,0201/0300
+III-II d.C.,200,201,0200/0201
+III-II secolo a.C.,-300,-101,-0299/-0100
+IV a.C.,,,
+IV ed a V sec. d.C.,,,
+IV sec.,301,400,0301/0400
+IV sec. a.C.,-400,-301,-0399/-0300
+IV sec. d.C.,301,400,0301/0400
+IV secolo a.C.,-400,-301,-0399/-0300
+IV secolo d.C.,301,400,0301/0400
+IV-III secolo a.C.,-400,-201,-0399/-0200
+IV-V secolo d.C.,301,500,0301/0500
+IV-VII,301,700,0301/0700
+IX e lo VI secolo a.C.,-900,-501,-0899/-0500
+Nel 1897,1897,1897,1897/1897
+Nel 2010,2010,2010,2010/2010
+Tra lo 1952 e lo 1965,1952,1965,1952/1965
+V a.C.,,,
+V e VI,401,600,0401/0600
+V sec. d.C.,401,500,0401/0500
+V secolo,401,500,0401/0500
+V secolo a.C.,-500,-401,-0499/-0400
+V-IV sec. a.C.,-500,-301,-0499/-0300
+VI a.C.,,,
+VI e V secolo a.C.,-600,-401,-0599/-0400
+VI sec. a.C.,-600,-501,-0599/-0500
+VI sec. d.C.,501,600,0501/0600
+VI secolo,501,600,0501/0600
+VI secolo a.C.,-600,-501,-0599/-0500
+VI-VII sec. d.C.,501,700,0501/0700
+VII sec .,,,
+VII sec. d.C.,601,700,0601/0700
+VII secolo,601,700,0601/0700
+VII secolo d.C.,601,700,0601/0700
+VII-VI secolo,600,601,0600/0601
+VIII secolo a.C.,-800,-701,-0799/-0700
+VIII-VII secolo a.C.,-800,-601,-0799/-0600
+VIII-X,701,1000,0701/1000
+X sec. d.C.,901,1000,0901/1000
+XIV-XVI secolo,1301,1600,1301/1600
+XIX secolo,1801,1900,1801/1900
+XV secolo d.C.,1401,1500,1401/1500
+XV-XVI secolo,1401,1600,1401/1600
+XVI e XVIII secolo,1501,1800,1501/1800
+XX secolo,1901,2000,1901/2000
+XX secolo d.C.,1901,2000,1901/2000
+agosto,,,
+aprile 1986,1986,1986,1986/1986
+da 2000,,,
+da 2005,,,
+da 2007,,,
+decennio,,,
+e Aprile Luglio 2003,,,
+e ottobre 2004 febbraio 2005,,,
+estate,,,
+estate 2009,2009,2009,2009/2009
+estate 2012,2012,2012,2012/2012
+in 1191,1191,1191,1191/1191
+in 1422,1422,1422,1422/1422
+in 148 a.C.,-148,-148,-0147/-0147
+in 1609,1609,1609,1609/1609
+in 1775,1775,1775,1775/1775
+in 1897,1897,1897,1897/1897
+in 1898,1898,1898,1898/1898
+in 1905,1905,1905,1905/1905
+in 1939-1940,1939,1940,1939/1940
+in 1951,1951,1951,1951/1951
+in 1975,1975,1975,1975/1975
+in 1990,1990,1990,1990/1990
+in 1997,1997,1997,1997/1997
+in 2000,2000,2000,2000/2000
+in 2002,2002,2002,2002/2002
+in 2009,2009,2009,2009/2009
+in 2010,2010,2010,2010/2010
+in 2011,2011,2011,2011/2011
+in 2015,2015,2015,2015/2015
+intorno a II sec. d.C.,101,200,0101/0200
+intorno a VI sec. d.C.,501,600,0501/0600
+inverno,,,
+maggio,,,
+marzo,,,
+novembre,,,
+secolo,,,
+secolo d.C.,,,
+settembre,,,
+tra IV e III secolo a.C.,-400,-201,-0399/-0200
+tra IV e V sec. d.C.,301,500,0301/0500
+tra V e IV secolo a.C.,-500,-301,-0499/-0300
+tra VII e VI a.C.,-700,-501,-0699/-0500
+tra VIII e IX secolo,701,900,0701/0900
+tra XII e IX secolo a.C.,-1200,-801,-1199/-0800
+tra lo 141 ed lo 91 a.C.,-141,-91,-0140/-0090
+tra lo 1790 ed lo 1797,1790,1797,1790/1797
+tra lo 1861 ed lo 1887,1861,1887,1861/1887
+tra lo 1895 ed lo 1896,1895,1896,1895/1896
+tra lo 1985 e lo 1990,1985,1990,1985/1990
+tra lo 217 e lo 206 a.C.,-217,-206,-0216/-0205
+tra lo 241 e lo 238 a.C.,-241,-238,-0240/-0237
+tra lo I e lo VI sec.,1,600,0001/0600
+tra lo III e lo IV sec. d.C.,201,400,0201/0400
+tra lo III ed lo II,200,201,0200/0201
+tra lo III ed lo II secolo a.C.,-300,-101,-0299/-0100
+tra lo ed lo III a.C. V d.C.,,,
+,,,

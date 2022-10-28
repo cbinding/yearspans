@@ -23,7 +23,7 @@ class YearSpan(object):
         self.maxYear = None
         self.label = ""
 
-        if(minYear or maxYear):
+        if (minYear is not None or maxYear is not None):
             lst = [minYear, maxYear]
             self.minYear = min(filter(lambda x: x is not None, lst)) if any(lst) else None # min(i for i in l if i is not None)
             self.maxYear = max(filter(lambda x: x is not None, lst)) if any(lst) else None # max(i for i in l if i is not None)

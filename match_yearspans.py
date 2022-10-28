@@ -12,7 +12,7 @@
 # Note - looks for a column header 'value' as values to be processed
 # Imports   : argparse, shutil, datetime
 # Example   : PYTHON3 match_yearspans.py -i "mydata.txt" -o "myoutput.csv"
-#             if -o parameter is omitted, outputs "mydata.txt.output.csv"
+#             if -o parameter is omitted, outputs to "mydata.txt.output.csv"
 # License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
 # =============================================================================
 # History
@@ -55,7 +55,7 @@ def main():
     # check for required named arguments
     if args.inputfile:
         inputFilePath = args.inputfile.strip()
-        outputFilePath = f"{inputFilePath}.output.csv" # default name..
+        outputFilePath = f"{inputFilePath}.output.csv"  # default name..
     if args.outputfile:
         outputFilePath = args.outputfile.strip()  # ..overridden if supplied
     if args.language:
@@ -78,11 +78,11 @@ def main():
     data = []
     try:
         with open(inputFilePath, 'r') as f:
-            contents = f.read()        
+            contents = f.read()
             data = list(map(lambda row: {"value": row}, contents.split("\n")))
             counter = len(data)
     except:
-        print(f"Could not read '{inputFilePath}'")        
+        print(f"Could not read '{inputFilePath}'")
 
     # process the input data to get min and max year
     print(f"processing rows")
@@ -91,17 +91,19 @@ def main():
         if (span is not None):
             item["minYear"] = span.minYear
             item["maxYear"] = span.maxYear
+            item["isoSpan"] = span.toISO8601span()
 
     # write results to delimited output data file
     print(f"writing to {outputFilePath}")
     with open(outputFilePath, mode='w') as output_file:
         writer = csv.writer(output_file)
-        writer.writerow(["value", "minYear", "maxYear"])
+        writer.writerow(["value", "minYear", "maxYear", "isoSpan"])
         for item in data:
             writer.writerow([
                 item.get("value", ""),
                 item.get("minYear", ""),
-                item.get("maxYear", "")
+                item.get("maxYear", ""),
+                item.get("isoSpan", "")
             ])
 
     # Finished - write footer information to screen

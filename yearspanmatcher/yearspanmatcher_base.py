@@ -9,7 +9,7 @@
 # Require   :
 # Imports   : abc, enums, relib, yearspan
 # Example   :
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 14/02/2020 CFB Initially created script
@@ -133,6 +133,10 @@ class YearSpanMatcherBase(object):
         if not span:
             span = self.matchYearWithSuffix(cleanValue)
         if not span:
+            span = self.matchYearWithTolerance1(cleanValue)
+        if not span:
+            span = self.matchYearWithTolerance2(cleanValue)
+        if not span:
             span = self.matchYearToYear2(cleanValue)
         if not span:
             span = self.matchYearToYear(cleanValue)
@@ -183,7 +187,15 @@ class YearSpanMatcherBase(object):
         return
 
     @abc.abstractmethod
+    def matchYearWithTolerance(self, value):
+        return
+
+    @abc.abstractmethod
     def matchYearToYear(self, value):
+        return
+
+    @abc.abstractmethod
+    def matchYearToYear2(self, value):
         return
 
     @abc.abstractmethod

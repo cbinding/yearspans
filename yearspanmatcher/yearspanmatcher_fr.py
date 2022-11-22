@@ -6,10 +6,10 @@
 # Contact   : ceri.binding@southwales.ac.uk
 # Project   : ReMatch
 # Summary   : YearSpan matcher (French)
-# Require   : 
+# Require   :
 # Imports   : regex, enums, relib, yearspan
-# Example   : 
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# Example   :
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 14/02/2020 CFB Initially created script
@@ -25,20 +25,19 @@ from .yearspanmatcher_en import YearSpanMatcherEN
 class YearSpanMatcherFR(YearSpanMatcherEN):
 
     def __init__(self):
-        super(YearSpanMatcherEN, self).__init__("fr")  
+        super(YearSpanMatcherEN, self).__init__("fr")
         self.MILLENNIUM = r"mill[ée]naire"
-        self.CENTURY = r"si[èe]cle"  
+        self.CENTURY = r"si[èe]cle"
 
-        
     def matchLoneDecade(self, value: str) -> YearSpan:
         # e.g. "les années 1950"
         decade = 0
-        
+
         pattern = "".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
             r"(?:les\s)?années\s",
             group(r"\b[1-9]\d{1,2}0", "decade"),
-            maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))            
+            maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
@@ -46,8 +45,7 @@ class YearSpanMatcherFR(YearSpanMatcherEN):
         if 'decade' in match.groupdict():
             decade = int(match.group('decade'))
         span = YearSpan(decade, decade + 9, value)
-        return span   
-    
+        return span
 
     def matchDecadeToDecade(self, value: str) -> YearSpan:
         # e.g. "Années 1950 à 1960"

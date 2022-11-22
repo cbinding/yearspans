@@ -6,10 +6,10 @@
 # Contact   : ceri.binding@southwales.ac.uk
 # Project   : ReMatch
 # Summary   : YearSpan matcher (Norwegian)
-# Require   : 
+# Require   :
 # Imports   : regex, enums, relib, yearspan
-# Example   : 
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# Example   :
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 14/02/2020 CFB Initially created script
@@ -25,19 +25,18 @@ from .yearspanmatcher_en import YearSpanMatcherEN
 class YearSpanMatcherNO(YearSpanMatcherEN):
 
     def __init__(self):
-        super(YearSpanMatcherEN, self).__init__("no")   
+        super(YearSpanMatcherEN, self).__init__("no")
         self.MILLENNIUM = r"årtusen"
-        self.CENTURY = r"århundre"   
-
+        self.CENTURY = r"århundre"
 
     def matchCardinalCentury(self, value: str) -> YearSpan:
-        # e.g. "Tidlig på 1100-tallet e.Kr."    
+        # e.g. "Tidlig på 1100-tallet e.Kr."
         prefixEnum = None
         suffixEnum = None
         centuryNo = 0
 
         pattern = "".join([
-            maybe(oneof(self.DATEPREFIXES,"datePrefix") + SPACE),
+            maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
             group(r"\d+", "cardinal") + "00-tallet",
             maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))
         ])
@@ -45,15 +44,14 @@ class YearSpanMatcherNO(YearSpanMatcherEN):
         if not match:
             return None
         if 'datePrefix' in match.groupdict():
-            prefixEnum = self.getDatePrefixEnum(match.group('datePrefix')) 
+            prefixEnum = self.getDatePrefixEnum(match.group('datePrefix'))
         if 'dateSuffix' in match.groupdict():
             suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
         if 'cardinal' in match.groupdict():
-            centuryNo = int(match.group('cardinal'))            
+            centuryNo = int(match.group('cardinal'))
         span = self.getCenturyYearSpan(centuryNo, prefixEnum, suffixEnum)
         span.label = value
-        return span     
-
+        return span
 
     def matchCardinalToCardinalCentury(self, value: str) -> YearSpan:
         # e.g. "tidlig på 1100 til sent 1100-tallet e.Kr." (early 11th to late 12th century AD)
@@ -69,34 +67,33 @@ class YearSpanMatcherNO(YearSpanMatcherEN):
             maybe(oneof(self.DATEPREFIXES, "datePrefix2") + SPACE),
             group(r"\d+", "toCardinal") + r"00-tallet",
             maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))
-        ])    
+        ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
             return None
         if 'datePrefix1' in match.groupdict():
-            prefixEnum1 = self.getDatePrefixEnum(match.group('datePrefix1')) 
+            prefixEnum1 = self.getDatePrefixEnum(match.group('datePrefix1'))
         if 'datePrefix2' in match.groupdict():
-            prefixEnum2 = self.getDatePrefixEnum(match.group('datePrefix2')) 
+            prefixEnum2 = self.getDatePrefixEnum(match.group('datePrefix2'))
         if 'dateSuffix' in match.groupdict():
             suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
         if 'fromCardinal' in match.groupdict():
-            fromCenturyNo = int(match.group('fromCardinal')) 
+            fromCenturyNo = int(match.group('fromCardinal'))
         if 'toCardinal' in match.groupdict():
-            toCenturyNo = int(match.group('toCardinal')) 
+            toCenturyNo = int(match.group('toCardinal'))
         span1 = self.getCenturyYearSpan(fromCenturyNo, prefixEnum1, suffixEnum)
         span2 = self.getCenturyYearSpan(toCenturyNo, prefixEnum2, suffixEnum)
-        
+
         span = YearSpan(span1.minYear, span2.maxYear, value)
         #span.label = value
         return span
-    
 
     def matchLoneDecade(self, value: str) -> YearSpan:
         # e.g. "1950-tallet"
         #datePrefix = None
         #dateSuffix = None
         decade = 0
-        
+
         pattern = "".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
             group(r"\b[1-9]\d{1,2}0", "decade") + r"(?:\-(?:tallet)?)",
@@ -105,15 +102,14 @@ class YearSpanMatcherNO(YearSpanMatcherEN):
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
             return None
-        #if 'datePrefix' in match.groupdict():
-            #prefixEnum = getDatePrefixEnum(match.group('datePrefix')) 
-        #if 'dateSuffix' in match.groupdict():
-            #suffixEnum = getDateSuffixEnum(match.group('dateSuffix')) 
+        # if 'datePrefix' in match.groupdict():
+            #prefixEnum = getDatePrefixEnum(match.group('datePrefix'))
+        # if 'dateSuffix' in match.groupdict():
+            #suffixEnum = getDateSuffixEnum(match.group('dateSuffix'))
         if 'decade' in match.groupdict():
             decade = int(match.group('decade'))
         span = YearSpan(decade, decade + 9, value)
-        return span   
-    
+        return span
 
     def matchDecadeToDecade(self, value: str) -> YearSpan:
         # e.g. "1950- til 1960-tallet"
@@ -130,10 +126,10 @@ class YearSpanMatcherNO(YearSpanMatcherEN):
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
             return None
-        #if 'datePrefix' in match.groupdict():
-            #prefixEnum = self.__getDatePrefixEnum(match.group('datePrefix')) 
-        #if 'dateSuffix' in match.groupdict():
-            #suffixEnum = self.__getDateSuffixEnum(match.group('dateSuffix')) 
+        # if 'datePrefix' in match.groupdict():
+            #prefixEnum = self.__getDatePrefixEnum(match.group('datePrefix'))
+        # if 'dateSuffix' in match.groupdict():
+            #suffixEnum = self.__getDateSuffixEnum(match.group('dateSuffix'))
         if 'decade1' in match.groupdict():
             decade1 = int(match.group('decade1'))
         if 'decade2' in match.groupdict():

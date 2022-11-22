@@ -13,7 +13,7 @@
 # Imports   : argparse, shutil, datetime
 # Example   : PYTHON3 match_yearspans.py -i "mydata.txt" -o "myoutput.csv"
 #             if -o parameter is omitted, outputs to "mydata.txt.output.csv"
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 0.0.1 13/10/2022 CFB Initially created script

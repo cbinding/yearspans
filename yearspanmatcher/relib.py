@@ -10,7 +10,7 @@
 # Uses 'regex' lib rather than 're' to support unicode categories (e.g. \p{Pd})
 # Imports   : regex, defaultdict, enums, YearSpan
 # Example   :
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 22/01/2020 CFB Initially created script (ported from Javascript prototype)

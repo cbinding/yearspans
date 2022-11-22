@@ -6,10 +6,10 @@
 # Contact   : ceri.binding@southwales.ac.uk
 # Project   : ReMatch
 # Summary   : YearSpan matcher (Dutch)
-# Require   : 
+# Require   :
 # Imports   : regex, enums, relib, yearspan
-# Example   : 
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# Example   :
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 14/02/2020 CFB Initially created script
@@ -25,17 +25,16 @@ from .yearspanmatcher_en import YearSpanMatcherEN
 class YearSpanMatcherNL(YearSpanMatcherEN):
 
     def __init__(self):
-        super(YearSpanMatcherEN, self).__init__("nl")  
+        super(YearSpanMatcherEN, self).__init__("nl")
         self.MILLENNIUM = r"millennium"
-        self.CENTURY = r"eeuw"         
-              
+        self.CENTURY = r"eeuw"
 
     def matchLoneDecade(self, value: str) -> YearSpan:
         # e.g. "1950au"
         #datePrefix = None
         #dateSuffix = None
         decade = 0
-        
+
         pattern = "".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
             (r"jaren" + SPACE),
@@ -45,15 +44,14 @@ class YearSpanMatcherNL(YearSpanMatcherEN):
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
             return None
-        #if 'datePrefix' in match.groupdict():
-            #prefixEnum = getDatePrefixEnum(match.group('datePrefix')) 
-        #if 'dateSuffix' in match.groupdict():
-            #suffixEnum = getDateSuffixEnum(match.group('dateSuffix')) 
+        # if 'datePrefix' in match.groupdict():
+            #prefixEnum = getDatePrefixEnum(match.group('datePrefix'))
+        # if 'dateSuffix' in match.groupdict():
+            #suffixEnum = getDateSuffixEnum(match.group('dateSuffix'))
         if 'decade' in match.groupdict():
             decade = int(match.group('decade'))
         span = YearSpan(decade, decade + 9, value)
-        return span   
-    
+        return span
 
     def matchDecadeToDecade(self, value: str) -> YearSpan:
         # e.g. "1950au i 1960au"
@@ -68,10 +66,10 @@ class YearSpanMatcherNL(YearSpanMatcherEN):
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
             return None
-        #if 'datePrefix' in match.groupdict():
-            #prefixEnum = self.__getDatePrefixEnum(match.group('datePrefix')) 
-        #if 'dateSuffix' in match.groupdict():
-            #suffixEnum = self.__getDateSuffixEnum(match.group('dateSuffix')) 
+        # if 'datePrefix' in match.groupdict():
+            #prefixEnum = self.__getDatePrefixEnum(match.group('datePrefix'))
+        # if 'dateSuffix' in match.groupdict():
+            #suffixEnum = self.__getDateSuffixEnum(match.group('dateSuffix'))
         if 'decade1' in match.groupdict():
             decade1 = int(match.group('decade1'))
         if 'decade2' in match.groupdict():

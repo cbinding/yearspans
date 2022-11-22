@@ -8,7 +8,7 @@
 # Summary   : Misc useful utility functions
 # Require   : N/A
 # Example   : 
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 02/06/2020 CFB Initially created script

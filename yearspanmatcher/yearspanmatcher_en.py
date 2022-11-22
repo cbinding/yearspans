@@ -9,7 +9,7 @@
 # Require   :
 # Imports   : regex, enums, relib, yearspan
 # Example   : replaces module "en.py" - then create other language versions
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 14/02/2020 CFB Initially created script
@@ -326,32 +326,50 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span = YearSpan(year, year, value)
         return span
 
-    # TODO*************************************
-    def matchYearWithTolerance(self, value: str) -> YearSpan:
-        # e.g. "1950 AD"
+    # e.g. "1537-13+20"
+    def matchYearWithTolerance1(self, value: str) -> YearSpan:
         year = 0
-        # prefixEnum = None
-        suffixEnum = None
+        tolA = 0
+        tolB = 0
 
         pattern = "".join([
-            maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
             group(NUMERICYEAR, "year"),
-            oneormore(SPACEORDASH + oneof(self.DATESUFFIXES, "dateSuffix"))
+            group(r"[+-]\d+", "tolA"),
+            group(r"[+-]\d+", "tolB")
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
             return None
-            # if 'datePrefix' in match.groupdict():
-            #prefixEnum = self.__getDatePrefixEnum(match.group('datePrefix'))
-        if 'dateSuffix' in match.groupdict():
-            suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
         if 'year' in match.groupdict():
             year = int(match.group('year'))
-        if (suffixEnum == enums.DateSuffix.BC):
-            year *= -1
-        elif (suffixEnum == enums.DateSuffix.BP):
-            year = self.PRESENT - year
-        span = YearSpan(year, year, value)
+        if 'tolA' in match.groupdict():
+            tolA = int(match.group('tolA'))
+        if 'tolB' in match.groupdict():
+            tolB = int(match.group('tolB'))
+
+        span = YearSpan(year + tolA, year + tolB, value)
+        return span
+
+    # e.g. "1537±9"
+    def matchYearWithTolerance2(self, value: str) -> YearSpan:
+        year = 0
+        tol = 0
+
+        pattern = "".join([
+            group(NUMERICYEAR, "year"),
+            maybe(SPACE),
+            r"±",
+            group(r"\d+", "tol")
+        ])
+        match = regex.fullmatch(pattern, value, regex.IGNORECASE)
+        if not match:
+            return None
+        if 'year' in match.groupdict():
+            year = int(match.group('year'))
+        if 'tol' in match.groupdict():
+            tol = int(match.group('tol'))
+
+        span = YearSpan(year - tol, year + tol, value)
         return span
 
     # e.g. 1674-75, 1672-8
@@ -431,6 +449,46 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             toYear = fromYear
         elif (toYear and fromYear is None):
             fromYear = toYear
+        if (suffixEnum == enums.DateSuffix.BC):
+            fromYear *= -1
+            toYear *= -1
+        elif (suffixEnum == enums.DateSuffix.BP):
+            fromYear = self.PRESENT - fromYear
+            toYear = self.PRESENT - toYear
+        return YearSpan(fromYear, toYear, value)
+
+    def matchYearToYear2(self, value: str) -> YearSpan:
+        fromYear = None
+        toYear = None
+        #datePrefix = None
+        suffixEnum = None
+
+        pattern = "".join([
+            maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
+            group(r"[+-]?\d{3,}", "fromYear"),  
+            oneof(self.DATESEPARATORS),
+            group(r"[+-]?\d{1,2}", "toYear"),  
+            maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))
+        ])
+        match = regex.fullmatch(pattern, value, regex.IGNORECASE)
+        if not match:
+            return None
+        # if 'datePrefix' in match.groupdict():
+            #prefixEnum = getDatePrefixEnum(match.group('datePrefix'))
+        if 'dateSuffix' in match.groupdict():
+            suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
+        if 'fromYear' in match.groupdict():
+            fromYear = int(match.group('fromYear'))
+        if 'toYear' in match.groupdict():
+            toYear = int(match.group('toYear'))
+        if (fromYear and toYear is None):
+            toYear = fromYear
+        elif (toYear and fromYear is None):
+            fromYear = toYear
+        if (toYear < 10):
+            toYear = fromYear - (fromYear % 10) + toYear
+        else:
+            toYear = fromYear - (fromYear % 100) + toYear
         if (suffixEnum == enums.DateSuffix.BC):
             fromYear *= -1
             toYear *= -1
@@ -533,6 +591,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         year = 0
         pattern = "".join([
             group(NUMERICYEAR, "year"),
+            maybe(r"\+"),
             maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)

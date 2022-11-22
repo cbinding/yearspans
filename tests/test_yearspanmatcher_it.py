@@ -9,7 +9,7 @@
 # Require   :
 # Imports   : unittest, relib, YearSpanMatcherIT, YearSpan
 # Example   :
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 14/02/2020 CFB Initially created script

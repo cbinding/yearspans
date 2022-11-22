@@ -6,10 +6,10 @@
 # Contact   : ceri.binding@southwales.ac.uk
 # Project   : ReMatch
 # Summary   : YearSpan matcher (German)
-# Require   : 
+# Require   :
 # Imports   : regex, enums, relib, yearspan
-# Example   : 
-# License   : http://creativecommons.org/publicdomain/zero/1.0/ [CC0]
+# Example   :
+# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
 # =============================================================================
 # History
 # 14/02/2020 CFB Initially created script
@@ -20,19 +20,17 @@ from .relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDAS
 from .yearspan import YearSpan
 from .yearspanmatcher_en import YearSpanMatcherEN
 
-# Inherit from English matcher then provide variations on functionality only where needed??
 class YearSpanMatcherDE(YearSpanMatcherEN):
 
     def __init__(self):
         super(YearSpanMatcherEN, self).__init__("de")
         self.MILLENNIUM = r"Jahrtausends?"
-        self.CENTURY = r"(?:Jahrhundert|Jh)"  
-     
-     
+        self.CENTURY = r"(?:Jahrhundert|Jh)"
+
     def matchLoneDecade(self, value: str) -> YearSpan:
         # e.g. "1950er"
         decade = 0
-        
+
         pattern = "".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
             group(r"\b[1-9]\d{1,2}0", "decade") + "er",
@@ -45,8 +43,7 @@ class YearSpanMatcherDE(YearSpanMatcherEN):
         if 'decade' in match.groupdict():
             decade = int(match.group('decade'))
         span = YearSpan(decade, decade + 9, value)
-        return span   
-    
+        return span
 
     def matchDecadeToDecade(self, value: str) -> YearSpan:
         # e.g. "1950er bis 1960er"

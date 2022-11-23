@@ -21,14 +21,14 @@ History
 """
 import argparse                         # for argument parsing
 from datetime import datetime as DT     # For process timestamps
-import csv                     # for parsing/writing CSV files
+import csv                      # for parsing/writing CSV files
 
 import os
 import sys
 from os.path import dirname, abspath, join
 
 from yearspanmatcher import *
-from yearspanmatcher.yearspanmatcher import getMatcherForLanguage
+from yearspanmatcher.yearspanmatcher import getMatcherForLanguage 
 
 
 def main():
@@ -38,7 +38,7 @@ def main():
 
     # add long and short argument descriptions
     parser.add_argument("--inputfile", "-i",
-                        required=True,
+                        required=False,
                         help="Input file name with path")
 
     parser.add_argument("--outputfile", "-o",
@@ -47,8 +47,13 @@ def main():
 
     parser.add_argument("--language", "-l",
                         nargs='?',
+                        choices=['cy', 'de', 'en', 'es',
+                                 'fr', 'it', 'nl', 'no', 'sv'],
                         default='en',
                         help="Language of timespan expressions in input file")
+
+    inputFilePath = ""
+    outputFilePath = ""
 
     # parse and return command line arguments
     args = parser.parse_args()
@@ -82,6 +87,7 @@ def main():
             contents = f.read()
             data = list(map(lambda row: {"value": row}, contents.split("\n")))
             counter = len(data)
+            print(f"Read {counter} rows")
     except:
         print(f"Could not read '{inputFilePath}'")
 
@@ -90,12 +96,14 @@ def main():
     for item in data:
         span = matcher.match(item.get("value", ""))
         if (span is not None):
-            item["minYear"] = span.minYear
-            item["maxYear"] = span.maxYear
-            item["isoSpan"] = span.toISO8601span()
+            # print(span.toISO8601())
+            item["minYear"] = YearSpan.yearToISO8601(span.minYear)
+            item["maxYear"] = YearSpan.yearToISO8601(span.maxYear)
+            item["isoSpan"] = span.toISO8601()
+    print(f"Processed {len(data)} rows")
 
     # write results to delimited output data file
-    print(f"writing to {outputFilePath}")
+    print(f"Writing to {outputFilePath}")
     with open(outputFilePath, mode='w') as output_file:
         writer = csv.writer(output_file)
         writer.writerow(["value", "minYear", "maxYear", "isoSpan"])
@@ -106,6 +114,7 @@ def main():
                 item.get("maxYear", ""),
                 item.get("isoSpan", "")
             ])
+    print(f"Finished writing to {outputFilePath}")
 
     # Finished - write footer information to screen
     timestamp2 = DT.now()

@@ -14,8 +14,8 @@ History
 14/02/2020 CFB Initially created script
 =============================================================================
 """
-import regex
-from . import enums
+import regex 
+from . import enums 
 from .relib import maybe, oneof, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
 from .yearspan import YearSpan
 from .yearspanmatcher_en import YearSpanMatcherEN 

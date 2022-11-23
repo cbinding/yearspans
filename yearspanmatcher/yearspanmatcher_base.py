@@ -15,12 +15,15 @@ History
 =============================================================================
 """
 import abc           # for Abstract Base Classes
-from . import enums  # Useful enumerations for use in ReMatch
-from . import relib  # Regular Expressions pattern library and associated functionality
-from .yearspan import YearSpan
+#from . import enums  # Useful enumerations for use in ReMatch
+#from . import relib  # Regular Expressions pattern library and associated functionality
+#from .yearspan import YearSpan
+from yearspanmatcher import enums  # Useful enumerations for use in ReMatch
+from yearspanmatcher import relib  # Regular Expressions pattern library and associated functionality
+from yearspanmatcher.yearspan import YearSpan
 
 
-class YearSpanMatcherBase(object):
+class YearSpanMatcherBase(object): 
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, language="en", present=2000):

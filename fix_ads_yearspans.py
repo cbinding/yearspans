@@ -36,8 +36,8 @@ from yearspanmatcher import YearSpan, YearSpanMatcherEN
 def main():
 
     # initiate the input arguments parser
-    parser = argparse.ArgumentParser(
-        prog=__file__, description='parse ADS yearspans into separate fields')
+    parser = argparse.ArgumentParser(prog=__file__, 
+        description='parse ADS yearspans into separate fields')
 
     # add long and short argument descriptions
     parser.add_argument("--inputfile", "-i", required=True,
@@ -98,16 +98,14 @@ def main():
                 if span is not None:
                     # create minYear element appended as child of current dc:subjectPeriod element, sibling of dcterms:temporal
                     minYearElement = ET.SubElement(element, 'minYear')
-                    minYearElement.text = YearSpan.toISO8601year(
-                        value=span.minYear, minDigits=4, zeroIsBC=True)
+                    minYearElement.text = YearSpan.yearToISO8601(value=span.minYear, minDigits=4, zeroIsBC=True)
                     minYearElement.set(
                         '{http://www.w3.org/2001/XMLSchema-instance}type', 'http://www.w3.org/2001/XMLSchema#gYear')
                     minYearElement.tail = "\n"  # included just for readability of output
 
                     # create maxYear element appended as child of current dc:subjectPeriod element, sibling of dcterms:temporal
                     maxYearElement = ET.SubElement(element, 'maxYear')
-                    maxYearElement.text = YearSpan.toISO8601year(
-                        value=span.maxYear, minDigits=4, zeroIsBC=True)
+                    maxYearElement.text = YearSpan.yearToISO8601(value=span.maxYear, minDigits=4, zeroIsBC=True)
                     maxYearElement.set(
                         '{http://www.w3.org/2001/XMLSchema-instance}type', 'http://www.w3.org/2001/XMLSchema#gYear')
                     maxYearElement.tail = "\n"  # included just for readability of output

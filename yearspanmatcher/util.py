@@ -5,7 +5,7 @@ Package   : yearspanmatcher
 Module    : util.py 
 Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru 
 Contact   : ceri.binding@southwales.ac.uk
-Summary   : Misc useful utility functions
+Summary   : Misc useful utility functions, but no longer used in this package
 Imports   : N/A
 Example   : 
 License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]

@@ -17,9 +17,10 @@ History
 =============================================================================
 """
 from collections import defaultdict
-import regex
-from . import enums
-from .yearspan import YearSpan
+import regex 
+#from . import enums 
+from yearspanmatcher import enums
+from yearspanmatcher.yearspan import YearSpan 
 
 # common regex patterns as constant strings
 START = r"^"

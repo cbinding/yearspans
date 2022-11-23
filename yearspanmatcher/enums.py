@@ -16,8 +16,11 @@ History
 """
 from enum import Enum, unique
 
+# Enums ported from C# TimeSpanLib
+
+
 # usage:
-# enums.Language.DE 
+# enums.Language.DE
 # enums.Language.DE.name ("DE")
 # enums.Language.DE.value ("http://lexvo.org/id/code/de")
 @unique
@@ -66,6 +69,7 @@ class DatePrefix(Enum):
     CIRCA = 15
 
 
+# Not currently used
 # usage: enums.Direction.N
 # enums.Direction.N.name ("N")
 # enums.Direction.N.value ("http://vocab.getty.edu/aat/300078761")
@@ -121,77 +125,6 @@ class Season(Enum):
     SUMMER = "http://vocab.getty.edu/aat/300133099"    # Summer
     AUTUMN = "http://vocab.getty.edu/aat/300133093"    # Autumn
     WINTER = "http://vocab.getty.edu/aat/300133101"     # Winter
-
-
-""" # usage: enums.Cardinal.C01
-@unique
-class Cardinal(Enum):
-    C01 = 1
-    C02 = 2
-    C03 = 3
-    C04 = 4
-    C05 = 5
-    C06 = 6
-    C07 = 7
-    C08 = 8
-    C09 = 9
-    C10 = 10
-    C11 = 11
-    C12 = 12
-    C13 = 13
-    C14 = 14
-    C15 = 15
-    C16 = 16
-    C17 = 17
-    C18 = 18
-    C19 = 19
-    C20 = 20
-    C21 = 21
-    C22 = 22
-    C23 = 23
-    C24 = 24
-    C25 = 25
-    C26 = 26
-    C27 = 27
-    C28 = 28
-    C29 = 29
-    C30 = 30
-    C31 = 31
- 
-# usage: enums.Ordinal.O21
-@unique
-class Ordinal(Enum):
-    O01 = 1
-    O02 = 2
-    O03 = 3
-    O04 = 4
-    O05 = 5
-    O06 = 6
-    O07 = 7
-    O08 = 8
-    O09 = 9
-    O10 = 10
-    O11 = 11
-    O12 = 12
-    O13 = 13
-    O14 = 14
-    O15 = 15
-    O16 = 16
-    O17 = 17
-    O18 = 18
-    O19 = 19
-    O20 = 20
-    O21 = 21
-    O22 = 22
-    O23 = 23
-    O24 = 24
-    O25 = 25
-    O26 = 26
-    O27 = 27
-    O28 = 28
-    O29 = 29
-    O30 = 30
-    O31 = 31 """
 
 
 # usage: enums.Century.BC05

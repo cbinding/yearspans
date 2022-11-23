@@ -1,17 +1,19 @@
-# =============================================================================
-# Project   : ARIADNEplus
-# Module    : enums.py
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Summary   : Enumerated values for consistency in coding
-# Imports   : Enum, unique
-# Example   : enums.Language.DE, enums.Language.DE.name, enums.Language.DE.value
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 28/01/2020 CFB Initially created script (ported from Javascript prototype)
-# =============================================================================
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspanmatcher
+Module    : enums.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : Enumerated values for consistency in coding
+Imports   : Enum, unique
+Example   : enums.Language.DE, enums.Language.DE.name, enums.Language.DE.value
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+28/01/2020 CFB Initially created script (ported from Javascript prototype)
+=============================================================================
+"""
 from enum import Enum, unique
 
 # usage:

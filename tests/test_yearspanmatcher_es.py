@@ -1,19 +1,19 @@
-# =============================================================================
-# Package   : yearspans
-# Module    : test-yearspanmatcher_es.py
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Project   : ReMatch
-# Summary   : Unit tests for YearSpanMatcher modules
-# Require   :
-# Imports   : unittest, relib, YearSpanMatcherES, YearSpan
-# Example   :
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 14/02/2020 CFB Initially created script
-# =============================================================================
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspans
+Module    : test-yearspanmatcher_es.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : Unit tests for YearSpanMatcher modules
+Imports   : unittest, YearSpanMatcherES, YearSpan
+Example   :
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+14/02/2020 CFB Initially created script
+=============================================================================
+"""
 import unittest
 
 #import sys

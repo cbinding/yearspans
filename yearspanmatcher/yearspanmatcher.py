@@ -1,19 +1,19 @@
-# =============================================================================
-# Package   : yearspans
-# Module    : yearspanmatcher.py
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Project   : ARIADNEplus
-# Summary   : YearSpanMatcher
-# Require   :
-# Imports   : argparse
-# Example   : python3 yearspanmatcher.py -i "bronze age" -l "en" # output: -0699/2600 (bronze age)
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 14/02/2020 CFB Initially created script
-# =============================================================================
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspanmatcher
+Module    : yearspanmatcher.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : 
+Imports   : argparse
+Example   : python3 yearspanmatcher.py -i "bronze age" -l "en" # output: -0699/2600 (bronze age)
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+14/02/2020 CFB Initially created script
+=============================================================================
+"""
 import argparse
 
 from .yearspanmatcher_base import YearSpanMatcherBase

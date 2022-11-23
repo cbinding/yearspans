@@ -1,18 +1,19 @@
-# =============================================================================
-# Package   : yearspans
-# Module    : yearspan.py
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Project   : ARIADNEplus
-# Summary   : YearSpan class
-# Imports   : enums, util
-# Example   :
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 18/02/2020 CFB Initially created script
-# =============================================================================
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspanmatcher
+Module    : yearspan.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : YearSpan class
+Imports   : enums, util
+Example   :
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+18/02/2020 CFB Initially created script
+=============================================================================
+"""
 from . import enums
 from . import util
         

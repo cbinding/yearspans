@@ -71,7 +71,7 @@ python3 yearspanmatcher.py -i "Early 2nd Century" -l "en"
 The textual timespan expression to be processed. The matching patterns employed are all case insensitive, e.g. _2nd Century AD_ and _2nd century ad_ would yield identical results.
 
 ### Language (optional) ###
-The [ISO639-1:2002](https://www.iso.org/iso-639-language-codes.html) language code corresponding to the language of the input data. This hints to the underlying matching process the most appropriate matching patterns to use. Languages currently supported (to a greater or lesser degree) are:
+The [ISO639-1](https://www.iso.org/iso-639-language-codes.html) two character language code corresponding to the language of the input data. This hints to the underlying matching process the most appropriate matching patterns to use. Languages currently supported (to a greater or lesser degree) are:
 
 * English ('en') [default]
 * Italian ('it') 

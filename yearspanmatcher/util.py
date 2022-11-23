@@ -1,19 +1,19 @@
-# =============================================================================
-# Package   : yearspans
-# Module    : util.py 
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru 
-# Contact   : ceri.binding@southwales.ac.uk
-# Project   : ReMatch
-# Summary   : Misc useful utility functions
-# Require   : N/A
-# Example   : 
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 02/06/2020 CFB Initially created script
-# =============================================================================
-
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspanmatcher
+Module    : util.py 
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru 
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : Misc useful utility functions
+Imports   : N/A
+Example   : 
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+02/06/2020 CFB Initially created script
+=============================================================================
+"""
 # correctly identify numbers (as isnumeric returns false for negatives and decimals)
 # from https://lerner.co.il/2019/02/17/pythons-str-isdigit-vs-str-isnumeric/ comments
 def isnumber(value):

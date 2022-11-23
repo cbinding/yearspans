@@ -1,24 +1,22 @@
-# =============================================================================
-# Package   : yearspans
-# Module    : yearspanmatcher_base.py
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Project   : ReMatch
-# Summary   : YearSpanMatcherBase - abstract class for concrete language specific
-# Require   :
-# Imports   : abc, enums, relib, yearspan
-# Example   :
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 14/02/2020 CFB Initially created script
-# =============================================================================
-import abc      # for Abstract Base Classes
-#import regex
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspanmatcher
+Module    : yearspanmatcher_base.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : YearSpanMatcherBase - abstract class for concrete language specific
+Imports   : abc, enums, relib, yearspan
+Example   :
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+14/02/2020 CFB Initially created script
+=============================================================================
+"""
+import abc           # for Abstract Base Classes
 from . import enums  # Useful enumerations for use in ReMatch
 from . import relib  # Regular Expressions pattern library and associated functionality
-#from relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR
 from .yearspan import YearSpan
 
 

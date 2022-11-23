@@ -1,24 +1,20 @@
-# =============================================================================
-# Package   : yearspans
-# Module    : test-yearspanmatcher_en.py
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Project   : ReMatch
-# Summary   : Unit tests for YearSpanMatcher modules
-# Require   :
-# Imports   : unittest, relib, YearSpanMatcherXX, YearSpan
-# Example   :
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 14/02/2020 CFB Initially created script
-# =============================================================================
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspans
+Module    : test-yearspanmatcher_en.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : Unit tests for YearSpanMatcher modules
+Imports   : unittest, relib, YearSpanMatcherEN, YearSpan
+Example   :
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+14/02/2020 CFB Initially created script
+=============================================================================
+"""
 import unittest
-
-#import sys
-# sys.path.append("..")
-
 from yearspanmatcher import YearSpan, YearSpanMatcherEN
 
 
@@ -138,6 +134,16 @@ class TestYearSpanMatcherEN(unittest.TestCase):
     def test_matchYearWithSuffixBP(self):
         span = self.matcher.match("1950 BP")
         expected = "0050/0050"
+        self.assertEqual(expected, (span or YearSpan()).toISO8601span())
+
+    def test_matchYearWithTolerance1(self):
+        span = self.matcher.match("1600-25+17")
+        expected = "1575/1617"
+        self.assertEqual(expected, (span or YearSpan()).toISO8601span())
+
+    def test_matchYearWithTolerance2(self):
+        span = self.matcher.match("1600±17")
+        expected = "1583/1617"
         self.assertEqual(expected, (span or YearSpan()).toISO8601span())
 
     def test_matchYearToYear1AD(self):

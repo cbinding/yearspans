@@ -1,23 +1,24 @@
-# =============================================================================
-# Project   : ARIADNEplus
-# Package   : yearspans
-# Module    : match_yearspans.py
-# Version   : 1.0.0
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Summary   :
-# Custom python script to Derive start/end years from delimited text file of
-# textual temporal values. Derives new (minYear, maxYear) values and adds to
-# existing data as additional columns (creates new file as output)
-# Note - looks for a column header 'value' as values to be processed
-# Imports   : argparse, shutil, datetime
-# Example   : PYTHON3 match_yearspans.py -i "mydata.txt" -o "myoutput.csv"
-#             if -o parameter is omitted, outputs to "mydata.txt.output.csv"
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 0.0.1 13/10/2022 CFB Initially created script
-# =============================================================================
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspans
+Module    : match_yearspans.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   :
+Custom python script to Derive start/end years from delimited text file of
+textual temporal values. Derives new (minYear, maxYear) values and adds to
+existing data as additional columns (creates new file as output)
+Note - looks for a column header 'value' as values to be processed
+Imports   : argparse, shutil, datetime
+Example   : PYTHON3 match_yearspans.py -i "mydata.txt" -o "myoutput.csv"
+            if -o parameter is omitted, outputs to "mydata.txt.output.csv"
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+13/10/2022 CFB Initially created script
+=============================================================================
+"""
 import argparse                         # for argument parsing
 from datetime import datetime as DT     # For process timestamps
 import csv                     # for parsing/writing CSV files

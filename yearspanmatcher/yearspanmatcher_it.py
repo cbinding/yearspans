@@ -1,20 +1,19 @@
-# =============================================================================
-# Package   : yearspans
-# Module    : yearspanmatcher_it.py
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Project   : ARIADNEplus
-# Summary   : YearSpan matcher (Italian)
-# Require   :
-# Imports   : regex, enums, relib, yearspan
-# Example   :
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 14/02/2020 CFB Initially created script
-# =============================================================================
-# from enums import Day, Month, Season, DatePrefix, DateSuffix
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspanmatcher
+Module    : yearspanmatcher_it.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : YearSpan matcher (Italian)
+Imports   : regex, enums, relib, yearspan
+Example   :
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+14/02/2020 CFB Initially created script
+=============================================================================
+"""
 import regex
 from . import enums
 from .relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns

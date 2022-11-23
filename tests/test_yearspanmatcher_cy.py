@@ -1,18 +1,19 @@
-# =============================================================================
-# Project   : ARIADNEplus
-# Package   : yearspans
-# Module    : test_yearspanmatcher_cy.py
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Summary   : Unit tests for YearSpanMatcher modules
-# Imports   : unittest, YearSpanMatcherXX, YearSpan
-# Example   :
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 14/02/2020 CFB Initially created script
-# =============================================================================
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspans
+Module    : test_yearspanmatcher_cy.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : Unit tests for YearSpanMatcher modules
+Imports   : unittest, YearSpanMatcherCY, YearSpan
+Example   :
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+14/02/2020 CFB Initially created script
+=============================================================================
+"""
 import unittest
 from yearspanmatcher import YearSpanMatcherCY, YearSpan
 
@@ -21,17 +22,17 @@ class TestYearSpanMatcherCY(unittest.TestCase):
     matcher = YearSpanMatcherCY()
 
     def test_matchMonthYearAD(self):
-        span = self.matcher.match("Ionawr 1066 OC")  # January 2020 AD
+        span = self.matcher.match("Ionawr 1066 OC")  # January 1066 AD
         expected = "1066/1066"
         self.assertEqual(expected, (span or YearSpan()).toISO8601span())
 
     def test_matchMonthYearBC(self):
-        span = self.matcher.match("Ionawr 1066 CC")  # January 1000 BC
+        span = self.matcher.match("Ionawr 1066 CC")  # January 1066 BC
         expected = "-1065/-1065"
         self.assertEqual(expected, (span or YearSpan()).toISO8601span())
 
     def test_matchMonthYearBP(self):
-        span = self.matcher.match("Ionawr 1066 CP")  # January 1000 BP
+        span = self.matcher.match("Ionawr 1066 CP")  # January 1066 BP
         expected = "0934/0934"
         self.assertEqual(expected, (span or YearSpan()).toISO8601span())
 
@@ -41,12 +42,12 @@ class TestYearSpanMatcherCY(unittest.TestCase):
         self.assertEqual(expected, (span or YearSpan()).toISO8601span())
 
     def test_matchSeasonYearBC(self):
-        span = self.matcher.match("Haf 1066 CC")  # Summer 1000 BC
+        span = self.matcher.match("Haf 1066 CC")  # Summer 1066 BC
         expected = "-1065/-1065"
         self.assertEqual(expected, (span or YearSpan()).toISO8601span())
 
     def test_matchSeasonYearBP(self):
-        span = self.matcher.match("Haf 1066 CP")  # Summer 1000 BP
+        span = self.matcher.match("Haf 1066 CP")  # Summer 1066 BP
         expected = "0934/0934"
         self.assertEqual(expected, (span or YearSpan()).toISO8601span())
 

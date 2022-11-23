@@ -1,19 +1,19 @@
-# =============================================================================
-# Package   : yearspans
-# Module    : yearspanmatcher_en.py
-# Version   : Draft 0.1
-# Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
-# Contact   : ceri.binding@southwales.ac.uk
-# Project   : ReMatch
-# Summary   : YearSpan matcher (English)
-# Require   :
-# Imports   : regex, enums, relib, yearspan
-# Example   : replaces module "en.py" - then create other language versions
-# License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
-# =============================================================================
-# History
-# 14/02/2020 CFB Initially created script
-# =============================================================================
+"""
+=============================================================================
+Project   : ARIADNEplus
+Package   : yearspanmatcher
+Module    : yearspanmatcher_en.py
+Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
+Contact   : ceri.binding@southwales.ac.uk
+Summary   : YearSpan matcher (English)
+Imports   : regex, enums, relib, yearspan, YearSpanMatcherBase
+Example   : 
+License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+=============================================================================
+History
+14/02/2020 CFB Initially created script
+=============================================================================
+"""
 import regex
 
 from . import enums

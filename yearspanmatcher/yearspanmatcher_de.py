@@ -8,7 +8,7 @@ Contact   : ceri.binding@southwales.ac.uk
 Summary   : YearSpan matcher (German)
 Imports   : regex, enums, relib, yearspan
 Example   :
-License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 14/02/2020 CFB Initially created script
@@ -19,6 +19,7 @@ from . import enums
 from .relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
 from .yearspan import YearSpan
 from .yearspanmatcher_en import YearSpanMatcherEN
+
 
 class YearSpanMatcherDE(YearSpanMatcherEN):
 

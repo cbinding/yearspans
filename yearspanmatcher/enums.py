@@ -8,7 +8,7 @@ Contact   : ceri.binding@southwales.ac.uk
 Summary   : Enumerated values for consistency in coding
 Imports   : Enum, unique
 Example   : enums.Language.DE, enums.Language.DE.name, enums.Language.DE.value
-License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 28/01/2020 CFB Initially created script (ported from Javascript prototype)

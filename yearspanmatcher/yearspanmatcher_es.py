@@ -8,7 +8,7 @@ Contact   : ceri.binding@southwales.ac.uk
 Summary   : YearSpan matcher (Spanish)
 Imports   : regex, enums, relib, yearspan
 Example   :
-License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 14/02/2020 CFB Initially created script

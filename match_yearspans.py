@@ -13,7 +13,7 @@ Note - looks for a column header 'value' as values to be processed
 Imports   : argparse, shutil, datetime
 Example   : PYTHON3 match_yearspans.py -i "mydata.txt" -o "myoutput.csv"
             if -o parameter is omitted, outputs to "mydata.txt.output.csv"
-License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 13/10/2022 CFB Initially created script
@@ -28,7 +28,7 @@ import sys
 from os.path import dirname, abspath, join
 
 from yearspanmatcher import *
-from yearspanmatcher.yearspanmatcher import getMatcherForLanguage 
+from yearspanmatcher.yearspanmatcher import getMatcherForLanguage
 
 
 def main():

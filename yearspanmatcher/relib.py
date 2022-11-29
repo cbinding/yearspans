@@ -10,17 +10,17 @@ Regular expression patterns used for identifying date spans/periods within text
 Uses 'regex' lib rather than 're' to support unicode categories (e.g. \p{Pd})
 Imports   : regex, defaultdict, enums, YearSpan
 Example   :
-License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 22/01/2020 CFB Initially created script (ported from Javascript prototype)
 =============================================================================
 """
 from collections import defaultdict
-import regex 
-#from . import enums 
+import regex
+#from . import enums
 from yearspanmatcher import enums
-from yearspanmatcher.yearspan import YearSpan 
+from yearspanmatcher.yearspan import YearSpan
 
 # common regex patterns as constant strings
 START = r"^"

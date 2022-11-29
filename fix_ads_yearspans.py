@@ -15,7 +15,7 @@ XML file (to ensure existing XML data is not changed).
 Imports   : argparse, shutil, xml.etree, datetime
 Example   : PYTHON3 fix_ads_yearspans.py -i "mydatafile.xml" -o "myoutput.xml"
             if -o parameter is omitted, output is "mydatafile.xml.temporal.xml"
-License   : https://creativecommons.org/licenses/by/4.0/ [CC BY 4.0]
+License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 14/02/2020 CFB Initially created script
@@ -36,8 +36,8 @@ from yearspanmatcher import YearSpan, YearSpanMatcherEN
 def main():
 
     # initiate the input arguments parser
-    parser = argparse.ArgumentParser(prog=__file__, 
-        description='parse ADS yearspans into separate fields')
+    parser = argparse.ArgumentParser(prog=__file__,
+                                     description='parse ADS yearspans into separate fields')
 
     # add long and short argument descriptions
     parser.add_argument("--inputfile", "-i", required=True,
@@ -98,14 +98,16 @@ def main():
                 if span is not None:
                     # create minYear element appended as child of current dc:subjectPeriod element, sibling of dcterms:temporal
                     minYearElement = ET.SubElement(element, 'minYear')
-                    minYearElement.text = YearSpan.yearToISO8601(value=span.minYear, minDigits=4, zeroIsBC=True)
+                    minYearElement.text = YearSpan.yearToISO8601(
+                        value=span.minYear, minDigits=4, zeroIsBC=True)
                     minYearElement.set(
                         '{http://www.w3.org/2001/XMLSchema-instance}type', 'http://www.w3.org/2001/XMLSchema#gYear')
                     minYearElement.tail = "\n"  # included just for readability of output
 
                     # create maxYear element appended as child of current dc:subjectPeriod element, sibling of dcterms:temporal
                     maxYearElement = ET.SubElement(element, 'maxYear')
-                    maxYearElement.text = YearSpan.yearToISO8601(value=span.maxYear, minDigits=4, zeroIsBC=True)
+                    maxYearElement.text = YearSpan.yearToISO8601(
+                        value=span.maxYear, minDigits=4, zeroIsBC=True)
                     maxYearElement.set(
                         '{http://www.w3.org/2001/XMLSchema-instance}type', 'http://www.w3.org/2001/XMLSchema#gYear')
                     maxYearElement.tail = "\n"  # included just for readability of output

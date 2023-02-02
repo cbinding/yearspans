@@ -77,7 +77,7 @@ class YearSpan(object):
     def yearToISO8601(value=None, minDigits=4, zeroIsBC=True) -> str:
         val = YearSpan._tryParseInt(value)
         if val is not None:
-            if val <= 0 and zeroIsBC:
+            if val < 0 and zeroIsBC:
                 val += 1
             sign = "-" if val < 0 else ""
             return f"{sign}{abs(val):0{minDigits}d}"

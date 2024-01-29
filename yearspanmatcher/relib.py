@@ -144,6 +144,18 @@ def getNamedPeriodValue(s, language):
 # defaultdict creates keys if they don't exist when first accessed
 patterns = defaultdict(dict)
 
+# TODO: new (29/01/24) Czech language patterns
+patterns["cs"]["cardinals"] = []
+patterns["cs"]["ordinals"] = []
+patterns["cs"]["daynames"] = []
+patterns["cs"]["monthnames"] = []
+patterns["cs"]["seasonnames"] = []
+patterns["cs"]["dateprefix"] = []
+patterns["cs"]["datesuffix"] = []
+patterns["cs"]["dateseparator"] = []
+patterns["cs"]["periodnames"] = []
+patterns["cs"]["datespans"] = []
+
 # Welsh language patterns
 patterns["cy"]["cardinals"] = [
     {"value": 1, "pattern": r"(?:1|un)"},

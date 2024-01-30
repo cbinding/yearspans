@@ -18,7 +18,7 @@ History
 """
 from collections import defaultdict
 import regex
-#from . import enums
+# from . import enums
 from yearspanmatcher import enums
 from yearspanmatcher.yearspan import YearSpan
 
@@ -33,7 +33,7 @@ NUMERICYEAR = r"[+-]?[1-9]\d{0,2}(?:\d|[\s,](?:\d{3}))*"
 # see https://www.fileformat.info/info/unicode/category/Pd/list.htm
 SPACEORDASH = r"(?:\s|\p{Pd})"
 ROMAN = r"[MCDLXVI]+"
-#SEPARATOR_EN = r"(\s?\p{Pd}\s?|/|\s(to|or|and|until)(\sthe)?\s)"
+# SEPARATOR_EN = r"(\s?\p{Pd}\s?|/|\s(to|or|and|until)(\sthe)?\s)"
 
 
 # Regular expression grouping and repeaters
@@ -48,9 +48,11 @@ def group(value, name=None, repeat=None):
         newvalue += repeat
     return newvalue
 
+
+
+# functions for constructing regex groups
+
 # returns: true | false
-
-
 def isgrouped(value):
     return (value.startswith("(") and value.endswith(")"))
 
@@ -80,7 +82,7 @@ def range(value, name=None, n=None, m=None):
     return group(value, name, f"{{{n or ''},{m or ''}}}")
 
 
-# Regular expression value options
+# Regular expression value options group e.g. where values = [value1, value2, value3]
 # returns: '(?:value1|value2|value3)' or '(?P<name>value1|value2|value3)'
 def oneof(values, name=None):
     choices = '|'.join(values)
@@ -145,16 +147,268 @@ def getNamedPeriodValue(s, language):
 patterns = defaultdict(dict)
 
 # TODO: new (29/01/24) Czech language patterns
-patterns["cs"]["cardinals"] = []
-patterns["cs"]["ordinals"] = []
-patterns["cs"]["daynames"] = []
-patterns["cs"]["monthnames"] = []
-patterns["cs"]["seasonnames"] = []
-patterns["cs"]["dateprefix"] = []
-patterns["cs"]["datesuffix"] = []
-patterns["cs"]["dateseparator"] = []
+patterns["cs"]["cardinals"] = [
+    {"value": 0, "pattern": r"(?:0|nula)"},
+    {"value": 1, "pattern": r"(?:1|jeden|jedna|jedno)"},
+    {"value": 2, "pattern": r"(?:2|dv[aĕ])"},
+    {"value": 3, "pattern": r"(?:3|tři)"},
+    {"value": 4, "pattern": r"(?:4|čtyři)"},
+    {"value": 5, "pattern": r"(?:5|pĕt)"},
+    {"value": 6, "pattern": r"(?:6|šest)"},
+    {"value": 7, "pattern": r"(?:7|sedm)"},
+    {"value": 8, "pattern": r"(?:8|osm)"},
+    {"value": 9, "pattern": r"(?:9|devĕt)"},
+    {"value": 10, "pattern": r"(?:10|deset)"},
+    {"value": 11, "pattern": r"(?:11|jedenáct)"},
+    {"value": 12, "pattern": r"(?:12|dvanáct)"},
+    {"value": 13, "pattern": r"(?:13|třináct)"},
+    {"value": 14, "pattern": r"(?:14|čtrnáct)"},
+    {"value": 15, "pattern": r"(?:15|patnáct)"},
+    {"value": 16, "pattern": r"(?:16|šestnáct)"},
+    {"value": 17, "pattern": r"(?:17|sedmnáct)"},
+    {"value": 18, "pattern": r"(?:18|osmnáct)"},
+    {"value": 19, "pattern": r"(?:19|devatenáct)"},
+    {"value": 20, "pattern": r"(?:20|dvacet)"},
+    {"value": 21, "pattern": r"(?:21|dvacet jedna)"},
+    {"value": 22, "pattern": r"(?:22|dvacet dva)"},
+    {"value": 23, "pattern": r"(?:23|dvacet tři)"},
+    {"value": 24, "pattern": r"(?:24|dvacet čtyři)"},
+    {"value": 25, "pattern": r"(?:25|dvacet pĕt)"},
+    {"value": 26, "pattern": r"(?:26|dvacet šest)"},
+    {"value": 27, "pattern": r"(?:27|dvacet sedm)"},
+    {"value": 28, "pattern": r"(?:28|dvacet osm)"},
+    {"value": 29, "pattern": r"(?:29|dvacet devĕt)"},
+    {"value": 30, "pattern": r"(?:30|třicet)"},
+    {"value": 31, "pattern": r"(?:31|třicet jedna)"},
+]
+
+patterns["cs"]["ordinals"] = [
+    {"value": 1, "pattern": r"první"},                 # first
+    {"value": 2, "pattern": r"druhý"},                 # second
+    {"value": 3, "pattern": r"třetí"},                 # third
+    {"value": 4, "pattern": r"čtvrtý"},                # fourth
+    {"value": 5, "pattern": r"pátý"},                  # fifth
+    {"value": 6, "pattern": r"šestý"},                 # sixth
+    {"value": 7, "pattern": r"sedmý"},                 # seventh
+    {"value": 8, "pattern": r"osmý"},                  # eighth
+    {"value": 9, "pattern": r"devátý"},                # ninth
+    {"value": 10, "pattern": r"desátý"},               # tenth
+    {"value": 11, "pattern": r"jedenáctý"},            # eleventh
+    {"value": 12, "pattern": r"dvanáctý"},             # twelfth
+    {"value": 13, "pattern": r"třináctý"},             # thirteenth
+    {"value": 14, "pattern": r"čtrnáctý"},             # fourteenth
+    {"value": 15, "pattern": r"patnáctý"},             # fifteenth
+    {"value": 16, "pattern": r"šestnáctý"},            # sixteenth
+    {"value": 17, "pattern": r"sedmnáctý"},            # seventeenth
+    {"value": 18, "pattern": r"osmnáctý"},             # eighteenth
+    {"value": 19, "pattern": r"devatenáctý"},          # nineteenth
+    {"value": 20, "pattern": r"dvacátý"}               # twentieth
+]
+
+patterns["cs"]["daynames"] = [
+    # Monday
+    {"value": enums.Day.MON, "pattern": r"pondělí"},
+    # Tuesday
+    {"value": enums.Day.TUE, "pattern": r"úterý"},
+    # Wednesday
+    {"value": enums.Day.WED, "pattern": r"středa"},
+    # Thursday
+    {"value": enums.Day.THU, "pattern": r"čtvrtek"},
+    # Friday
+    {"value": enums.Day.FRI, "pattern": r"pátek"},
+    # Saturday
+    {"value": enums.Day.SAT, "pattern": r"sobota"},
+    # Sunday
+    {"value": enums.Day.SUN, "pattern": r"neděle"}
+]
+
+patterns["cs"]["monthnames"] = [
+    # January
+    {"value": enums.Month.JAN, "pattern": r"led(en|n[ua])"},
+    # February
+    {"value": enums.Month.FEB, "pattern": r"únor[ua]?"},
+    # March
+    {"value": enums.Month.MAR, "pattern": r"brez(en|n[ua])"},
+    # April
+    {"value": enums.Month.APR, "pattern": r"dub(en|n[ua])"},
+    # May
+    {"value": enums.Month.MAY, "pattern": r"květ(en|n[ua])"},
+    # June
+    {"value": enums.Month.JUN, "pattern": r"červ(en|n[ua])"},
+    # July
+    {"value": enums.Month.JUL, "pattern": r"červen(ec|c[ie])"},
+    # August
+    {"value": enums.Month.AUG, "pattern": r"srp(en|n[ua])"},
+    # September
+    {"value": enums.Month.SEP, "pattern": r"září"},
+    # October
+    {"value": enums.Month.OCT, "pattern": r"říj(en|n[ua])"},
+    # November
+    {"value": enums.Month.NOV, "pattern": r"listopadu?"},
+    # December
+    {"value": enums.Month.DEC, "pattern": r"prosin(ec|c[ie])"}
+]
+
+patterns["cs"]["seasonnames"] = [
+    # Spring
+    {"value": enums.Season.SPRING, "pattern": r"jar(o|ře)"},
+    # Summer
+    {"value": enums.Season.SUMMER, "pattern": r"létě"},
+    # Autumn
+    {"value": enums.Season.AUTUMN, "pattern": r"podzim"},
+    # Winter
+    {"value": enums.Season.WINTER, "pattern": r"zim[aě]"}
+]
+
+patterns["cs"]["dateprefix"] = [
+    {"value": enums.DatePrefix.CIRCA, "pattern": r"cca"},
+    {"value": enums.DatePrefix.EARLY, "pattern": r"počátek"},
+    {"value": enums.DatePrefix.MID, "pattern": r"polovina"},
+    {"value": enums.DatePrefix.LATE, "pattern": r"konec"},
+    {"value": enums.DatePrefix.HALF1, "pattern": r"první polovina"},
+    {"value": enums.DatePrefix.HALF2, "pattern": r"druhá polovina"},
+    {"value": enums.DatePrefix.QUARTER1, "pattern": r"první čtvrtina"},
+    {"value": enums.DatePrefix.QUARTER2, "pattern": r"druhá čtvrtina"},
+    {"value": enums.DatePrefix.QUARTER3, "pattern": r"třetí čtvrtina"},
+    {"value": enums.DatePrefix.QUARTER4, "pattern": r"čtvrtá čtvrtina"}
+]
+
+patterns["cs"]["datesuffix"] = [
+    # NL, AD, CE
+    {"value": enums.DateSuffix.AD,
+        "pattern": r"(?:našeho letopočtu|N\.?L\.?|A\.?D\.?|C\.?E\.?)"},
+    {"value": enums.DateSuffix.BC,
+        # BC, BCE
+        "pattern": r"(?:př\.? N\.? L\.?|B\.?C\.?(?:E\.?)?)"},
+    # BP
+    {"value": enums.DateSuffix.BP, "pattern": r"B\.?P\.?"}
+]
+
+patterns["cs"]["dateseparator"] = [
+    {"pattern": r"\s?\p{Pd}\s?"},
+    {"pattern": r"\s(?:až)\s"}
+]
+
 patterns["cs"]["periodnames"] = []
-patterns["cs"]["datespans"] = []
+
+patterns["cs"]["datespans"] = [
+    {
+        # Month and year
+        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{month}})\s({{year}})(\s{{suffix}})?".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            month=oneofp(patterns["cs"]["monthnames"]),
+            year=NUMERICYEAR,
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    },
+    {
+        # Season and year
+        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            season=oneofp(patterns["cs"]["seasonnames"]),
+            year=NUMERICYEAR,
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    },
+    {
+        # year with suffix
+        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{year}})(\s?{{suffix}})".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            year=NUMERICYEAR,
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    },
+    {
+        # year with prefix
+        "pattern": fr"({{prefix}}{{spaceordash}}?)+({{year}})(\s?{{suffix}})?".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            year=NUMERICYEAR,
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    },
+    {
+        # from year to year
+        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromYear}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?\b".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            fromYear=NUMERICYEAR,
+            separator=oneofp(patterns["cs"]["dateseparator"]),
+            toYear=NUMERICYEAR,
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    },
+    {
+        # named historical periods
+        "pattern":  f"\b({{prefix}}{{spaceordash}}?)*({{named}})\b".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            named=oneofp(patterns["cs"]["periodnames"])
+        )
+    },
+    {
+        # from named to named historical periods
+        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            named1=oneofp(patterns["cs"]["periodnames"]),
+            named2=oneofp(patterns["cs"]["periodnames"]),
+            separator=oneofp(patterns["cs"]["dateseparator"]),
+        )
+    },
+    {
+        # decades
+        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade}})(\s?{{suffix}})?\b".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            decade=r"\b[1-9]\d{1,2}0",
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    },
+    {
+        # from decade to decade
+        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})(\s?{{suffix}})?\b".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            decade1=r"\b[1-9]\d{1,2}0",
+            decade2=r"\b[1-9]\d{1,2}0",
+            separator=oneofp(patterns["cs"]["dateseparator"]),
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    },
+    {
+        # Ordinal centuries e.g.  (5th century AD)
+        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) století(\s{{suffix}})?".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            ordinal=oneofp(patterns["cs"]["ordinals"]),
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    },
+    {
+        # Ordinal millennia e.g.  (first half of the 6th millennium BC)
+        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) století(\s{{suffix}})?".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            ordinal=oneofp(patterns["cs"]["ordinals"]),
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    },
+    {
+        # from ordinal millennium to ordinal millennium
+        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromMill}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toMill}})(\s?{{suffix}})?\b".format(
+            prefix=oneofp(patterns["cs"]["dateprefix"]),
+            spaceordash=SPACEORDASH,
+            fromMill=oneofp(patterns["cs"]["ordinals"]),
+            separator=oneofp(patterns["cs"]["dateseparator"]),
+            toMill=oneofp(patterns["cs"]["ordinals"]),
+            suffix=oneofp(patterns["cs"]["datesuffix"])
+        )
+    }
+]
 
 # Welsh language patterns
 patterns["cy"]["cardinals"] = [
@@ -312,7 +566,8 @@ patterns["cy"]["datesuffix"] = [
     {"value": enums.DateSuffix.AD,
         "pattern": r"(?:O\.?C\.?|A\.?D\.?|C\.?E\.?)"},
     {"value": enums.DateSuffix.BC,
-        "pattern": r"(?:(?:C\.?){2,3}|(?:cal\.?\s)?B\.?C\.?(?:E\.?)?)"},     # CC, CCC, BC, BCE
+        # CC, CCC, BC, BCE
+        "pattern": r"(?:(?:C\.?){2,3}|(?:cal\.?\s)?B\.?C\.?(?:E\.?)?)"},
     # BP CP
     {"value": enums.DateSuffix.BP, "pattern": r"[BC]\.?P\.?"}
 ]
@@ -1212,7 +1467,7 @@ patterns["en"]["periodnames"] = [
 # experimental only - not connected to datespan work
 # chemical element names - not actually used yet
 # list derived from https:#www.lenntech.com"periodic"symbol"symbol.htm
-# todo - unique values - enum chemical element number?
+# todo - unique identifier values - enum chemical element number?
 patterns["en"]["elementnames"] = [
     {"pattern": r"Ac(?:tinium)?"},
     {"pattern": r"(?:Ag|Silver)"},
@@ -2987,7 +3242,8 @@ patterns["no"]["dateprefix"] = [
     {"value": enums.DatePrefix.HALF1,
         "pattern": r"f?ørste halvdel(?:\sav(?:\sdet)?)?"},
     {"value": enums.DatePrefix.HALF2,
-        "pattern": r"(?:andre|annen) halvdel(?:\sav(?:\sdet)?)?"},     # second half (of the)
+        # second half (of the)
+        "pattern": r"(?:andre|annen) halvdel(?:\sav(?:\sdet)?)?"},
     # first quarter (of the)
     {"value": enums.DatePrefix.QUARTER1,
         "pattern": r"f?ørste kvartal(?:\sav(?:\sdet)?)?"},

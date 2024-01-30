@@ -12,29 +12,28 @@ License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 28/01/2020 CFB Initially created script (ported from Javascript prototype)
+30/01/2024 CFB Lexvo URIs updated ("/code/" => "/iso639-1/")
 =============================================================================
 """
 from enum import Enum, unique
 
-# Enums ported from C# TimeSpanLib
-
-
 # usage:
 # enums.Language.DE
 # enums.Language.DE.name ("DE")
-# enums.Language.DE.value ("http://lexvo.org/id/code/de")
+# enums.Language.DE.value ("http://lexvo.org/id/iso639-1/de")
 @unique
 class Language(Enum):
     NONE = ""
-    CY = "http://lexvo.org/id/code/cy"     # Welsh
-    DE = "http://lexvo.org/id/code/de"     # German
-    EN = "http://lexvo.org/id/code/en"     # English
-    ES = "http://lexvo.org/id/code/es"     # Spanish
-    FR = "http://lexvo.org/id/code/fr"     # French
-    IT = "http://lexvo.org/id/code/it"     # Italian
-    NL = "http://lexvo.org/id/code/nl"     # Dutch
-    NO = "http://lexvo.org/id/code/no"     # Norwegian
-    SV = "http://lexvo.org/id/code/sv"     # Swedish
+    CS = "http://lexvo.org/id/iso639-1/cs"     # Czech
+    CY = "http://lexvo.org/id/iso639-1/cy"     # Welsh
+    DE = "http://lexvo.org/id/iso639-1/de"     # German
+    EN = "http://lexvo.org/id/iso639-1/en"     # English
+    ES = "http://lexvo.org/id/iso639-1/es"     # Spanish
+    FR = "http://lexvo.org/id/iso639-1/fr"     # French
+    IT = "http://lexvo.org/id/iso639-1/it"     # Italian
+    NL = "http://lexvo.org/id/iso639-1/nl"     # Dutch
+    NO = "http://lexvo.org/id/iso639-1/no"     # Norwegian
+    SV = "http://lexvo.org/id/iso639-1/sv"     # Swedish
 
 
 # Enums ported from C# TimeSpanLib

@@ -16,9 +16,7 @@ History
 """
 # correctly identify numbers (as isnumeric returns false for negatives and decimals)
 # from https://lerner.co.il/2019/02/17/pythons-str-isdigit-vs-str-isnumeric/ comments
-
-
-def isnumber(value):
+def isnumber(value) -> bool:
     ss = str(value).strip()
     if len(ss) == 0:
         return False
@@ -27,15 +25,3 @@ def isnumber(value):
     if ss.find(".") == ss.rfind("."):
         ss = ss.replace(".", "")
     return ss.isdigit()
-
-# try to parse integer value without error
-
-
-def tryParseInt(value):
-    val = None
-    if value is not None:
-        try:
-            val = int(value)  # , True
-        except ValueError:
-            val = val  # value #, False
-    return val

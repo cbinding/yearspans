@@ -14,6 +14,7 @@ License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 22/01/2020 CFB Initially created script (ported from Javascript prototype)
+05/04/2024 CFB Added type hints to function signatures
 =============================================================================
 """
 from collections import defaultdict
@@ -38,107 +39,106 @@ ROMAN = r"[MCDLXVI]+"
 
 # Regular expression grouping and repeaters
 # returns: '(?:value)' or '(?P<name>value)'
-def group(value, name=None, repeat=None):
-    newvalue = value
-    if (name and str(name).strip() != ""):
-        newvalue = f"(?P<{name}>{value})"
+def group(value: str, name: str=None, repeater: str=None) -> str:
+    clean_name = (name or "").strip()
+    clean_val = (value or "").strip()    
+    clean_rep = (repeater or "").strip()
+
+    if (clean_name != ""):
+        return f"(?P<{clean_name}>{clean_val}){clean_rep}"
     else:
-        newvalue = f"(?:{value})"
-    if repeat:
-        newvalue += repeat
-    return newvalue
-
-
+        return f"(?:{clean_val}){clean_rep}"
 
 # functions for constructing regex groups
-
 # returns: true | false
-def isgrouped(value):
-    return (value.startswith("(") and value.endswith(")"))
+def isgrouped(value: str) -> bool:
+    clean_val = (value or "").strip()
+    return (clean_val.startswith("(") and clean_val.endswith(")"))
 
 
 # returns: '(?:value)?' or '(?P<name>value)?'
-def maybe(value, name=None):
+def maybe(value: str, name: str=None) -> str:
     return group(value, name, "?")
 
 
 # returns: '(?:value)*' or '(?P<name>value)*'
-def zeroormore(value, name=None):
+def zeroormore(value: str, name: str=None) -> str:
     return group(value, name, "*")
 
 
 # returns: '(?:value)+' or '(?P<name>value)+'
-def oneormore(value, name=None):
+def oneormore(value: str, name: str=None) -> str:
     return group(value, name, "+")
 
 
 # returns: '(?:value){n}' or '(?P<name>value){n}'
-def exactly(value, name=None, n=1):
+def exactly(value: str, name: str=None, n: int=1) -> str:
     return group(value, name, f"{{{n}}}")
 
 
 # returns: '(?:value){n,m}' or '(?P<name>value){n,m}'
-def range(value, name=None, n=None, m=None):
+def range(value: str, name: str=None, n: int=None, m: int=None) -> str:
     return group(value, name, f"{{{n or ''},{m or ''}}}")
 
 
 # Regular expression value options group e.g. where values = [value1, value2, value3]
 # returns: '(?:value1|value2|value3)' or '(?P<name>value1|value2|value3)'
-def oneof(values, name=None):
-    choices = '|'.join(values)
+def oneof(values: list=[], name: str=None) -> str:
+    clean_values = list(map(lambda value: (value or "").strip(), values))
+    choices = '|'.join(clean_values)
     return group(choices, name)
 
 
 # Regular expression pattern options
 # returns: '(?:patt1|patt2|patt3)' or '(?P<name>patt1|patt2|patt3)'
-def oneofp(items, name=None):
-    patterns = list(map(lambda item: item['pattern'], items))
-    return oneof(patterns, name)
+def oneofp(items: list=[], name: str=None) -> str:
+    patts = list(map(lambda item: item["pattern"], items))
+    return oneof(patts, name)
 
 
 # Get value property by matching s to item pattern
 # from patterns array: [{ value: "", pattern:""}]
 # @staticmethod
-def getValue(s: str, patts):
+def getValue(s: str, patts: list=[]):
     if not s:
         return None
     for item in patts:
-        match = regex.fullmatch(item['pattern'], s, regex.IGNORECASE)
+        match = regex.fullmatch(item["pattern"], s, regex.IGNORECASE)
         if match and "value" in item:
-            return item['value']
+            return item["value"]
     else:
         return None
 
 
-def getDayNameEnum(s, language) -> enums.Day:
+def getDayNameEnum(s: str, language: str) -> enums.Day:
     return getValue(s, patterns[language]["daynames"])
 
 
-def getMonthNameEnum(s, language) -> enums.Month:
+def getMonthNameEnum(s: str, language: str) -> enums.Month:
     return getValue(s, patterns[language]["monthnames"])
 
 
-def getSeasonNameEnum(s, language) -> enums.Season:
+def getSeasonNameEnum(s: str, language: str) -> enums.Season:
     return getValue(s, patterns[language]["seasonnames"])
 
 
-def getCardinalValue(s, language) -> int:
+def getCardinalValue(s: str, language: str) -> int:
     return getValue(s, patterns[language]["cardinals"])
 
 
-def getOrdinalValue(s, language) -> int:
+def getOrdinalValue(s: str, language: str) -> int:
     return getValue(s, patterns[language]["ordinals"])
 
 
-def getDatePrefixEnum(s, language) -> enums.DatePrefix:
+def getDatePrefixEnum(s: str, language: str) -> enums.DatePrefix:
     return getValue(s, patterns[language]["dateprefix"])
 
 
-def getDateSuffixEnum(s, language) -> enums.DateSuffix:
+def getDateSuffixEnum(s: str, language: str) -> enums.DateSuffix:
     return getValue(s, patterns[language]["datesuffix"])
 
 
-def getNamedPeriodValue(s, language):
+def getNamedPeriodValue(s: str, language: str) -> YearSpan:
     return getValue(s, patterns[language]["periodnames"])
 
 
@@ -146,7 +146,7 @@ def getNamedPeriodValue(s, language):
 # defaultdict creates keys if they don't exist when first accessed
 patterns = defaultdict(dict)
 
-# TODO: new (29/01/24) Czech language patterns
+# new (29/01/24) Czech language patterns
 patterns["cs"]["cardinals"] = [
     {"value": 0, "pattern": r"(?:0|nula)"},
     {"value": 1, "pattern": r"(?:1|jeden|jedna|jedno)"},
@@ -183,26 +183,26 @@ patterns["cs"]["cardinals"] = [
 ]
 
 patterns["cs"]["ordinals"] = [
-    {"value": 1, "pattern": r"první"},                 # first
-    {"value": 2, "pattern": r"druhý"},                 # second
-    {"value": 3, "pattern": r"třetí"},                 # third
-    {"value": 4, "pattern": r"čtvrtý"},                # fourth
-    {"value": 5, "pattern": r"pátý"},                  # fifth
-    {"value": 6, "pattern": r"šestý"},                 # sixth
-    {"value": 7, "pattern": r"sedmý"},                 # seventh
-    {"value": 8, "pattern": r"osmý"},                  # eighth
-    {"value": 9, "pattern": r"devátý"},                # ninth
-    {"value": 10, "pattern": r"desátý"},               # tenth
-    {"value": 11, "pattern": r"jedenáctý"},            # eleventh
-    {"value": 12, "pattern": r"dvanáctý"},             # twelfth
-    {"value": 13, "pattern": r"třináctý"},             # thirteenth
-    {"value": 14, "pattern": r"čtrnáctý"},             # fourteenth
-    {"value": 15, "pattern": r"patnáctý"},             # fifteenth
-    {"value": 16, "pattern": r"šestnáctý"},            # sixteenth
-    {"value": 17, "pattern": r"sedmnáctý"},            # seventeenth
-    {"value": 18, "pattern": r"osmnáctý"},             # eighteenth
-    {"value": 19, "pattern": r"devatenáctý"},          # nineteenth
-    {"value": 20, "pattern": r"dvacátý"}               # twentieth
+    {"value": 1, "pattern": r"(?:1\.|první)"},                 # first
+    {"value": 2, "pattern": r"(?:2\.|druh(?:ý|ého))"},                 # second
+    {"value": 3, "pattern": r"(?:3\.|třetí)"},                 # third
+    {"value": 4, "pattern": r"(?:4\.|čtvrt(?:ý|ého))"},                # fourth
+    {"value": 5, "pattern": r"(?:5\.|pát(?:ý|ého))"},                  # fifth
+    {"value": 6, "pattern": r"(?:6\.|šest(?:ý|ého))"},                 # sixth
+    {"value": 7, "pattern": r"(?:7\.|sedm(?:ý|ého))"},                 # seventh
+    {"value": 8, "pattern": r"(?:8\.|osm(?:ý|ého))"},                  # eighth
+    {"value": 9, "pattern": r"(?:9\.|devát(?:ý|ého))"},                # ninth
+    {"value": 10, "pattern": r"(?:10\.|desát(?:ý|ého))"},               # tenth
+    {"value": 11, "pattern": r"(?:11\.|jedenáct(?:ý|ého))"},            # eleventh
+    {"value": 12, "pattern": r"(?:12\.|dvanáct(?:ý|ého))"},             # twelfth
+    {"value": 13, "pattern": r"(?:13\.|třináct(?:ý|ého))"},             # thirteenth
+    {"value": 14, "pattern": r"(?:14\.|čtrnáct(?:ý|ého))"},             # fourteenth
+    {"value": 15, "pattern": r"(?:15\.|patnáct(?:ý|ého))"},             # fifteenth
+    {"value": 16, "pattern": r"(?:16\.|šestnáct(?:ý|ého))"},            # sixteenth
+    {"value": 17, "pattern": r"(?:17\.|sedmnáct(?:ý|ého))"},            # seventeenth
+    {"value": 18, "pattern": r"(?:18\.|osmnáct(?:ý|ého))"},             # eighteenth
+    {"value": 19, "pattern": r"(?:19\.|devatenáct(?:ý|ého))"},          # nineteenth
+    {"value": 20, "pattern": r"(?:20\.|dvacát(?:ý|ého))"}               # twentieth
 ]
 
 patterns["cs"]["daynames"] = [
@@ -251,7 +251,7 @@ patterns["cs"]["monthnames"] = [
 
 patterns["cs"]["seasonnames"] = [
     # Spring
-    {"value": enums.Season.SPRING, "pattern": r"jar(o|ře)"},
+    {"value": enums.Season.SPRING, "pattern": r"ja(ro|ře)"},
     # Summer
     {"value": enums.Season.SUMMER, "pattern": r"létě"},
     # Autumn
@@ -263,6 +263,7 @@ patterns["cs"]["seasonnames"] = [
 patterns["cs"]["dateprefix"] = [
     {"value": enums.DatePrefix.CIRCA, "pattern": r"cca"},
     {"value": enums.DatePrefix.EARLY, "pattern": r"počátek"},
+    {"value": enums.DatePrefix.EARLY, "pattern": r"začátek"},
     {"value": enums.DatePrefix.MID, "pattern": r"polovina"},
     {"value": enums.DatePrefix.LATE, "pattern": r"konec"},
     {"value": enums.DatePrefix.HALF1, "pattern": r"první polovina"},
@@ -276,20 +277,167 @@ patterns["cs"]["dateprefix"] = [
 patterns["cs"]["datesuffix"] = [
     # NL, AD, CE
     {"value": enums.DateSuffix.AD,
-        "pattern": r"(?:našeho letopočtu|N\.?L\.?|A\.?D\.?|C\.?E\.?)"},
+        "pattern": r"(?:našeho letopočtu|n\.?\s?l\.?|A\.?D\.?|C\.?E\.?)"},
     {"value": enums.DateSuffix.BC,
         # BC, BCE
-        "pattern": r"(?:př\.? N\.? L\.?|B\.?C\.?(?:E\.?)?)"},
+        "pattern": r"(?:př\.? n\.? l\.?|B\.?C\.?(?:E\.?)?)"},
     # BP
     {"value": enums.DateSuffix.BP, "pattern": r"B\.?P\.?"}
 ]
 
 patterns["cs"]["dateseparator"] = [
     {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\s(?:až)\s"}
+    {"pattern": r"\saž?\s"}
 ]
 
-patterns["cs"]["periodnames"] = []
+# periods extracted from http://n2t.net/ark:/99152/p0wctqt
+patterns["cs"]["periodnames"] = [
+    {"pattern": r"paleolit nesp.", "value": YearSpan(-1000000, -9601)},
+    {"pattern": r"paleolit-mezolit", "value": YearSpan(-1000000, -5601)},
+    {"pattern": r"pravěk nesp.", "value": YearSpan(-1000000, 580)},
+    {"pattern": r"starší paleolit", "value": YearSpan(-1000000, -300001)},
+    {"pattern": r"střední paleolit", "value": YearSpan(-300000, -40001)},
+    {"pattern": r"moustérien", "value": YearSpan(-220000, -40001)},
+    {"pattern": r"krumlovien", "value": YearSpan(-130000, -38001)},
+    {"pattern": r"micoquien", "value": YearSpan(-130000, -70001)},
+    {"pattern": r"taubachien", "value": YearSpan(-130000, -80001)},
+    {"pattern": r"bohunicien", "value": YearSpan(-40000, -35001)},
+    {"pattern": r"mladší paleolit", "value": YearSpan(-40000, -10001)},
+    {"pattern": r"szeletien", "value": YearSpan(-40000, -38001)},
+    {"pattern": r"aurignacien", "value": YearSpan(-38000, -28001)},
+    {"pattern": r"miškovický typ", "value": YearSpan(-38000, -28001)},
+    {"pattern": r"gravettien", "value": YearSpan(-30000, -18001)},
+    {"pattern": r"magdalénien", "value": YearSpan(-20000, -10001)},
+    {"pattern": r"epigravettien", "value": YearSpan(-18000, -10001)},
+    {"pattern": r"epimagdalénien", "value": YearSpan(-10000, -8001)},
+    {"pattern": r"ostroměřská skup.", "value": YearSpan(-10000, -8001)},
+    {"pattern": r"pozdní paleolit", "value": YearSpan(-10000, -8001)},
+    {"pattern": r"mezolit nesp.", "value": YearSpan(-9600, -5601)},
+    {"pattern": r"k. lineární ker.", "value": YearSpan(-5600, -4901)},
+    {"pattern": r"neolit nesp.", "value": YearSpan(-5600, -4201)},
+    {"pattern": r"neolit-eneolit", "value": YearSpan(-5600, -2301)},
+    {"pattern": r"starší neolit", "value": YearSpan(-5600, -4701)},
+    {"pattern": r"zemědělský pravěk", "value": YearSpan(-5600, 580)},
+    {"pattern": r"k. oberlauterbašská", "value": YearSpan(-5000, -4601)},
+    {"pattern": r"šárecký typ", "value": YearSpan(-5000, -4901)},
+    {"pattern": r"želiezovská skupina", "value": YearSpan(-5000, -4701)},
+    {"pattern": r"k. vypíchané ker.", "value": YearSpan(-4900, -4401)},
+    {"pattern": r"moravská malovaná k. (neolit)", "value": YearSpan(-4700, -4501)},
+    {"pattern": r"střední / mladší neolit", "value": YearSpan(-4700, -4201)},
+    {"pattern": r"lengyelská k.", "value": YearSpan(-4600, -4201)},
+    {"pattern": r"eneolit nesp.", "value": YearSpan(-4500, -2301)},
+    {"pattern": r"k. münchshöfenská", "value": YearSpan(-4500, -4201)},
+    {"pattern": r"moravská malovaná k. (eneolit)", "value": YearSpan(-4500, -4101)},
+    {"pattern": r"časný eneolit", "value": YearSpan(-4500, -3801)},
+    {"pattern": r"jordanovská k.", "value": YearSpan(-4200, -4001)},
+    {"pattern": r"schusseriedská k.", "value": YearSpan(-4200, -3801)},
+    {"pattern": r"k. Retz-Bajč-Křepice", "value": YearSpan(-4000, -3501)},
+    {"pattern": r"michelsberská k.", "value": YearSpan(-4000, -3801)},
+    {"pattern": r"k. nálevkovitých pohárů", "value": YearSpan(-3900, -3301)},
+    {"pattern": r"starší eneolit", "value": YearSpan(-3900, -3351)},
+    {"pattern": r"ohrozimský typ", "value": YearSpan(-3500, -3301)},
+    {"pattern": r"badenská k.", "value": YearSpan(-3400, -2901)},
+    {"pattern": r"střední eneolit", "value": YearSpan(-3350, -2801)},
+    {"pattern": r"chamská k.", "value": YearSpan(-3100, -2801)},
+    {"pattern": r"jevišovická k.", "value": YearSpan(-3100, -2801)},
+    {"pattern": r"k. kulovitých amfor", "value": YearSpan(-3100, -2801)},
+    {"pattern": r"mladší eneolit", "value": YearSpan(-3100, -2301)},
+    {"pattern": r"řivnáčská k.", "value": YearSpan(-3100, -2801)},
+    {"pattern": r"bošácká sk.", "value": YearSpan(-3000, -2601)},
+    {"pattern": r"k. šňůrové ker.", "value": YearSpan(-2900, -2501)},
+    {"pattern": r"mladší / pozdní eneolit", "value": YearSpan(-2900, -2201)},
+    {"pattern": r"k. Kosihy-Čaka", "value": YearSpan(-2800, -2301)},
+    {"pattern": r"k. zvoncovitých pohárů", "value": YearSpan(-2500, -2201)},
+    {"pattern": r"k. Chlopice-Veselé", "value": YearSpan(-2400, -2101)},
+    {"pattern": r"d. bronzová - halštatská", "value": YearSpan(-2300, -481)},
+    {"pattern": r"d. bronzová nesp.", "value": YearSpan(-2300, -751)},
+    {"pattern": r"protoúnětická k.", "value": YearSpan(-2300, -2001)},
+    {"pattern": r"starší d. bronzová", "value": YearSpan(-2300, -1551)},
+    {"pattern": r"únětická k.", "value": YearSpan(-2300, -1651)},
+    {"pattern": r"nitranská k.", "value": YearSpan(-2100, -1801)},
+    {"pattern": r"hatvanská k.", "value": YearSpan(-1800, -1601)},
+    {"pattern": r"střední d. bronzová", "value": YearSpan(-1700, -1251)},
+    {"pattern": r"věteřovská k.", "value": YearSpan(-1700, -1501)},
+    {"pattern": r"k. mohylová středodunajská", "value": YearSpan(-1650, -1251)},
+    {"pattern": r"k. mohylová českofalcká", "value": YearSpan(-1650, -1251)},
+    {"pattern": r"lužická k.", "value": YearSpan(-1300, -1026)},
+    {"pattern": r"obd. popelnicových polí", "value": YearSpan(-1300, -801)},
+    {"pattern": r"saská lužická k.", "value": YearSpan(-1300, -751)},
+    {"pattern": r"velatická k.", "value": YearSpan(-1300, -1001)},
+    {"pattern": r"knovízská k.", "value": YearSpan(-1250, -951)},
+    {"pattern": r"milavečská k.", "value": YearSpan(-1250, -976)},
+    {"pattern": r"mladší d. bronzová", "value": YearSpan(-1250, -1001)},
+    {"pattern": r"chebská k.", "value": YearSpan(-1200, -1001)},
+    {"pattern": r"slezskoplatěnická k.", "value": YearSpan(-1100, -451)},
+    {"pattern": r"slezskoplatěnická k. HaB", "value": YearSpan(-1100, -801)},
+    {"pattern": r"podolská k.", "value": YearSpan(-1025, -751)},
+    {"pattern": r"štítarská k.", "value": YearSpan(-1025, -751)},
+    {"pattern": r"pozdní d. bronzová", "value": YearSpan(-1000, -751)},
+    {"pattern": r"slezská k.", "value": YearSpan(-1000, -801)},
+    {"pattern": r"nynická k.", "value": YearSpan(-975, -751)},
+    {"pattern": r"billendorfská k.", "value": YearSpan(-950, -451)},
+    {"pattern": r"bylanská k.", "value": YearSpan(-800, -531)},
+    {"pattern": r"d. halštatská - laténská nesp.", "value": YearSpan(-800, -31)},
+    {"pattern": r"d. halštatská nesp.", "value": YearSpan(-800, -371)},
+    {"pattern": r"halštatská mohylová k.", "value": YearSpan(-800, -531)},
+    {"pattern": r"horákovská k.", "value": YearSpan(-800, -461)},
+    {"pattern": r"k. billendorfská HaC", "value": YearSpan(-800, -626)},
+    {"pattern": r"platěnická k.", "value": YearSpan(-800, -401)},
+    {"pattern": r"slezskoplatěnická k. HaC-D", "value": YearSpan(-800, -371)},
+    {"pattern": r"starší d. halštatská (HaC-D1)", "value": YearSpan(-800, -541)},
+    {"pattern": r"obd. HaD-LtA", "value": YearSpan(-625, -371)},
+    {"pattern": r"mladší d. halštatská (HaD2-3)", "value": YearSpan(-540, -461)},
+    {"pattern": r"k. púchovská", "value": YearSpan(-480, 180)},
+    {"pattern": r"časná d. laténská (LtA)", "value": YearSpan(-480, -381)},
+    {"pattern": r"d. laténská - římská nesp.", "value": YearSpan(-450, 400)},
+    {"pattern": r"d. laténská nesp.", "value": YearSpan(-450, -31)},
+    {"pattern": r"turnovský typ", "value": YearSpan(-410, -321)},
+    {"pattern": r"podmokelská sk.", "value": YearSpan(-400, -131)},
+    {"pattern": r"střední d. laténská (LtB-C1)", "value": YearSpan(-370, -171)},
+    {"pattern": r"k. przeworská", "value": YearSpan(-200, 400)},
+    {"pattern": r"mladší/pozdní d. laténská (LtC2-D)", "value": YearSpan(-170, -31)},
+    {"pattern": r"pozdní d. laténská (LtD)", "value": YearSpan(-130, -31)},
+    {"pattern": r"kobylská sk.", "value": YearSpan(-110, -91)},
+    {"pattern": r"d. římská - stěhování národů nesp.", "value": YearSpan(-30, 580)},
+    {"pattern": r"d. římská nesp.", "value": YearSpan(-30, 400)},
+    {"pattern": r"plaňanský typ", "value": YearSpan(-30, -6)},
+    {"pattern": r"starší d. římská", "value": YearSpan(-30, 180)},
+    {"pattern": r"mladší doba římská", "value": YearSpan(181, 400)},
+    {"pattern": r"d. stěhování národů nesp.", "value": YearSpan(381, 580)},
+    {"pattern": r"dobrodzieńská sk.", "value": YearSpan(381, 480)},
+    {"pattern": r"starší d. stěhování národů", "value": YearSpan(381, 480)},
+    {"pattern": r"mladší d. stěhování národů", "value": YearSpan(481, 580)},
+    {"pattern": r"raný středověk 1", "value": YearSpan(581, 650)},
+    {"pattern": r"raný středověk nesp.", "value": YearSpan(581, 1200)},
+    {"pattern": r"středověk - novověk nesp.", "value": YearSpan(581, 1800)},
+    {"pattern": r"středověk nesp.", "value": YearSpan(581, 1500)},
+    {"pattern": r"raný středověk 2", "value": YearSpan(651, 800)},
+    {"pattern": r"raný středověk 2-4", "value": YearSpan(651, 1150)},
+    {"pattern": r"rané středohradištní o.", "value": YearSpan(801, 850)},
+    {"pattern": r"raný středověk 3", "value": YearSpan(801, 930)},
+    {"pattern": r"vyspělé středohradištní o.", "value": YearSpan(851, 900)},
+    {"pattern": r"pozdní středohradištní o.", "value": YearSpan(901, 930)},
+    {"pattern": r"rané mladohradištní o.", "value": YearSpan(931, 950)},
+    {"pattern": r"raný středověk 4", "value": YearSpan(931, 1150)},
+    {"pattern": r"vyspělé mladohradištní o.", "value": YearSpan(951, 1050)},
+    {"pattern": r"pozdněhradištní o.", "value": YearSpan(1051, 1150)},
+    {"pattern": r"přechod rs/vs", "value": YearSpan(1151, 1250)},
+    {"pattern": r"vrcholný - pozdní středověk nesp.",
+        "value": YearSpan(1201, 1500)},
+    {"pattern": r"vrcholný středověk", "value": YearSpan(1201, 1300)},
+    {"pattern": r"vrcholný středověk - novověk nesp.",
+        "value": YearSpan(1201, 1800)},
+    {"pattern": r"pozdní středověk", "value": YearSpan(1301, 1500)},
+    {"pattern": r"přechod ps/no", "value": YearSpan(1451, 1550)},
+    {"pattern": r"novověk - industriální o. nesp.",
+        "value": YearSpan(1501, 2000)},
+    {"pattern": r"novověk 1", "value": YearSpan(1501, 1650)},
+    {"pattern": r"novověk nesp.", "value": YearSpan(1501, 1800)},
+    {"pattern": r"novověk 2", "value": YearSpan(1651, 1800)},
+    {"pattern": r"industriální o. 1", "value": YearSpan(1801, 1900)},
+    {"pattern": r"industriální období nesp.", "value": YearSpan(1801, 2000)},
+    {"pattern": r"industriální o. 2", "value": YearSpan(1901, 2000)}
+]
 
 patterns["cs"]["datespans"] = [
     {

@@ -7,79 +7,97 @@ Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
 Contact   : ceri.binding@southwales.ac.uk
 Summary   : YearSpan class
 Imports   : N/A
-Example   : span = YearSpan(43, 410, "Roman")
+Example   : span = YearSpan(43, 410, "Roman", True)
+    NOTE: zeroIsBCE regards input year 0 as 1 BCE (there is no year 0)
 License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 18/02/2020 CFB Initially created script
+08/04/2024 CFB Type hints added, code tidying, added zeroIsBCE property
 =============================================================================
 """
-
-
 class YearSpan(object):
 
-    def __init__(self, minYear=None, maxYear=None, label=None):
+    def __init__(self, 
+        minYear: int=None, 
+        maxYear: int=None, 
+        label: str=None, 
+        zeroIsBCE: bool=True
+    ):
+        # init properties with values passed in
         self.minYear = None
         self.maxYear = None
-        self.label = ""
+        self.label = (label or "").strip()
+        self.zeroIsBCE = zeroIsBCE
 
+        # ensure minYear and maxYear values are set up correctly,
+        # regardless of how they are passed in. If only one value 
+        # is passed it is used for both minYear and maxYear value
         if (minYear is not None or maxYear is not None):
-            lst = [minYear, maxYear]
-            self.minYear = min(filter(lambda x: x is not None, lst)) if any(
-                lst) else None  # min(i for i in l if i is not None)
-            self.maxYear = max(filter(lambda x: x is not None, lst)) if any(
-                lst) else None  # max(i for i in l if i is not None)
-
-        if (label):
-            self.label = str(label).strip()
-
+            values = list(filter(lambda x: x is not None, [minYear, maxYear]))
+            self.minYear = min(values)
+            self.maxYear = max(values)
+ 
     # calculate duration in years (including start and end year)
-    def duration(self):
+    def duration(self) -> int:
         return abs(self.maxYear or 0 - self.minYear or 0) + 1
 
     # string representation of this instance (e.g. "0043/0410 (Roman)")
     def __str__(self):
         return f"{self.toISO8601()} ({self.label})"
 
-    # ISO8601 string representation of this span (e.g. "0043/0410")
-    def toISO8601(self):
-        return f"{self.yearToISO8601(self.minYear)}/{self.yearToISO8601(self.maxYear)}"
+    def __repr__(self):
+        return self.__str__()
+
+    # ISO8601 string representation of this instance (e.g. "0043/0410")
+    def toISO8601(self) -> str:
+        return YearSpan.spanToISO8601(
+            minYear=self.minYear, 
+            maxYear=self.maxYear, 
+            zeroIsBCE=self.zeroIsBCE
+        )        
 
     # JSON representation of this instance
-    def toJSON(self):
+    def toJSON(self) -> dict:
         return {
             "label": self.label,
-            "minYear": self.yearToISO8601(self.minYear),
-            "maxYear": self.yearToISO8601(self.maxYear),
+            "minYear": self.yearToISO8601(self.minYear, zeroIsBCE=self.zeroIsBCE),
+            "maxYear": self.yearToISO8601(self.maxYear, zeroIsBCE=self.zeroIsBCE),
             "isoSpan": self.toISO8601()
         }
 
-    # try to parse integer value without error
+    # try to parse integer value without throwing error
     @staticmethod
     def _tryParseInt(value):
         val = None
         if value is not None:
             try:
-                val = int(value)  # , True
+                val = int(value)
             except ValueError:
-                val = val  # value #, False
+                val = val
         return val
 
-    # ISO8601 string representation of given year span (e.g. "0043/0410")
-    @staticmethod
-    def spanToISO8601(minYear, maxYear) -> str:
-        return f"{YearSpan.yearToISO8601(minYear)}/{YearSpan.yearToISO8601(maxYear)}"
 
-    # convert signed numeric value (as year) to ISO8601 compatible string
-    # returns a (signed) fixed length value padded with leading zeros
-    # optionally adjusting returned value as 0000=1 BC, -0001=2 BC, -0002=3 BC etc.
+    # ISO8601 string representation of zewro-padded year span (e.g. "-0055/0410")
     @staticmethod
-    def yearToISO8601(value=None, minDigits=4, zeroIsBC=True) -> str:
-        val = YearSpan._tryParseInt(value)
-        if val is not None:
-            if val < 0 and zeroIsBC:
-                val += 1
-            sign = "-" if val < 0 else ""
-            return f"{sign}{abs(val):0{minDigits}d}"
+    def spanToISO8601(minYear: int=None, maxYear: int=None, zeroIsBCE: bool=True) -> str:
+        span = YearSpan(minYear, maxYear, zeroIsBCE=zeroIsBCE)
+        
+        return "{minValue}/{maxValue}".format(
+            minValue=YearSpan.yearToISO8601(span.minYear, zeroIsBCE=zeroIsBCE),
+            maxValue=YearSpan.yearToISO8601(span.maxYear, zeroIsBCE=zeroIsBCE)
+        )
+
+    # convert signed numeric value (as year) to ISO8601 compatible string value.
+    # Returns a (signed) year padded with leading zeros if shorter than 4 digits,
+    # optionally adjusting returned value to represent that there is no year zero
+    # (so "0001" = 1 CE, "0000" = 1 BCE, "-0001" = 2 BCE, "-0002" = 3 BCE etc.)
+    @staticmethod
+    def yearToISO8601(year=None, minDigits:int=4, zeroIsBCE: bool=True) -> str:
+        if year is not None:
+            value = YearSpan._tryParseInt(year)
+            if value < 0 and zeroIsBCE: value += 1
+            sign = "-" if value < 0 else ""
+            return f"{sign}{abs(value):0{minDigits}d}"
         else:
             return ""

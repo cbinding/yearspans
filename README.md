@@ -5,7 +5,7 @@ Note this is a Python reworking of some earlier C# .NET project work (https://gi
 
 ## Background
 
-Archaeological dataset records often use a textual expression of dating rather than absolute numeric years for the dating of artefacts. These textual data values can be in a variety of formats and different languages. There can be prefixes present such as _Circa_, _Early_, _Mid_, _Late_ - and suffixes such as _A.D._, _B.C._, _C.E._, _B.C.E._, _B.P._ that may influence the dates intended. This situation presents potential problems for temporal comparison of records in a single dataset, but also introduces wider data integration issues, as illustrated in the table below:
+Archaeological dataset records often use a textual expression of dating rather than absolute numeric years for the dating of artefacts. These textual data values can be in a variety of formats and different languages. There can be prefixes present such as _Circa_, _Early_, _Mid_, _Late_ - and suffixes such as _A.D._, _B.C._, _C.E._, _B.C.E._, _B.P._ that may influence the dates intended. This situation presents potential problems for temporal comparison of records in a single dataset, but also introduces wider data integration issues, as illustrated in the table of examples below:
 
 | Category                     | Language  | Expresssion                   |
 | ---------------------------- | --------- | ----------------------------- |
@@ -68,8 +68,8 @@ For matches on known named periods (e.g. _Georgian_, _Victorian_ etc.) the start
 Command:
 
 ```python
-python3 yearspanmatcher.py -i "{input}" [-l "{language}"]
-python3 yearspanmatcher.py -i "Early 2nd Century" -l "en"
+python yearspanmatcher.py -i "{input}" [-l "{language}"]
+python yearspanmatcher.py -i "Early 2nd Century" -l "en"
 ```
 
 ### Input (required)
@@ -80,10 +80,13 @@ The textual timespan expression to be processed. The matching patterns employed 
 
 The [ISO639-1](https://www.iso.org/iso-639-language-codes.html) two character language code corresponding to the language of the input data. This hints to the underlying matching process the most appropriate matching patterns to use. Languages currently supported (to a greater or lesser degree) are:
 
+- Czech ('cs')
+- Dutch ('nl')
 - English ('en') [default]
 - Italian ('it')
 - German ('de')
 - French ('fr')
+- Norwegian ('no')
 - Spanish ('es')
 - Swedish ('sv')
 - Welsh('cy')
@@ -118,7 +121,9 @@ If the language parameter is omitted or is not one of the recognised values then
 | 1950-tallet                                                | no       |     1950 |     1959 |
 | Tidigt 1100-tal f.Kr.                                      | sv       |    -1099 |    -1059 |
 | 1250 - 57 e.Kr.                                            | sv       |     1250 |     1257 |
+| 50. léta 20. století                                       | cs       |     1950 |     1959 |
+| počátek dvanáctého až konec jedenáctého století př. n. l.  | cs       |     1199 |     1000 |
 
 ## Testing
 
-A suite of tests using the Python _unittest_ framework are located under the _tests_ directory. There are 280 unit tests in all, covering the various categories of year span textual expressions in each supported language.
+A suite of tests using the Python _unittest_ framework are located under the _tests_ directory. There are 312 unit tests in all, covering the various categories of year span textual expressions in each supported language.

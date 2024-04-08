@@ -1,4 +1,5 @@
 from .yearspan import YearSpan
+from .yearspanmatcher_cs import YearSpanMatcherCS
 from .yearspanmatcher_cy import YearSpanMatcherCY
 from .yearspanmatcher_de import YearSpanMatcherDE
 from .yearspanmatcher_en import YearSpanMatcherEN

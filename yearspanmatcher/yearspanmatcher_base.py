@@ -157,7 +157,7 @@ class YearSpanMatcherBase(object):
         return span
 
     @abc.abstractmethod
-    def matchMonthYear(self, value):
+    def matchMonthYear(self, value: str) -> YearSpan:
         return
 
     @abc.abstractmethod
@@ -221,7 +221,7 @@ class YearSpanMatcherBase(object):
         return
 
     # ported from RxMatcher.cs 10/02/20 CFB
-    def getCenturyYearSpan(self, centuryNo, datePrefix=None, dateSuffix=None):
+    def getCenturyYearSpan(self, centuryNo, datePrefix=None, dateSuffix=None) -> YearSpan:
         span = YearSpan()
         # adjust boundaries if E/M/L qualifier is present using
         # (invented) boundaries: EARLY=1-40, MID=30-70, LATE=60-100
@@ -338,7 +338,7 @@ class YearSpanMatcherBase(object):
 
     # ported from RxMatcher.cs 10/02/20 CFB
 
-    def getMillenniumYearSpan(self, millenniumNo, datePrefix=None, dateSuffix=None):
+    def getMillenniumYearSpan(self, millenniumNo, datePrefix=None, dateSuffix=None) -> YearSpan:
         span = YearSpan()
 
         # adjust boundaries if E/M/L qualifier is present using

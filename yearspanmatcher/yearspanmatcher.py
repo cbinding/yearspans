@@ -17,6 +17,7 @@ History
 import argparse
 
 from .yearspanmatcher_base import YearSpanMatcherBase
+from .yearspanmatcher_cs import YearSpanMatcherCS
 from .yearspanmatcher_cy import YearSpanMatcherCY
 from .yearspanmatcher_de import YearSpanMatcherDE
 from .yearspanmatcher_en import YearSpanMatcherEN
@@ -29,32 +30,21 @@ from .yearspanmatcher_sv import YearSpanMatcherSV
 from .yearspan import YearSpan
 
 
-def getMatcherForLanguage(language="en") -> YearSpanMatcherBase:
-    lang = language.strip().lower()
-    matcher = None
+def getMatcherForLanguage(language: str="en") -> YearSpanMatcherBase:
+    match language.strip().lower():
+        case "cs": return YearSpanMatcherCS()
+        case "cy": return YearSpanMatcherCY()
+        case "de": return YearSpanMatcherDE()
+        case "es": return YearSpanMatcherES()
+        case "fr": return YearSpanMatcherFR()
+        case "it": return YearSpanMatcherIT()
+        case "nl": return YearSpanMatcherNL()
+        case "no": return YearSpanMatcherNO()
+        case "sv": return YearSpanMatcherSV()
+        case _: return YearSpanMatcherEN()
+    
 
-    if lang == "cy":
-        matcher = YearSpanMatcherCY()
-    elif lang == "de":
-        matcher = YearSpanMatcherDE()
-    elif lang == "es":
-        matcher = YearSpanMatcherES()
-    elif lang == "fr":
-        matcher = YearSpanMatcherFR()
-    elif lang == "it":
-        matcher = YearSpanMatcherIT()
-    elif lang == "nl":
-        matcher = YearSpanMatcherNL()
-    elif lang == "no":
-        matcher = YearSpanMatcherNO()
-    elif lang == "sv":
-        matcher = YearSpanMatcherSV()
-    else:
-        matcher = YearSpanMatcherEN()
-    return matcher
-
-
-def get_match(input, language) -> YearSpan:
+def get_match(input, language: str) -> YearSpan:
     matcher = getMatcherForLanguage(language)
     span = matcher.match(input)
     return span
@@ -72,16 +62,16 @@ if __name__ == "__main__":
                         default="", help="Input temporal expression")
 
     # parse and return args from command line
-    input = ""
+    inputval = ""
     language = ""
 
     args = parser.parse_args()
     if args.input:
-        input = args.input.strip()
+        inputval = args.input.strip()
     if args.language:
         language = args.language.strip().lower()
 
     # print result output
     #print(f"language='{language}', input='{input}'")
-    span = get_match(input, language)
+    span = get_match(inputval, language)
     print(span or "Not matched")

@@ -18,6 +18,26 @@ History
 from enum import Enum, unique
 
 # usage:
+# Allen.BEFORE
+# Allen.BEFORE.name ("BEFORE")
+@unique
+class Allen(Enum):
+    BEFORE = "before"	
+    AFTER = "after"
+    MEETS = "meets"
+    METBY = "metby"
+    OVERLAPS = "overlaps"
+    OVERLAPPEDBY = "overlappedby"
+    STARTS = "starts"
+    STARTEDBY = "startedby"
+    FINISHES = "finishes"
+    FINISHEDBY = "finishedby"
+    WITHIN = "within"
+    CONTAINS = "contains"
+    EQUALS = "equals"
+
+
+# usage:
 # enums.Language.DE
 # enums.Language.DE.name ("DE")
 # enums.Language.DE.value ("http://lexvo.org/id/iso639-1/de")

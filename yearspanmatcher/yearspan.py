@@ -3,12 +3,12 @@
 Project   : ARIADNEplus
 Package   : yearspanmatcher
 Module    : yearspan.py
+Classes   : YearSpan
 Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
 Contact   : ceri.binding@southwales.ac.uk
 Summary   : YearSpan class
-Imports   : N/A
-Example   : span = YearSpan(43, 410, "Roman", True)
-        NOTE: zeroIsBCE regards year 0 as 1 BCE (as there is no year 0)
+Imports   : Allen (enum)
+Example   : span = YearSpan(43, 410, "Roman")
 License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
@@ -16,13 +16,16 @@ History
 09/04/2024 CFB Added type hints, zeroIsBCE, property getters and setters
 =============================================================================
 """
+from __future__ import annotations # so we can refer to YearSpan in static methods
+from yearspanmatcher.enums import Allen # for relationship between YearSpan instances
+
 class YearSpan(object):
 
     def __init__(self, 
         minYear: int=None, 
         maxYear: int=None, 
         label: str=None, 
-        zeroIsBCE: bool=True
+        zeroIsBCE: bool=True # regards year 0 as 1 BCE (there is no year 0)
     ) -> None:
         # init properties with values passed in
         self.minYear = minYear
@@ -38,6 +41,7 @@ class YearSpan(object):
             self.minYear = min(values)
             self.maxYear = max(values)
     
+
     # minYear property getter and setter
     @property
     def minYear(self) -> int: return self._minYear
@@ -45,6 +49,7 @@ class YearSpan(object):
     @minYear.setter
     def minYear(self, value: int):
         self._minYear = value
+
 
     # maxYear property getter and setter
     @property
@@ -54,6 +59,7 @@ class YearSpan(object):
     def maxYear(self, value: int):
         self._maxYear = value
 
+
     # zeroIsBCE property getter and setter
     @property
     def zeroIsBCE(self) -> bool: return self._zeroIsBCE
@@ -62,7 +68,8 @@ class YearSpan(object):
     def zeroIsBCE(self, value: bool):
         self._zeroIsBCE = value
 
-    # return sensible label if not set
+
+    # label property getter and setter
     @property
     def label(self) -> str:
         if(len(self._label or "").strip()) == 0:
@@ -70,12 +77,13 @@ class YearSpan(object):
         else:
             return self._label
 
+    # returns sensible label if not set
     @label.setter
     def label(self, value: str):
         self._label = (value or "").strip()
 
 
-    # calculate duration in years (including start and end year)
+    # calculate duration in whole years (including start and end year)
     def duration(self) -> int:
         return abs(self.maxYear or 0 - self.minYear or 0) + 1
 
@@ -109,7 +117,7 @@ class YearSpan(object):
         )        
 
 
-    # JSON representation of this instance
+    # JSON representation of this instance (as python dict)
     def toJSON(self) -> dict:
         return {
             "label": self.label,
@@ -132,10 +140,10 @@ class YearSpan(object):
         return val
 
 
-    # ISO8601 string representation of zewro-padded year span (e.g. "-0055/0410")
+    # ISO8601 string representation of zero-padded year span (e.g. "-0055/0410")
     @staticmethod
     def spanToISO8601(minYear: int=None, maxYear: int=None, zeroIsBCE: bool=True) -> str:
-        span = YearSpan(minYear, maxYear, zeroIsBCE=zeroIsBCE)
+        span = YearSpan(minYear=minYear, maxYear=maxYear, zeroIsBCE=zeroIsBCE)
         
         return "{minValue}/{maxValue}".format(
             minValue=YearSpan.yearToISO8601(span.minYear, zeroIsBCE=zeroIsBCE),
@@ -156,3 +164,114 @@ class YearSpan(object):
             return f"{sign}{abs(value):0{minDigits}d}"
         else:
             return ""
+
+    # is year within a given YearSpan
+    @staticmethod
+    def yearWithin(cls, year: int, span: YearSpan) -> bool: 	    
+	    return (year >= span.minYear 
+            and year <= span.maxYear)
+    
+    # Allen relationships between YearSpan instances
+    # is spanA before spanB?
+    @staticmethod
+    def spanBefore(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return (spanA.maxYear < spanB.minYear)
+
+    # is spanA after spanB?
+    @staticmethod
+    def spanAfter(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return YearSpan.spanBefore(spanB, spanA)
+
+    # does spanA meet spanB?
+    @staticmethod
+    def spanMeets(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return (spanA.maxYear == spanB.minYear)
+
+    # is spanA met by spanB?
+    @staticmethod
+    def spanMetBy(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return YearSpan.spanMeets(spanB, spanA)
+
+    # does spanA overlap spanB?
+    @staticmethod
+    def spanOverlaps(spanA: YearSpan, spanB: YearSpan) -> bool:
+        return (spanA.minYear < spanB.minYear
+            and spanA.maxYear > spanB.minYear
+            and spanA.maxYear < spanB.maxYear)	
+
+    # is spanA overlapped by spanB?
+    @staticmethod
+    def spanOverlappedBy(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return YearSpan.spanOverlaps(spanB, spanA)
+
+    # does spanA start spanB?
+    @staticmethod
+    def spanStarts(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return (spanA.minYear == spanB.minYear 
+            and spanA.maxYear < spanB.maxYear)
+
+    # is spanA started by spanB?
+    @staticmethod
+    def spanStartedBy(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return YearSpan.spanStarts(spanB, spanA)  
+
+    # does spanA finish spanB?
+    @staticmethod
+    def spanFinishesSpan(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return (spanA.maxYear == spanB.maxYear 
+		    and spanA.minYear > spanB.minYear)
+
+    # is spanA finished by spanB?
+    @staticmethod
+    def spanFinishedBy(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return YearSpan.spanFinishes(spanB, spanA) 
+
+    # is spanA within spanB?
+    @staticmethod
+    def spanWithin(spanA: YearSpan, spanB: YearSpan) -> bool: 	  
+        return (spanA.minYear > spanB.minYear 
+			and spanA.maxYear < spanB.maxYear)
+
+    # does spanA contain spanB?
+    @staticmethod
+    def spanContains(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return YearSpan.spanWithin(spanB, spanA)
+
+    # is spanA equal to spanB?
+    @staticmethod
+    def spanEquals(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+        return (spanA.minYear == spanB.minYear 
+			and spanA.maxYear == spanB.maxYear)
+
+    @staticmethod
+    def spanRelationship(spanA: YearSpan, spanB: YearSpan) -> Allen: 	
+        rel = None
+        
+        if (YearSpan.spanBefore(spanA, spanB)): 
+            rel = Allen.BEFORE
+        elif (YearSpan.spanAfter(spanA, spanB)): 
+            rel = Allen.AFTER
+        elif (YearSpan.spanMeets(spanA, spanB)):
+            rel = Allen.MEETS
+        elif (YearSpan.spanMetBy(spanA, spanB)):
+            rel = Allen.METBY
+        elif (YearSpan.spanOverlaps(spanA, spanB)): 
+            rel = Allen.OVERLAPS
+        elif (YearSpan.spanOverlappedBy(spanA, spanB)): 
+            rel = Allen.OVERLAPPEDBY
+        elif (YearSpan.spanStarts(spanA, spanB)): 
+            rel = Allen.STARTS
+        elif (YearSpan.spanStartedBy(spanA, spanB)): 
+            rel = Allen.STARTEDBY
+        elif (YearSpan.spanFinishes(spanA, spanB)): 
+            rel = Allen.FINISHES
+        elif (YearSpan.spanFinishedBy(spanA, spanB)): 
+            rel = Allen.FINISHEDBY
+        elif (YearSpan.spanWithin(spanA, spanB)): 
+            rel = Allen.WITHIN
+        elif (YearSpan.spanContains(spanA, spanB)): 
+            rel = Allen.CONTAINS
+        elif (YearSpan.spanEquals(spanA, spanB)): 
+            rel = Allen.EQUALS
+        return rel
+

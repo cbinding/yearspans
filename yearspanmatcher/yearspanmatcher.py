@@ -44,7 +44,7 @@ def getMatcherForLanguage(language: str="en") -> YearSpanMatcherBase:
         case _: return YearSpanMatcherEN()
     
 
-def get_match(input, language: str) -> YearSpan:
+def get_match(input: str, language: str="en") -> YearSpan:
     matcher = getMatcherForLanguage(language)
     span = matcher.match(input)
     return span

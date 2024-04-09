@@ -92,7 +92,7 @@ def oneof(values: list=[], name: str=None) -> str:
 # Regular expression pattern options
 # returns: '(?:patt1|patt2|patt3)' or '(?P<name>patt1|patt2|patt3)'
 def oneofp(items: list=[], name: str=None) -> str:
-    patts = list(map(lambda item: item["pattern"], items))
+    patts = list(map(lambda item: item.get("pattern", ""), items))
     return oneof(patts, name)
 
 
@@ -103,43 +103,49 @@ def getValue(s: str, patts: list=[]):
     if not s:
         return None
     for item in patts:
-        match = regex.fullmatch(item["pattern"], s, regex.IGNORECASE)
+        match = regex.fullmatch(item.get("pattern", ""), s, regex.IGNORECASE)
         if match and "value" in item:
             return item["value"]
     else:
         return None
 
 
+def patterns_for_key(key: str="", language: str="en") -> list:
+    patterns_for_language = patterns.get(language.strip().lower(), "")
+    return patterns_for_language.get(key.strip(), "")
+
+
 def getDayNameEnum(s: str, language: str) -> enums.Day:
-    return getValue(s, patterns[language]["daynames"])
+    #return getValue(s, patterns[language]["daynames"])
+    return getValue(s, patterns_for_key("daynames", language))
 
 
 def getMonthNameEnum(s: str, language: str) -> enums.Month:
-    return getValue(s, patterns[language]["monthnames"])
+    return getValue(s, patterns_for_key("monthnames", language))
 
 
 def getSeasonNameEnum(s: str, language: str) -> enums.Season:
-    return getValue(s, patterns[language]["seasonnames"])
+    return getValue(s, patterns_for_key("seasonnames", language))
 
 
 def getCardinalValue(s: str, language: str) -> int:
-    return getValue(s, patterns[language]["cardinals"])
+    return getValue(s, patterns_for_key("cardinals", language))
 
 
 def getOrdinalValue(s: str, language: str) -> int:
-    return getValue(s, patterns[language]["ordinals"])
+    return getValue(s, patterns_for_key("ordinals", language))
 
 
 def getDatePrefixEnum(s: str, language: str) -> enums.DatePrefix:
-    return getValue(s, patterns[language]["dateprefix"])
+    return getValue(s, patterns_for_key("dateprefix", language))
 
 
 def getDateSuffixEnum(s: str, language: str) -> enums.DateSuffix:
-    return getValue(s, patterns[language]["datesuffix"])
+    return getValue(s, patterns_for_key("datesuffix", language))
 
 
 def getNamedPeriodValue(s: str, language: str) -> YearSpan:
-    return getValue(s, patterns[language]["periodnames"])
+    return getValue(s, patterns_for_key("periodnames", language))
 
 
 # reusable multilingual regular expression pattern library

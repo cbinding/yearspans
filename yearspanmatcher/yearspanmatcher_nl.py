@@ -23,7 +23,7 @@ from .yearspanmatcher_en import YearSpanMatcherEN
 
 class YearSpanMatcherNL(YearSpanMatcherEN):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(YearSpanMatcherEN, self).__init__("nl")
         self.MILLENNIUM = r"millennium"
         self.CENTURY = r"eeuw"

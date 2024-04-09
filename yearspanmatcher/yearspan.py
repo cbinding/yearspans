@@ -23,7 +23,7 @@ class YearSpan(object):
         maxYear: int=None, 
         label: str=None, 
         zeroIsBCE: bool=True
-    ):
+    ) -> None:
         # init properties with values passed in
         self.minYear = None
         self.maxYear = None
@@ -38,16 +38,20 @@ class YearSpan(object):
             self.minYear = min(values)
             self.maxYear = max(values)
  
+
     # calculate duration in years (including start and end year)
     def duration(self) -> int:
         return abs(self.maxYear or 0 - self.minYear or 0) + 1
+
 
     # string representation of this instance (e.g. "0043/0410 (Roman)")
     def __str__(self):
         return f"{self.toISO8601()} ({self.label})"
 
+
     def __repr__(self):
         return self.__str__()
+
 
     # ISO8601 string representation of this instance (e.g. "0043/0410")
     def toISO8601(self) -> str:
@@ -57,6 +61,7 @@ class YearSpan(object):
             zeroIsBCE=self.zeroIsBCE
         )        
 
+
     # JSON representation of this instance
     def toJSON(self) -> dict:
         return {
@@ -65,6 +70,7 @@ class YearSpan(object):
             "maxYear": self.yearToISO8601(self.maxYear, zeroIsBCE=self.zeroIsBCE),
             "isoSpan": self.toISO8601()
         }
+
 
     # try to parse integer value without throwing error
     @staticmethod
@@ -87,6 +93,7 @@ class YearSpan(object):
             minValue=YearSpan.yearToISO8601(span.minYear, zeroIsBCE=zeroIsBCE),
             maxValue=YearSpan.yearToISO8601(span.maxYear, zeroIsBCE=zeroIsBCE)
         )
+
 
     # convert signed numeric value (as year) to ISO8601 compatible string value.
     # Returns a (signed) year padded with leading zeros if shorter than 4 digits,

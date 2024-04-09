@@ -24,7 +24,7 @@ from .yearspanmatcher_base import YearSpanMatcherBase
 
 class YearSpanMatcherEN(YearSpanMatcherBase):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(YearSpanMatcherEN, self).__init__("en")
         self.CENTURY = r"C(?:entury)?"
         self.MILLENNIUM = r"millennium"
@@ -50,7 +50,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         if (suffixEnum == enums.DateSuffix.BC):
             year *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
-            year = self.PRESENT - year
+            year = self.present - year
         span = YearSpan(year, year, value)
         return span
 
@@ -81,7 +81,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         if (suffixEnum == enums.DateSuffix.BC):
             year *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
-            year = self.PRESENT - year
+            year = self.present - year
         span = YearSpan(year, year, value)
         return span
 
@@ -295,7 +295,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         if (suffixEnum == enums.DateSuffix.BC):
             year *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
-            year = self.PRESENT - year
+            year = self.present - year
         span = YearSpan(year, year, value)
         return span
 
@@ -322,7 +322,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         if (suffixEnum == enums.DateSuffix.BC):
             year *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
-            year = self.PRESENT - year
+            year = self.present - year
         span = YearSpan(year, year, value)
         return span
 
@@ -413,8 +413,8 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             fromYear *= -1
             toYear *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
-            fromYear = self.PRESENT - fromYear
-            toYear = self.PRESENT - toYear
+            fromYear = self.present - fromYear
+            toYear = self.present - toYear
 
         return YearSpan(fromYear, toYear, value)
 
@@ -453,8 +453,8 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             fromYear *= -1
             toYear *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
-            fromYear = self.PRESENT - fromYear
-            toYear = self.PRESENT - toYear
+            fromYear = self.present - fromYear
+            toYear = self.present - toYear
         return YearSpan(fromYear, toYear, value)
 
     def matchYearToYear2(self, value: str) -> YearSpan:
@@ -493,8 +493,8 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             fromYear *= -1
             toYear *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
-            fromYear = self.PRESENT - fromYear
-            toYear = self.PRESENT - toYear
+            fromYear = self.present - fromYear
+            toYear = self.present - toYear
         return YearSpan(fromYear, toYear, value)
 
     def matchLoneDecade(self, value: str) -> YearSpan:
@@ -604,6 +604,6 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         if (suffixEnum == enums.DateSuffix.BC):
             year *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
-            year = self.PRESENT - year
+            year = self.present - year
         span = YearSpan(year, year, value)
         return span

@@ -78,7 +78,7 @@ The textual timespan expression to be processed. The matching patterns employed 
 
 ### Language (optional)
 
-The [ISO639-1](https://www.iso.org/iso-639-language-codes.html) two character language code corresponding to the language of the input data. This hints to the underlying matching process the most appropriate matching patterns to use. Languages currently supported (to a greater or lesser degree) are:
+The [ISO639-1](https://www.iso.org/iso-639-language-codes.html) two character language code corresponding to the language of the input data. This hints to the underlying matching process the most appropriate matching patterns to use. Languages currently supported are:
 
 - Czech ('cs')
 - Dutch ('nl')
@@ -91,7 +91,7 @@ The [ISO639-1](https://www.iso.org/iso-639-language-codes.html) two character la
 - Swedish ('sv')
 - Welsh('cy')
 
-If the language parameter is omitted or is not one of the recognised values then the default will be _en_ (English).
+If the language parameter is omitted or is not one of these recognised values then the default used will be _en_ (English).
 
 ### Example Output
 
@@ -126,4 +126,4 @@ If the language parameter is omitted or is not one of the recognised values then
 
 ## Testing
 
-A suite of tests using the Python _unittest_ framework are located under the _tests_ directory. There are 312 unit tests in all, covering the various categories of year span textual expressions in each supported language.
+A suite of tests using the Python _unittest_ framework are located under the _tests_ directory. There are 315 unit tests in all, covering the various categories of year span textual expressions in each supported language.

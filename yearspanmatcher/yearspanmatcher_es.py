@@ -23,7 +23,7 @@ from .yearspanmatcher_en import YearSpanMatcherEN
 
 class YearSpanMatcherES(YearSpanMatcherEN):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(YearSpanMatcherEN, self).__init__("es")
         self.MILLENNIUM = r"milenio"
         self.CENTURY = r"siglo"
@@ -52,7 +52,7 @@ class YearSpanMatcherES(YearSpanMatcherEN):
             if (suffixEnum == enums.DateSuffix.BC):
                 year *= -1
             elif (suffixEnum == enums.DateSuffix.BP):
-                year = self.PRESENT - year
+                year = self.present - year
         span = YearSpan(year, year, value)
         return span
 

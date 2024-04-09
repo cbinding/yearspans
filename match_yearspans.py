@@ -31,7 +31,7 @@ from yearspanmatcher import *
 from yearspanmatcher.yearspanmatcher import getMatcherForLanguage
 
 
-def main():
+def main() -> None:
     # initiate the input arguments parser
     parser = argparse.ArgumentParser(prog=__file__,
                                      description='derive start/end years from text file of timespan expressions')

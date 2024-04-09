@@ -23,10 +23,11 @@ from .yearspanmatcher_en import YearSpanMatcherEN
 
 class YearSpanMatcherDE(YearSpanMatcherEN):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(YearSpanMatcherEN, self).__init__("de")
         self.MILLENNIUM = r"Jahrtausends?"
         self.CENTURY = r"(?:Jahrhundert|Jh)"
+
 
     def matchLoneDecade(self, value: str) -> YearSpan:
         # e.g. "1950er"
@@ -45,6 +46,7 @@ class YearSpanMatcherDE(YearSpanMatcherEN):
             decade = int(match.group('decade'))
         span = YearSpan(decade, decade + 9, value)
         return span
+
 
     def matchDecadeToDecade(self, value: str) -> YearSpan:
         # e.g. "1950er bis 1960er"

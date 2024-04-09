@@ -8,12 +8,12 @@ Contact   : ceri.binding@southwales.ac.uk
 Summary   : YearSpan class
 Imports   : N/A
 Example   : span = YearSpan(43, 410, "Roman", True)
-    NOTE: zeroIsBCE regards input year 0 as 1 BCE (there is no year 0)
+        NOTE: zeroIsBCE regards year 0 as 1 BCE (as there is no year 0)
 License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 18/02/2020 CFB Initially created script
-08/04/2024 CFB Type hints added, code tidying, added zeroIsBCE property
+09/04/2024 CFB Added type hints, zeroIsBCE, property getters and setters
 =============================================================================
 """
 class YearSpan(object):
@@ -25,9 +25,9 @@ class YearSpan(object):
         zeroIsBCE: bool=True
     ) -> None:
         # init properties with values passed in
-        self.minYear = None
-        self.maxYear = None
-        self.label = (label or "").strip()
+        self.minYear = minYear
+        self.maxYear = maxYear
+        self.label = label
         self.zeroIsBCE = zeroIsBCE
 
         # ensure minYear and maxYear values are set up correctly,
@@ -37,7 +37,43 @@ class YearSpan(object):
             values = list(filter(lambda x: x is not None, [minYear, maxYear]))
             self.minYear = min(values)
             self.maxYear = max(values)
- 
+    
+    # minYear property getter and setter
+    @property
+    def minYear(self) -> int: return self._minYear
+
+    @minYear.setter
+    def minYear(self, value: int):
+        self._minYear = value
+
+    # maxYear property getter and setter
+    @property
+    def maxYear(self) -> int: return self._maxYear
+
+    @maxYear.setter
+    def maxYear(self, value: int):
+        self._maxYear = value
+
+    # zeroIsBCE property getter and setter
+    @property
+    def zeroIsBCE(self) -> bool: return self._zeroIsBCE
+    
+    @zeroIsBCE.setter
+    def zeroIsBCE(self, value: bool):
+        self._zeroIsBCE = value
+
+    # return sensible label if not set
+    @property
+    def label(self) -> str:
+        if(len(self._label or "").strip()) == 0:
+            return self.toISO8601()
+        else:
+            return self._label
+
+    @label.setter
+    def label(self, value: str):
+        self._label = (value or "").strip()
+
 
     # calculate duration in years (including start and end year)
     def duration(self) -> int:
@@ -51,6 +87,17 @@ class YearSpan(object):
 
     def __repr__(self):
         return self.__str__()
+
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+
+    def __hash__(self):
+        return hash(tuple(sorted(self.__dict__.items())))
 
 
     # ISO8601 string representation of this instance (e.g. "0043/0410")
@@ -68,7 +115,8 @@ class YearSpan(object):
             "label": self.label,
             "minYear": self.yearToISO8601(self.minYear, zeroIsBCE=self.zeroIsBCE),
             "maxYear": self.yearToISO8601(self.maxYear, zeroIsBCE=self.zeroIsBCE),
-            "isoSpan": self.toISO8601()
+            "isoSpan": self.toISO8601(),
+            "duration": self.duration()
         }
 
 

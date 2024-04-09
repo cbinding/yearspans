@@ -25,7 +25,7 @@ class TestYearSpanMatcherCS(unittest.TestCase):
         span = self.matcher.match("lednu 1066 n. l.") # January 1066 AD
         expected = "1066/1066"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
-
+        
     def test_matchMonthYearBC(self):
         span = self.matcher.match("lednu 1066 př. n. l.") # January 1066 BC
         expected = "-1065/-1065"

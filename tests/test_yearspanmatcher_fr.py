@@ -164,13 +164,13 @@ class TestYearSpanMatcherFR(unittest.TestCase):
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedPeriod(self):
-        span = self.matcher.match("georgienne")
-        expected = "1714/1837"
+        span = self.matcher.match("Renaissance")
+        expected = "1500/1699"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedToNamedPeriod(self):
-        span = self.matcher.match("georgienne à victorienne")
-        expected = "1714/1901"
+        span = self.matcher.match("XIe siècle à XIIe siècle")
+        expected = "1000/1199"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
 

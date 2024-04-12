@@ -178,13 +178,13 @@ class TestYearSpanMatcherDE(unittest.TestCase):
 
     def test_matchNamedPeriod(self):
         span = self.matcher.match("Völkerwanderungszeit")  # Migration period
-        expected = "0375/0586"
+        expected = "0375/0567"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedToNamedPeriod(self):
         # Migration to Medieval
         span = self.matcher.match("Völkerwanderungszeit bit Mittelalter")
-        expected = "0375/1500"
+        expected = "0375/1499"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
 

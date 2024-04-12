@@ -189,14 +189,14 @@ class TestYearSpanMatcherNL(unittest.TestCase):
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedPeriod(self):
-        span = self.matcher.match("Romeinse")  # Roman
-        expected = "-0011/0449"
+        span = self.matcher.match("Romeinse tijd vroeg B")  # http://n2t.net/ark:/99152/p0pqptcnpgr (Early Roman Period B)
+        expected = "0025/0070"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedToNamedPeriod(self):
         span = self.matcher.match(
-            "Romeins tot middeleeuws")  # Roman to Medieval
-        expected = "-0011/1499"
+            "Romeinse tijd vroeg B tot Romeinse tijd midden A")  # (Early Roman Period B to Middle Roman Period A)
+        expected = "0025/0150"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
 

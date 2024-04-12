@@ -16,8 +16,14 @@ History
 09/04/2024 CFB Added type hints, zeroIsBCE, property getters and setters
 =============================================================================
 """
-from __future__ import annotations # so we can refer to YearSpan in static methods
-from yearspanmatcher.enums import Allen # for relationship between YearSpan instances
+from __future__ import annotations # to refer to YearSpan in static methods
+
+if __package__ is None or __package__ == '':
+    # uses current directory visibility
+    from enums import Allen # for relationship between YearSpan instances
+else:
+    from .enums import Allen 
+
 
 class YearSpan(object):
 
@@ -25,7 +31,7 @@ class YearSpan(object):
         minYear: int=None, 
         maxYear: int=None, 
         label: str=None, 
-        zeroIsBCE: bool=True # regards year 0 as 1 BCE (there is no year 0)
+        zeroIsBCE: bool=True # regard year 0 as 1 BCE (there is no year 0)
     ) -> None:
         # init properties with values passed in
         self.minYear = minYear
@@ -33,9 +39,9 @@ class YearSpan(object):
         self.label = label
         self.zeroIsBCE = zeroIsBCE
 
-        # ensure minYear and maxYear values are set up correctly,
-        # regardless of how they are passed in. If only one value 
-        # is passed it is used for both minYear and maxYear value
+        # ensure minYear and maxYear values are ordered correctly,
+        # regardless of how they were passed in. If only one value 
+        # is passed it is used for both minYear and maxYear values
         if (minYear is not None or maxYear is not None):
             values = list(filter(lambda x: x is not None, [minYear, maxYear]))
             self.minYear = min(values)
@@ -72,7 +78,7 @@ class YearSpan(object):
     # label property getter and setter
     @property
     def label(self) -> str:
-        if(len(self._label or "").strip()) == 0:
+        if(len(self._label or "")) == 0:
             return self.toISO8601()
         else:
             return self._label
@@ -85,7 +91,7 @@ class YearSpan(object):
 
     # calculate duration in whole years (including start and end year)
     def duration(self) -> int:
-        return abs(self.maxYear or 0 - self.minYear or 0) + 1
+        return abs((self.maxYear or 0) - (self.minYear or 0)) + 1
 
 
     # string representation of this instance (e.g. "0043/0410 (Roman)")
@@ -97,7 +103,7 @@ class YearSpan(object):
         return self.__str__()
 
 
-    def __eq__(self, other):
+    def __eq__(self, other: self.__class__):
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
         else:
@@ -154,7 +160,7 @@ class YearSpan(object):
     # convert signed numeric value (as year) to ISO8601 compatible string value.
     # Returns a (signed) year padded with leading zeros if shorter than 4 digits,
     # optionally adjusting returned value to represent that there is no year zero
-    # (so "0001" = 1 CE, "0000" = 1 BCE, "-0001" = 2 BCE, "-0002" = 3 BCE etc.)
+    # (so 1 ="0001" = 1 CE, 0 = "-0001" = 1 BCE, -1 = "-0002" = 2 BCE etc.)
     @staticmethod
     def yearToISO8601(year=None, minDigits:int=4, zeroIsBCE: bool=True) -> str:
         if year is not None:
@@ -165,11 +171,6 @@ class YearSpan(object):
         else:
             return ""
 
-    # is year within a given YearSpan
-    @staticmethod
-    def yearWithin(cls, year: int, span: YearSpan) -> bool: 	    
-	    return (year >= span.minYear 
-            and year <= span.maxYear)
     
     # Allen relationships between YearSpan instances
     # is spanA before spanB?
@@ -217,7 +218,7 @@ class YearSpan(object):
 
     # does spanA finish spanB?
     @staticmethod
-    def spanFinishesSpan(spanA: YearSpan, spanB: YearSpan) -> bool: 	
+    def spanFinishes(spanA: YearSpan, spanB: YearSpan) -> bool: 	
         return (spanA.maxYear == spanB.maxYear 
 		    and spanA.minYear > spanB.minYear)
 
@@ -243,6 +244,7 @@ class YearSpan(object):
         return (spanA.minYear == spanB.minYear 
 			and spanA.maxYear == spanB.maxYear)
 
+    # get Allen relationship between 2 YearSpan instances
     @staticmethod
     def spanRelationship(spanA: YearSpan, spanB: YearSpan) -> Allen: 	
         rel = None
@@ -275,3 +277,6 @@ class YearSpan(object):
             rel = Allen.EQUALS
         return rel
 
+if __name__ == "__main__":
+    span = YearSpan(-50,48,"test period")
+    print(span)

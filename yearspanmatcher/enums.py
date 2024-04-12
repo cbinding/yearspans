@@ -3,6 +3,8 @@
 Project   : ARIADNEplus
 Package   : yearspanmatcher
 Module    : enums.py
+Classes   : Allen, Language, DateSuffix, DatePrefix, Day, Month, Season,
+            Century, Millennium, Direction
 Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
 Contact   : ceri.binding@southwales.ac.uk
 Summary   : Enumerated values for consistency in coding
@@ -13,13 +15,15 @@ License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 History
 28/01/2020 CFB Initially created script (ported from Javascript prototype)
 30/01/2024 CFB Lexvo URIs updated ("/code/" => "/iso639-1/")
+11/04/2024 CFB Allen enum added - relationships between year spans
 =============================================================================
 """
 from enum import Enum, unique
 
 # usage:
-# Allen.BEFORE
-# Allen.BEFORE.name ("BEFORE")
+# enums.Allen.BEFORE
+# enums.Allen.BEFORE.name ("BEFORE")
+# enums.Allen.BEFORE.value ("before")
 @unique
 class Allen(Enum):
     BEFORE = "before"	
@@ -27,11 +31,11 @@ class Allen(Enum):
     MEETS = "meets"
     METBY = "metby"
     OVERLAPS = "overlaps"
-    OVERLAPPEDBY = "overlappedby"
+    OVERLAPPEDBY = "overlapped by"
     STARTS = "starts"
-    STARTEDBY = "startedby"
+    STARTEDBY = "started by"
     FINISHES = "finishes"
-    FINISHEDBY = "finishedby"
+    FINISHEDBY = "finished by"
     WITHIN = "within"
     CONTAINS = "contains"
     EQUALS = "equals"
@@ -57,12 +61,12 @@ class Language(Enum):
 
 
 # Enums ported from C# TimeSpanLib
-# usage: enums.DateSuffix.AD
+# usage: enums.DateSuffix.CE
 @unique
 class DateSuffix(Enum):
     NONE = 0
-    AD = 1
-    BC = 2
+    CE = 1
+    BCE = 2
     BP = 3
 
 
@@ -102,7 +106,7 @@ class Direction(Enum):
     S = "http://vocab.getty.edu/aat/300078825"     # South
     SW = "http://vocab.getty.edu/aat/300078829"    # South West
     W = "http://vocab.getty.edu/aat/300078836"     # West
-    NW = "http://vocab.getty.edu/aat/300078812"     # North West
+    NW = "http://vocab.getty.edu/aat/300078812"    # North West
 
 
 # usage: enums.Day.MON

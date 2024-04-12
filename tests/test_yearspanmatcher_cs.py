@@ -181,11 +181,12 @@ class TestYearSpanMatcherCS(unittest.TestCase):
         expected = "1950/1969"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
-    '''def test_matchNamedPeriod(self):
-        span = self.matcher.match("Edwardian")
-        expected = "1902/1910"
+    def test_matchNamedPeriod(self):
+        span = self.matcher.match("raný středověk 2") # http://n2t.net/ark:/99152/p0wctqtz4h3
+        expected = "0651/0800"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
-
+    
+    '''
     def test_matchNamedToNamedPeriod(self):
         span = self.matcher.match("Medieval to Edwardian")
         expected = "1066/1910"

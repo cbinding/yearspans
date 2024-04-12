@@ -168,14 +168,14 @@ class TestYearSpanMatcherES(unittest.TestCase):
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedPeriod(self):
-        span = self.matcher.match("Romano")  # Roman
-        expected = "0050/0400"
+        span = self.matcher.match("Alta Edad Media")  # http://n2t.net/ark:/99152/p0qhb66m983
+        expected = "0400/0699"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedToNamedPeriod(self):
         span = self.matcher.match(
-            "Romana a la Edad Media")  # Roman to Middle Ages
-        expected = "0050/1500"
+            "Alta Edad Media a la Baja Edad Media")  # http://n2t.net/ark:/99152/p0qhb66fp7h
+        expected = "0400/1499"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
 

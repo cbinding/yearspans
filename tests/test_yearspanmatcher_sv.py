@@ -188,13 +188,13 @@ class TestYearSpanMatcherSV(unittest.TestCase):
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedPeriod(self):
-        span = self.matcher.match("Vikingatid")  # Viking Age
+        span = self.matcher.match("Vikingatid")  # http://n2t.net/ark:/99152/p0qhb66x5gs (Viking Age)
         expected = "0800/1050"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedToNamedPeriod(self):
         span = self.matcher.match(
-            "Vikingatid till medeltida")  # Viking to Medieval
+            "Vikingatid till medeltid")  # Viking Age to Medieval
         expected = "0800/1520"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 

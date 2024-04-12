@@ -21,6 +21,7 @@ History
 14/02/2020 CFB Initially created script
 11/03/2020 CFB Revised to insert derived minYear and maxYear elements
 13/10/2022 CFB Made yearspanmatcher imports more modular
+11/04/2023 CFB Revised to suit YearSpan and YearSpanMatcher class changes
 =============================================================================
 """
 import argparse                         # for argument parsing
@@ -30,7 +31,7 @@ from datetime import datetime as DT     # For process timestamps
 import os
 import sys
 from os.path import dirname, abspath, join
-from yearspanmatcher import YearSpan, YearSpanMatcherEN
+from yearspanmatcher import YearSpan, YearSpanMatcher
 
 
 def main():
@@ -86,6 +87,9 @@ def main():
         for key, value in ns.items():
             ET.register_namespace(key, value)
 
+        # create YearSpanMatcher instance for English
+        matcher = YearSpanMatcher("en")
+                
         # process all dc:subjectPeriod elements present in the tree
         # for element in root.findall(".//record[@type='record']/dc:subjectPeriod", ns):
         for element in root.findall(".//record[@type='record']", ns):
@@ -93,21 +97,18 @@ def main():
             for temporal in element.findall("dcterms:temporal", ns):
                 # derive new minYear and maxYear values
                 #span = relib.en.dateSpanMatcher(temporal.text)
-                matcher = YearSpanMatcherEN()
                 span = matcher.match(temporal.text)
                 if span is not None:
                     # create minYear element appended as child of current dc:subjectPeriod element, sibling of dcterms:temporal
                     minYearElement = ET.SubElement(element, 'minYear')
-                    minYearElement.text = YearSpan.yearToISO8601(
-                        value=span.minYear, minDigits=4, zeroIsBC=True)
+                    minYearElement.text = span.toISO8601()
                     minYearElement.set(
                         '{http://www.w3.org/2001/XMLSchema-instance}type', 'http://www.w3.org/2001/XMLSchema#gYear')
                     minYearElement.tail = "\n"  # included just for readability of output
 
                     # create maxYear element appended as child of current dc:subjectPeriod element, sibling of dcterms:temporal
                     maxYearElement = ET.SubElement(element, 'maxYear')
-                    maxYearElement.text = YearSpan.yearToISO8601(
-                        value=span.maxYear, minDigits=4, zeroIsBC=True)
+                    maxYearElement.text = span.toISO8601()
                     maxYearElement.set(
                         '{http://www.w3.org/2001/XMLSchema-instance}type', 'http://www.w3.org/2001/XMLSchema#gYear')
                     maxYearElement.tail = "\n"  # included just for readability of output

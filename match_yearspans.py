@@ -28,7 +28,7 @@ import sys
 from os.path import dirname, abspath, join
 
 from yearspanmatcher import *
-from yearspanmatcher.yearspanmatcher import getMatcherForLanguage
+from yearspanmatcher import YearSpanMatcher
 
 
 def main() -> None:
@@ -77,7 +77,7 @@ def main() -> None:
 
     data = []
     counter = 0
-    matcher = getMatcherForLanguage(language)
+    matcher = YearSpanMatcher(language)
 
     # read and parse text input rows into [{"value": "x"}, {"value": "y"}, {"value": "x"}]
     print(f"Reading '{inputFilePath}'")
@@ -100,19 +100,21 @@ def main() -> None:
             item["minYear"] = YearSpan.yearToISO8601(span.minYear)
             item["maxYear"] = YearSpan.yearToISO8601(span.maxYear)
             item["isoSpan"] = span.toISO8601()
+            item["duration"] = span.duration()
     print(f"Processed {len(data)} rows")
 
     # write results to delimited output data file
     print(f"Writing to {outputFilePath}")
     with open(outputFilePath, mode='w') as output_file:
         writer = csv.writer(output_file)
-        writer.writerow(["value", "minYear", "maxYear", "isoSpan"])
+        writer.writerow(["value", "minYear", "maxYear", "isoSpan", "duration"])
         for item in data:
             writer.writerow([
                 item.get("value", ""),
                 item.get("minYear", ""),
                 item.get("maxYear", ""),
-                item.get("isoSpan", "")
+                item.get("isoSpan", ""),
+                item.get("duration", 0)
             ])
     print(f"Finished writing to {outputFilePath}")
 

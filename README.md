@@ -57,7 +57,7 @@ The output dates produced are derived relative to Common Era (CE). Centuries are
 | Third Quarter  |    51 |  75 |
 | Fourth Quarter |    76 | 100 |
 
-\*Note the boundaries of _Early_, _Mid_ and _Late_ overlap, suggesting a level of approximation when using such terms.
+\*Note the boundaries of _Early_, _Mid_ and _Late_ overlap, suggesting that a level of approximation is intended when using such terms.
 
 In the case of decades, centuries or stated tolerances, an offset is added or subtracted from the initial extracted year in order to interpret the overall extents of the year span being expressed. (e.g. _1540±9_ = start year 1531, end year 1549)
 

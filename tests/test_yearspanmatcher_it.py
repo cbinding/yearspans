@@ -195,13 +195,15 @@ class TestYearSpanMatcherIT(unittest.TestCase):
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedPeriod(self):
-        span = self.matcher.match("Romana")  # Roman
-        expected = "0350/0600"
+        span = self.matcher.match("tardoantico")  # http://n2t.net/ark:/99152/p0qhb664g3r (Late Antique)
+        expected = "0400/0529" # potential issue here
+        # chosen authority has 2 "tardoantico" with different dates...
+        # (different spatial coverage but same language)
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedToNamedPeriod(self):
-        span = self.matcher.match("Romana a medievale")  # Roman to Medieval
-        expected = "0350/1350"
+        span = self.matcher.match("tardoantico a bizantino")  # Late Antique to Byzantine
+        expected = "0400/0902"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
 

@@ -17,11 +17,16 @@ History
 05/04/2024 CFB Added type hints to function signatures
 =============================================================================
 """
-from collections import defaultdict
+from collections import defaultdict # for patterns lists
 import regex
-# from . import enums
-from yearspanmatcher import enums
-from yearspanmatcher.yearspan import YearSpan
+
+if __package__ is None or __package__ == '':
+    # uses current directory visibility
+    from yearspan import YearSpan
+    import enums  
+else:
+    from .yearspan import YearSpan
+    from . import enums
 
 # common regex patterns as constant strings
 START = r"^"
@@ -32,82 +37,66 @@ END = r"$"
 NUMERICYEAR = r"[+-]?[1-9]\d{0,2}(?:\d|[\s,](?:\d{3}))*"
 # note unicode property \p{Pd} covers all variants of hyphen/dash
 # see https://www.fileformat.info/info/unicode/category/Pd/list.htm
+DASH = r"\p{Pd}"
 SPACEORDASH = r"(?:\s|\p{Pd})"
 ROMAN = r"[MCDLXVI]+"
-# SEPARATOR_EN = r"(\s?\p{Pd}\s?|/|\s(to|or|and|until)(\sthe)?\s)"
 
-
-# Regular expression grouping and repeaters
+# functions for constructing regex groups
 # returns: '(?:value)' or '(?P<name>value)'
 def group(value: str, name: str=None, repeater: str=None) -> str:
     clean_name = (name or "").strip()
     clean_val = (value or "").strip()    
     clean_rep = (repeater or "").strip()
 
-    if (clean_name != ""):
+    if len(clean_name) > 0:
         return f"(?P<{clean_name}>{clean_val}){clean_rep}"
     else:
         return f"(?:{clean_val}){clean_rep}"
 
-# functions for constructing regex groups
-# returns: true | false
+# returns True | False
 def isgrouped(value: str) -> bool:
     clean_val = (value or "").strip()
     return (clean_val.startswith("(") and clean_val.endswith(")"))
-
 
 # returns: '(?:value)?' or '(?P<name>value)?'
 def maybe(value: str, name: str=None) -> str:
     return group(value, name, "?")
 
-
 # returns: '(?:value)*' or '(?P<name>value)*'
 def zeroormore(value: str, name: str=None) -> str:
     return group(value, name, "*")
-
 
 # returns: '(?:value)+' or '(?P<name>value)+'
 def oneormore(value: str, name: str=None) -> str:
     return group(value, name, "+")
 
-
 # returns: '(?:value){n}' or '(?P<name>value){n}'
 def exactly(value: str, name: str=None, n: int=1) -> str:
     return group(value, name, f"{{{n}}}")
-
 
 # returns: '(?:value){n,m}' or '(?P<name>value){n,m}'
 def range(value: str, name: str=None, n: int=None, m: int=None) -> str:
     return group(value, name, f"{{{n or ''},{m or ''}}}")
 
-
 # Regular expression value options group e.g. where values = [value1, value2, value3]
 # returns: '(?:value1|value2|value3)' or '(?P<name>value1|value2|value3)'
-def oneof(values: list=[], name: str=None) -> str:
+def oneof(values: list=[], name: str=None, repeater: str=None) -> str:
     clean_values = list(map(lambda value: (value or "").strip(), values))
     choices = '|'.join(clean_values)
-    return group(choices, name)
-
-
-# Regular expression pattern options
-# returns: '(?:patt1|patt2|patt3)' or '(?P<name>patt1|patt2|patt3)'
-def oneofp(items: list=[], name: str=None) -> str:
-    patts = list(map(lambda item: item.get("pattern", ""), items))
-    return oneof(patts, name)
+    return group(choices, name, repeater)
 
 
 # Get value property by matching s to item pattern
-# from patterns array: [{ value: "", pattern:""}]
+# from patterns array: [{ value: "", pattern:"" }]
 # @staticmethod
 def getValue(s: str, patts: list=[]):
     if not s:
         return None
     for item in patts:
         match = regex.fullmatch(item.get("pattern", ""), s, regex.IGNORECASE)
-        if match and "value" in item:
-            return item["value"]
-    else:
-        return None
+        if match:
+            return item.get("value", None)
+    return None
 
 
 def patterns_for_key(key: str="", language: str="en") -> list:
@@ -116,8 +105,7 @@ def patterns_for_key(key: str="", language: str="en") -> list:
 
 
 def getDayNameEnum(s: str, language: str) -> enums.Day:
-    #return getValue(s, patterns[language]["daynames"])
-    return getValue(s, patterns_for_key("daynames", language))
+     return getValue(s, patterns_for_key("daynames", language))
 
 
 def getMonthNameEnum(s: str, language: str) -> enums.Month:
@@ -126,10 +114,6 @@ def getMonthNameEnum(s: str, language: str) -> enums.Month:
 
 def getSeasonNameEnum(s: str, language: str) -> enums.Season:
     return getValue(s, patterns_for_key("seasonnames", language))
-
-
-def getCardinalValue(s: str, language: str) -> int:
-    return getValue(s, patterns_for_key("cardinals", language))
 
 
 def getOrdinalValue(s: str, language: str) -> int:
@@ -145,7 +129,7 @@ def getDateSuffixEnum(s: str, language: str) -> enums.DateSuffix:
 
 
 def getNamedPeriodValue(s: str, language: str) -> YearSpan:
-    return getValue(s, patterns_for_key("periodnames", language))
+    return getValue(s, patterns_for_key("periods", language))
 
 
 # reusable multilingual regular expression pattern library
@@ -153,51 +137,16 @@ def getNamedPeriodValue(s: str, language: str) -> YearSpan:
 patterns = defaultdict(dict)
 
 # new (29/01/24) Czech language patterns
-patterns["cs"]["cardinals"] = [
-    {"value": 0, "pattern": r"(?:0|nula)"},
-    {"value": 1, "pattern": r"(?:1|jeden|jedna|jedno)"},
-    {"value": 2, "pattern": r"(?:2|dv[aĕ])"},
-    {"value": 3, "pattern": r"(?:3|tři)"},
-    {"value": 4, "pattern": r"(?:4|čtyři)"},
-    {"value": 5, "pattern": r"(?:5|pĕt)"},
-    {"value": 6, "pattern": r"(?:6|šest)"},
-    {"value": 7, "pattern": r"(?:7|sedm)"},
-    {"value": 8, "pattern": r"(?:8|osm)"},
-    {"value": 9, "pattern": r"(?:9|devĕt)"},
-    {"value": 10, "pattern": r"(?:10|deset)"},
-    {"value": 11, "pattern": r"(?:11|jedenáct)"},
-    {"value": 12, "pattern": r"(?:12|dvanáct)"},
-    {"value": 13, "pattern": r"(?:13|třináct)"},
-    {"value": 14, "pattern": r"(?:14|čtrnáct)"},
-    {"value": 15, "pattern": r"(?:15|patnáct)"},
-    {"value": 16, "pattern": r"(?:16|šestnáct)"},
-    {"value": 17, "pattern": r"(?:17|sedmnáct)"},
-    {"value": 18, "pattern": r"(?:18|osmnáct)"},
-    {"value": 19, "pattern": r"(?:19|devatenáct)"},
-    {"value": 20, "pattern": r"(?:20|dvacet)"},
-    {"value": 21, "pattern": r"(?:21|dvacet jedna)"},
-    {"value": 22, "pattern": r"(?:22|dvacet dva)"},
-    {"value": 23, "pattern": r"(?:23|dvacet tři)"},
-    {"value": 24, "pattern": r"(?:24|dvacet čtyři)"},
-    {"value": 25, "pattern": r"(?:25|dvacet pĕt)"},
-    {"value": 26, "pattern": r"(?:26|dvacet šest)"},
-    {"value": 27, "pattern": r"(?:27|dvacet sedm)"},
-    {"value": 28, "pattern": r"(?:28|dvacet osm)"},
-    {"value": 29, "pattern": r"(?:29|dvacet devĕt)"},
-    {"value": 30, "pattern": r"(?:30|třicet)"},
-    {"value": 31, "pattern": r"(?:31|třicet jedna)"},
-]
-
 patterns["cs"]["ordinals"] = [
-    {"value": 1, "pattern": r"(?:1\.|první)"},                 # first
-    {"value": 2, "pattern": r"(?:2\.|druh(?:ý|ého))"},                 # second
-    {"value": 3, "pattern": r"(?:3\.|třetí)"},                 # third
-    {"value": 4, "pattern": r"(?:4\.|čtvrt(?:ý|ého))"},                # fourth
-    {"value": 5, "pattern": r"(?:5\.|pát(?:ý|ého))"},                  # fifth
-    {"value": 6, "pattern": r"(?:6\.|šest(?:ý|ého))"},                 # sixth
-    {"value": 7, "pattern": r"(?:7\.|sedm(?:ý|ého))"},                 # seventh
-    {"value": 8, "pattern": r"(?:8\.|osm(?:ý|ého))"},                  # eighth
-    {"value": 9, "pattern": r"(?:9\.|devát(?:ý|ého))"},                # ninth
+    {"value": 1, "pattern": r"(?:1\.|první)"},                          # first
+    {"value": 2, "pattern": r"(?:2\.|druh(?:ý|ého))"},                  # second
+    {"value": 3, "pattern": r"(?:3\.|třetí)"},                          # third
+    {"value": 4, "pattern": r"(?:4\.|čtvrt(?:ý|ého))"},                 # fourth
+    {"value": 5, "pattern": r"(?:5\.|pát(?:ý|ého))"},                   # fifth
+    {"value": 6, "pattern": r"(?:6\.|šest(?:ý|ého))"},                  # sixth
+    {"value": 7, "pattern": r"(?:7\.|sedm(?:ý|ého))"},                  # seventh
+    {"value": 8, "pattern": r"(?:8\.|osm(?:ý|ého))"},                   # eighth
+    {"value": 9, "pattern": r"(?:9\.|devát(?:ý|ého))"},                 # ninth
     {"value": 10, "pattern": r"(?:10\.|desát(?:ý|ého))"},               # tenth
     {"value": 11, "pattern": r"(?:11\.|jedenáct(?:ý|ého))"},            # eleventh
     {"value": 12, "pattern": r"(?:12\.|dvanáct(?:ý|ého))"},             # twelfth
@@ -282,9 +231,9 @@ patterns["cs"]["dateprefix"] = [
 
 patterns["cs"]["datesuffix"] = [
     # NL, AD, CE
-    {"value": enums.DateSuffix.AD,
+    {"value": enums.DateSuffix.CE,
         "pattern": r"(?:našeho letopočtu|n\.?\s?l\.?|A\.?D\.?|C\.?E\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.BCE,
         # BC, BCE
         "pattern": r"(?:př\.? n\.? l\.?|B\.?C\.?(?:E\.?)?)"},
     # BP
@@ -292,313 +241,11 @@ patterns["cs"]["datesuffix"] = [
 ]
 
 patterns["cs"]["dateseparator"] = [
-    {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\saž?\s"}
-]
-
-# periods extracted from http://n2t.net/ark:/99152/p0wctqt
-patterns["cs"]["periodnames"] = [
-    {"pattern": r"paleolit nesp.", "value": YearSpan(-1000000, -9601)},
-    {"pattern": r"paleolit-mezolit", "value": YearSpan(-1000000, -5601)},
-    {"pattern": r"pravěk nesp.", "value": YearSpan(-1000000, 580)},
-    {"pattern": r"starší paleolit", "value": YearSpan(-1000000, -300001)},
-    {"pattern": r"střední paleolit", "value": YearSpan(-300000, -40001)},
-    {"pattern": r"moustérien", "value": YearSpan(-220000, -40001)},
-    {"pattern": r"krumlovien", "value": YearSpan(-130000, -38001)},
-    {"pattern": r"micoquien", "value": YearSpan(-130000, -70001)},
-    {"pattern": r"taubachien", "value": YearSpan(-130000, -80001)},
-    {"pattern": r"bohunicien", "value": YearSpan(-40000, -35001)},
-    {"pattern": r"mladší paleolit", "value": YearSpan(-40000, -10001)},
-    {"pattern": r"szeletien", "value": YearSpan(-40000, -38001)},
-    {"pattern": r"aurignacien", "value": YearSpan(-38000, -28001)},
-    {"pattern": r"miškovický typ", "value": YearSpan(-38000, -28001)},
-    {"pattern": r"gravettien", "value": YearSpan(-30000, -18001)},
-    {"pattern": r"magdalénien", "value": YearSpan(-20000, -10001)},
-    {"pattern": r"epigravettien", "value": YearSpan(-18000, -10001)},
-    {"pattern": r"epimagdalénien", "value": YearSpan(-10000, -8001)},
-    {"pattern": r"ostroměřská skup.", "value": YearSpan(-10000, -8001)},
-    {"pattern": r"pozdní paleolit", "value": YearSpan(-10000, -8001)},
-    {"pattern": r"mezolit nesp.", "value": YearSpan(-9600, -5601)},
-    {"pattern": r"k. lineární ker.", "value": YearSpan(-5600, -4901)},
-    {"pattern": r"neolit nesp.", "value": YearSpan(-5600, -4201)},
-    {"pattern": r"neolit-eneolit", "value": YearSpan(-5600, -2301)},
-    {"pattern": r"starší neolit", "value": YearSpan(-5600, -4701)},
-    {"pattern": r"zemědělský pravěk", "value": YearSpan(-5600, 580)},
-    {"pattern": r"k. oberlauterbašská", "value": YearSpan(-5000, -4601)},
-    {"pattern": r"šárecký typ", "value": YearSpan(-5000, -4901)},
-    {"pattern": r"želiezovská skupina", "value": YearSpan(-5000, -4701)},
-    {"pattern": r"k. vypíchané ker.", "value": YearSpan(-4900, -4401)},
-    {"pattern": r"moravská malovaná k. (neolit)", "value": YearSpan(-4700, -4501)},
-    {"pattern": r"střední / mladší neolit", "value": YearSpan(-4700, -4201)},
-    {"pattern": r"lengyelská k.", "value": YearSpan(-4600, -4201)},
-    {"pattern": r"eneolit nesp.", "value": YearSpan(-4500, -2301)},
-    {"pattern": r"k. münchshöfenská", "value": YearSpan(-4500, -4201)},
-    {"pattern": r"moravská malovaná k. (eneolit)", "value": YearSpan(-4500, -4101)},
-    {"pattern": r"časný eneolit", "value": YearSpan(-4500, -3801)},
-    {"pattern": r"jordanovská k.", "value": YearSpan(-4200, -4001)},
-    {"pattern": r"schusseriedská k.", "value": YearSpan(-4200, -3801)},
-    {"pattern": r"k. Retz-Bajč-Křepice", "value": YearSpan(-4000, -3501)},
-    {"pattern": r"michelsberská k.", "value": YearSpan(-4000, -3801)},
-    {"pattern": r"k. nálevkovitých pohárů", "value": YearSpan(-3900, -3301)},
-    {"pattern": r"starší eneolit", "value": YearSpan(-3900, -3351)},
-    {"pattern": r"ohrozimský typ", "value": YearSpan(-3500, -3301)},
-    {"pattern": r"badenská k.", "value": YearSpan(-3400, -2901)},
-    {"pattern": r"střední eneolit", "value": YearSpan(-3350, -2801)},
-    {"pattern": r"chamská k.", "value": YearSpan(-3100, -2801)},
-    {"pattern": r"jevišovická k.", "value": YearSpan(-3100, -2801)},
-    {"pattern": r"k. kulovitých amfor", "value": YearSpan(-3100, -2801)},
-    {"pattern": r"mladší eneolit", "value": YearSpan(-3100, -2301)},
-    {"pattern": r"řivnáčská k.", "value": YearSpan(-3100, -2801)},
-    {"pattern": r"bošácká sk.", "value": YearSpan(-3000, -2601)},
-    {"pattern": r"k. šňůrové ker.", "value": YearSpan(-2900, -2501)},
-    {"pattern": r"mladší / pozdní eneolit", "value": YearSpan(-2900, -2201)},
-    {"pattern": r"k. Kosihy-Čaka", "value": YearSpan(-2800, -2301)},
-    {"pattern": r"k. zvoncovitých pohárů", "value": YearSpan(-2500, -2201)},
-    {"pattern": r"k. Chlopice-Veselé", "value": YearSpan(-2400, -2101)},
-    {"pattern": r"d. bronzová - halštatská", "value": YearSpan(-2300, -481)},
-    {"pattern": r"d. bronzová nesp.", "value": YearSpan(-2300, -751)},
-    {"pattern": r"protoúnětická k.", "value": YearSpan(-2300, -2001)},
-    {"pattern": r"starší d. bronzová", "value": YearSpan(-2300, -1551)},
-    {"pattern": r"únětická k.", "value": YearSpan(-2300, -1651)},
-    {"pattern": r"nitranská k.", "value": YearSpan(-2100, -1801)},
-    {"pattern": r"hatvanská k.", "value": YearSpan(-1800, -1601)},
-    {"pattern": r"střední d. bronzová", "value": YearSpan(-1700, -1251)},
-    {"pattern": r"věteřovská k.", "value": YearSpan(-1700, -1501)},
-    {"pattern": r"k. mohylová středodunajská", "value": YearSpan(-1650, -1251)},
-    {"pattern": r"k. mohylová českofalcká", "value": YearSpan(-1650, -1251)},
-    {"pattern": r"lužická k.", "value": YearSpan(-1300, -1026)},
-    {"pattern": r"obd. popelnicových polí", "value": YearSpan(-1300, -801)},
-    {"pattern": r"saská lužická k.", "value": YearSpan(-1300, -751)},
-    {"pattern": r"velatická k.", "value": YearSpan(-1300, -1001)},
-    {"pattern": r"knovízská k.", "value": YearSpan(-1250, -951)},
-    {"pattern": r"milavečská k.", "value": YearSpan(-1250, -976)},
-    {"pattern": r"mladší d. bronzová", "value": YearSpan(-1250, -1001)},
-    {"pattern": r"chebská k.", "value": YearSpan(-1200, -1001)},
-    {"pattern": r"slezskoplatěnická k.", "value": YearSpan(-1100, -451)},
-    {"pattern": r"slezskoplatěnická k. HaB", "value": YearSpan(-1100, -801)},
-    {"pattern": r"podolská k.", "value": YearSpan(-1025, -751)},
-    {"pattern": r"štítarská k.", "value": YearSpan(-1025, -751)},
-    {"pattern": r"pozdní d. bronzová", "value": YearSpan(-1000, -751)},
-    {"pattern": r"slezská k.", "value": YearSpan(-1000, -801)},
-    {"pattern": r"nynická k.", "value": YearSpan(-975, -751)},
-    {"pattern": r"billendorfská k.", "value": YearSpan(-950, -451)},
-    {"pattern": r"bylanská k.", "value": YearSpan(-800, -531)},
-    {"pattern": r"d. halštatská - laténská nesp.", "value": YearSpan(-800, -31)},
-    {"pattern": r"d. halštatská nesp.", "value": YearSpan(-800, -371)},
-    {"pattern": r"halštatská mohylová k.", "value": YearSpan(-800, -531)},
-    {"pattern": r"horákovská k.", "value": YearSpan(-800, -461)},
-    {"pattern": r"k. billendorfská HaC", "value": YearSpan(-800, -626)},
-    {"pattern": r"platěnická k.", "value": YearSpan(-800, -401)},
-    {"pattern": r"slezskoplatěnická k. HaC-D", "value": YearSpan(-800, -371)},
-    {"pattern": r"starší d. halštatská (HaC-D1)", "value": YearSpan(-800, -541)},
-    {"pattern": r"obd. HaD-LtA", "value": YearSpan(-625, -371)},
-    {"pattern": r"mladší d. halštatská (HaD2-3)", "value": YearSpan(-540, -461)},
-    {"pattern": r"k. púchovská", "value": YearSpan(-480, 180)},
-    {"pattern": r"časná d. laténská (LtA)", "value": YearSpan(-480, -381)},
-    {"pattern": r"d. laténská - římská nesp.", "value": YearSpan(-450, 400)},
-    {"pattern": r"d. laténská nesp.", "value": YearSpan(-450, -31)},
-    {"pattern": r"turnovský typ", "value": YearSpan(-410, -321)},
-    {"pattern": r"podmokelská sk.", "value": YearSpan(-400, -131)},
-    {"pattern": r"střední d. laténská (LtB-C1)", "value": YearSpan(-370, -171)},
-    {"pattern": r"k. przeworská", "value": YearSpan(-200, 400)},
-    {"pattern": r"mladší/pozdní d. laténská (LtC2-D)", "value": YearSpan(-170, -31)},
-    {"pattern": r"pozdní d. laténská (LtD)", "value": YearSpan(-130, -31)},
-    {"pattern": r"kobylská sk.", "value": YearSpan(-110, -91)},
-    {"pattern": r"d. římská - stěhování národů nesp.", "value": YearSpan(-30, 580)},
-    {"pattern": r"d. římská nesp.", "value": YearSpan(-30, 400)},
-    {"pattern": r"plaňanský typ", "value": YearSpan(-30, -6)},
-    {"pattern": r"starší d. římská", "value": YearSpan(-30, 180)},
-    {"pattern": r"mladší doba římská", "value": YearSpan(181, 400)},
-    {"pattern": r"d. stěhování národů nesp.", "value": YearSpan(381, 580)},
-    {"pattern": r"dobrodzieńská sk.", "value": YearSpan(381, 480)},
-    {"pattern": r"starší d. stěhování národů", "value": YearSpan(381, 480)},
-    {"pattern": r"mladší d. stěhování národů", "value": YearSpan(481, 580)},
-    {"pattern": r"raný středověk 1", "value": YearSpan(581, 650)},
-    {"pattern": r"raný středověk nesp.", "value": YearSpan(581, 1200)},
-    {"pattern": r"středověk - novověk nesp.", "value": YearSpan(581, 1800)},
-    {"pattern": r"středověk nesp.", "value": YearSpan(581, 1500)},
-    {"pattern": r"raný středověk 2", "value": YearSpan(651, 800)},
-    {"pattern": r"raný středověk 2-4", "value": YearSpan(651, 1150)},
-    {"pattern": r"rané středohradištní o.", "value": YearSpan(801, 850)},
-    {"pattern": r"raný středověk 3", "value": YearSpan(801, 930)},
-    {"pattern": r"vyspělé středohradištní o.", "value": YearSpan(851, 900)},
-    {"pattern": r"pozdní středohradištní o.", "value": YearSpan(901, 930)},
-    {"pattern": r"rané mladohradištní o.", "value": YearSpan(931, 950)},
-    {"pattern": r"raný středověk 4", "value": YearSpan(931, 1150)},
-    {"pattern": r"vyspělé mladohradištní o.", "value": YearSpan(951, 1050)},
-    {"pattern": r"pozdněhradištní o.", "value": YearSpan(1051, 1150)},
-    {"pattern": r"přechod rs/vs", "value": YearSpan(1151, 1250)},
-    {"pattern": r"vrcholný - pozdní středověk nesp.",
-        "value": YearSpan(1201, 1500)},
-    {"pattern": r"vrcholný středověk", "value": YearSpan(1201, 1300)},
-    {"pattern": r"vrcholný středověk - novověk nesp.",
-        "value": YearSpan(1201, 1800)},
-    {"pattern": r"pozdní středověk", "value": YearSpan(1301, 1500)},
-    {"pattern": r"přechod ps/no", "value": YearSpan(1451, 1550)},
-    {"pattern": r"novověk - industriální o. nesp.",
-        "value": YearSpan(1501, 2000)},
-    {"pattern": r"novověk 1", "value": YearSpan(1501, 1650)},
-    {"pattern": r"novověk nesp.", "value": YearSpan(1501, 1800)},
-    {"pattern": r"novověk 2", "value": YearSpan(1651, 1800)},
-    {"pattern": r"industriální o. 1", "value": YearSpan(1801, 1900)},
-    {"pattern": r"industriální období nesp.", "value": YearSpan(1801, 2000)},
-    {"pattern": r"industriální o. 2", "value": YearSpan(1901, 2000)}
-]
-
-patterns["cs"]["datespans"] = [
-    {
-        # Month and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{month}})\s({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            month=oneofp(patterns["cs"]["monthnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    },
-    {
-        # Season and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            season=oneofp(patterns["cs"]["seasonnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    },
-    {
-        # year with suffix
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{year}})(\s?{{suffix}})".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    },
-    {
-        # year with prefix
-        "pattern": fr"({{prefix}}{{spaceordash}}?)+({{year}})(\s?{{suffix}})?".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    },
-    {
-        # from year to year
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromYear}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromYear=NUMERICYEAR,
-            separator=oneofp(patterns["cs"]["dateseparator"]),
-            toYear=NUMERICYEAR,
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    },
-    {
-        # named historical periods
-        "pattern":  f"\b({{prefix}}{{spaceordash}}?)*({{named}})\b".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named=oneofp(patterns["cs"]["periodnames"])
-        )
-    },
-    {
-        # from named to named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named1=oneofp(patterns["cs"]["periodnames"]),
-            named2=oneofp(patterns["cs"]["periodnames"]),
-            separator=oneofp(patterns["cs"]["dateseparator"]),
-        )
-    },
-    {
-        # decades
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade=r"\b[1-9]\d{1,2}0",
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    },
-    {
-        # from decade to decade
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade1=r"\b[1-9]\d{1,2}0",
-            decade2=r"\b[1-9]\d{1,2}0",
-            separator=oneofp(patterns["cs"]["dateseparator"]),
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal centuries e.g.  (5th century AD)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) století(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["cs"]["ordinals"]),
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal millennia e.g.  (first half of the 6th millennium BC)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) století(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["cs"]["ordinals"]),
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    },
-    {
-        # from ordinal millennium to ordinal millennium
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromMill}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toMill}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["cs"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromMill=oneofp(patterns["cs"]["ordinals"]),
-            separator=oneofp(patterns["cs"]["dateseparator"]),
-            toMill=oneofp(patterns["cs"]["ordinals"]),
-            suffix=oneofp(patterns["cs"]["datesuffix"])
-        )
-    }
+    {"pattern": r"\p{Pd}"},
+    {"pattern": r"až?"}
 ]
 
 # Welsh language patterns
-patterns["cy"]["cardinals"] = [
-    {"value": 1, "pattern": r"(?:1|un)"},
-    {"value": 2, "pattern": r"(?:2|dau|dwy)"},
-    {"value": 3, "pattern": r"(?:3|tri|tair)"},
-    {"value": 4, "pattern": r"(?:4|ped(wa|ai)r)"},
-    {"value": 5, "pattern": r"(?:5|pump?)"},
-    {"value": 6, "pattern": r"(?:6|chwe(ch)?)"},
-    {"value": 7, "pattern": r"(?:7|saith)"},
-    {"value": 8, "pattern": r"(?:8|wyth)"},
-    {"value": 9, "pattern": r"(?:9|naw)"},
-    {"value": 10, "pattern": r"(?:10|deg)"},
-    {"value": 11, "pattern": r"(?:11|un (ar ddeg|deg un))"},
-    {"value": 12, "pattern": r"(?:12|deuddeg|un deg dau)"},
-    {"value": 13, "pattern": r"(?:13|tri ar ddeg|un deg tri)"},
-    {"value": 14, "pattern": r"(?:14|pedwar ar ddeg|un deg pedwar)"},
-    {"value": 15, "pattern": r"(?:15|pymtheg|un deg pump)"},
-    {"value": 16, "pattern": r"(?:16|un ar bymtheg|un deg chwech)"},
-    {"value": 17, "pattern": r"(?:17|dau ar bymtheg|un deg saith)"},
-    {"value": 18, "pattern": r"(?:18|deunaw|un deg wyth)"},
-    {"value": 19, "pattern": r"(?:19|pedwar ar bymtheg|un deg nau)"},
-    {"value": 20, "pattern": r"(?:20|ugain|dau ddeg)"},
-    {"value": 21, "pattern": r"(?:21|un ar hugain|dau ddeg un)"},
-    {"value": 22, "pattern": r"(?:22|dau ar hugain|dau ddeg dau)"},
-    {"value": 23, "pattern": r"(?:23|tri ar hugain|dau ddeg tri)"},
-    {"value": 24, "pattern": r"(?:24|pedwar ar hugain|dau ddeg pedwar)"},
-    {"value": 25, "pattern": r"(?:25|pump ar hugain|dau ddeg pump)"},
-    {"value": 26, "pattern": r"(?:26|chwech ar hugain|dau ddeg chwech)"},
-    {"value": 27, "pattern": r"(?:27|saith ar hugain|dau ddeg saith)"},
-    {"value": 28, "pattern": r"(?:28|wyth ar hugain|dau ddeg wyth)"},
-    {"value": 29, "pattern": r"(?:29|naw ar hugain|dau ddeg naw)"},
-    {"value": 30, "pattern": r"(?:30|deg ar hugain|tri deg)"},
-    {"value": 31, "pattern": r"(?:31|un ar ddeg ar hugain|tri deg un)"}
-]
-
 patterns["cy"]["ordinals"] = [
     {"value": 1, "pattern": r"(?:1af|cyntaf)"},                 # first
     {"value": 2, "pattern": r"(?:2il|ail)"},                    # second
@@ -717,9 +364,9 @@ patterns["cy"]["dateprefix"] = [
 
 patterns["cy"]["datesuffix"] = [
     # OC, AD, CE
-    {"value": enums.DateSuffix.AD,
+    {"value": enums.DateSuffix.CE,
         "pattern": r"(?:O\.?C\.?|A\.?D\.?|C\.?E\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.BCE,
         # CC, CCC, BC, BCE
         "pattern": r"(?:(?:C\.?){2,3}|(?:cal\.?\s)?B\.?C\.?(?:E\.?)?)"},
     # BP CP
@@ -727,255 +374,8 @@ patterns["cy"]["datesuffix"] = [
 ]
 
 patterns["cy"]["dateseparator"] = [
-    {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\s(?:hyd|tan|neu|i|a|a'r)\s"}
-]
-
-# note - unreliable - based on recurring period terms in other languages and translated using Google translate;
-# not checked by native speaker. Dates taken from English equivalent periods
-patterns["cy"]["periodnames"] = [
-    {"pattern": r"(?:Ch?|G|Ngh?)ynhanesyddol",
-     "value": YearSpan(500000, 43)},    # Prehistoric
-    {"pattern": r"(?:Ch?|G|Ngh?)ynhanesyddol cynnar",
-     "value": YearSpan(500000, -4000)},  # Early Prehistoric
-    {"pattern": r"(?:Ch?|G|Ngh?)ynhanesyddol hwyr",
-     "value": YearSpan(4000, 43)},  # Late prehistoric
-    {"pattern": r"pala?eolithig", "value": YearSpan(
-        500000, -10000)},           # Paleolithic
-    {"pattern": r"pala?eolithig cynnar", "value": YearSpan(
-        500000, -150000)},   # early Paleolithic
-    {"pattern": r"pala?eolithig canol", "value": YearSpan(
-        150000, -40000)},     # middle Paleolithic
-    {"pattern": r"pala?eolithig uchaf", "value": YearSpan(
-        40000, -10000)},      # upper Paleolithic
-    {"pattern": r"mesolithig", "value": YearSpan(
-        10000, -4000)},                # Mesolithic
-    {"pattern": r"mesolithig cynnar", "value": YearSpan(
-        10000, -7000)},         # early Mesolithic
-    # middle Mesolithic (dates?)
-    {"pattern": r"(?:Ch?|G|Ngh?)anol mesolithig"},
-    {"pattern": r"mesolithig hwyr", "value": YearSpan(
-        7000, -4000)},            # late Mesolithic
-    {"pattern": r"neolithig", "value": YearSpan(
-        4000, -2200)},                  # Neolithic
-    {"pattern": r"neolithig cynnar", "value": YearSpan(
-        4000, -3300)},           # Early Neolithic
-    {"pattern": r"(?:Ch?|G|Ngh?)anol neolithig",
-     "value": YearSpan(3300, -2900)},  # Middle Neolithic
-    {"pattern": r"neolithig hwyr", "value": YearSpan(
-        2900, -2200)},             # late neolithic
-    {"pattern": r"oes efydd", "value": YearSpan(
-        2600, -700)},                   # bronze age
-    {"pattern": r"oes efydd gynnar", "value": YearSpan(
-        2600, -1600)},           # early bronze age
-    {"pattern": r"(?:Ch?|G|Ngh?)anol oes efydd",
-     "value": YearSpan(1600, -1200)},  # middle bronze age
-    {"pattern": r"oes efydd hwyr", "value": YearSpan(
-        1200, -700)},              # late bronze age
-    {"pattern": r"oes yr haearn", "value": YearSpan(
-        800, 43)},                  # iron age
-    {"pattern": r"oes haearn gynnar", "value": YearSpan(
-        800, -300)},            # early iron age
-    {"pattern": r"oes haearn [cg]anol", "value": YearSpan(
-        300, -100)},          # middle iron age
-    {"pattern": r"oes haearn hwyr", "value": YearSpan(
-        100, 43)},                # late iron age
-    {"pattern": r"Rhufeinig", "value": YearSpan(
-        43, 410)},                      # Roman
-    # Early Roman
-    {"pattern": r"Rhufeinig Cynnar", "value": YearSpan()},
-    # Late Roman
-    {"pattern": r"Rhufeinig Hwyr", "value": YearSpan()},
-    {"pattern": fr"Romano{SPACEORDASH}Prydeinig",
-        "value": YearSpan()},         # Romano British
-    {"pattern": fr"(?:Eingl{SPACEORDASH})?Sacsonaidd",
-     "value": YearSpan()},    # Anglo-Saxon
-    {"pattern": fr"(?:Sacso{SPACEORDASH})?Normanaidd",
-     "value": YearSpan()},    # Saxo-Norman
-    # Modern Era
-    {"pattern": r"Cyfnod Modern", "value": YearSpan()},
-    # Stone Age
-    {"pattern": r"Oes y Cerrig", "value": YearSpan()},
-    # Chalcolithic
-    {"pattern": r"chalcolithic", "value": YearSpan()},
-    {"pattern": r"(?:Ch?|G|Ngh?)anol\s?oeso(?:l|edd) cynnar",
-     "value": YearSpan(410, 1066)},    # Early Medieval
-    {"pattern": r"(?:Ch?|G|Ngh?)anol\s?oeso(?:l|edd)",
-     "value": YearSpan(1066, 1540)},  # Medieval
-    {"pattern": r"Ôl Ganoloesol", "value": YearSpan(
-        1540, 1901)},              # Post-Medieval
-    {"pattern": r"Tuduraidd", "value": YearSpan(
-        1485, 1603)},                   # Tudor
-    {"pattern": r"Elisabethaidd", "value": YearSpan(
-        1558, 1603)},               # Elizabethan
-    {"pattern": r"Stuart", "value": YearSpan(
-        1603, 1714)},                      # Stuart
-    {"pattern": r"Jacobean", "value": YearSpan(
-        1603, 1625)},                    # Jacobean
-    {"pattern": r"Hanoverian", "value": YearSpan(
-        1714, 1837)},                  # Hanoverian
-    {"pattern": r"Sioraidd", "value": YearSpan(
-        1714, 1837)},                    # Georgian
-    {"pattern": r"Fictoraidd", "value": YearSpan(
-        1837, 1901)},                  # Victorian
-    {"pattern": r"Edwardaidd", "value": YearSpan(
-        1902, 1910)},                  # Edwardian
-    {"pattern": r"Rhyfel byd cyntaf", "value": YearSpan(
-        1914, 1918)},           # First World War
-    {"pattern": r"Rhwng rhyfel", "value": YearSpan(
-        1919, 1938)},                # Inter war
-    {"pattern": r"ail ryfel byd", "value": YearSpan(
-        1939, 1945)}               # Second World War
-]
-
-
-# composite datespan patterns
-patterns["cy"]["datespans"] = [
-    {
-        # Month and year e.g. "October 1984"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{month}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"], "datePrefix"),
-            spaceordash=SPACEORDASH,
-            month=oneofp(patterns["cy"]["monthnames"], "monthName"),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["cy"]["datesuffix"], "dateSuffix")
-        )
-    },
-    {
-        # Season and year e.g. "summer 1984"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            season=oneofp(patterns["cy"]["seasonnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # year with suffix e.g. "circa 8100 BCE"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{year}})(\s?{{suffix}})".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # year with prefix e.g. "yn 1485"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)+({{year}})(\s?{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # from year to year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{fromYear}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromYear=NUMERICYEAR,
-            separator=oneofp(patterns["cy"]["dateseparator"]),
-            toYear=NUMERICYEAR,
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # named historical periods
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{named}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named=oneofp(patterns["cy"]["periodnames"]),
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # from named to named historical periods
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})\b".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named1=oneofp(patterns["cy"]["periodnames"]),
-            named2=oneofp(patterns["cy"]["periodnames"]),
-            separator=oneofp(patterns["cy"]["dateseparator"])
-        )
-    },
-    {
-        # decades e.g. e.g. "1550au"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{decade}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade=r"\b[1-9]\d{1,2}0au",
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # from decade to decade e.g. e.g. "1970au a'r 1980au"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})\b".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade1=r"\b[1-9]\d{1,2}0au",
-            decade2=r"\b[1-9]\d{1,2}0au",
-            separator=oneofp(patterns["cy"]["dateseparator"]),
-        )
-    },
-    {
-        # Ordinal centuries e.g. "pumed ganrif OC" (5th century AD)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}})\s?g(anrif)?(\s{{suffix}})?".format(
-            spaceordash=SPACEORDASH,
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            ordinal=oneofp(patterns["cy"]["ordinals"]),
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal centuries e.g. "ganrif 1af CCC" (1st century BCE)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*ganrif ({{ordinal}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["cy"]["ordinals"]),
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # From ordinal to ordinal century e.g.
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromOrdinal}}) g(anrif)?(\s{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toOrdinal}}) g(anrif)?(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromOrdinal=oneofp(patterns["cy"]["ordinals"]),
-            separator=oneofp(patterns["cy"]["dateseparator"]),
-            toOrdinal=oneofp(patterns["cy"]["ordinals"]),
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # Cardinal centuries e.g. "ddechrau'r 18g" (Early 18th century)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{cardinal}})g(anrif)?(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            cardinal=oneofp(patterns["cy"]["cardinals"]),
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # From cardinal to cardinal century e.g.
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromCardinal}})g(anrif)?{{separator}}({{prefix}}{{spaceordash}}?)*({{toCardinal}})g(anrif)?(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromCardinal=oneofp(patterns["cy"]["cardinals"]),
-            separator=oneofp(patterns["cy"]["dateseparator"]),
-            toCardinal=oneofp(patterns["cy"]["cardinals"]),
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal millennium e.g. "dechrau'r 2il mileniwm OC"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) mileniwm(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["cy"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["cy"]["ordinals"]),
-            suffix=oneofp(patterns["cy"]["datesuffix"])
-        )
-    },
+    {"pattern": r"\p{Pd}"},
+    {"pattern": r"(?:hyd|tan|neu|i|a|a'r)"}
 ]
 
 # experimental only - not connected to datespan work
@@ -991,40 +391,6 @@ patterns["cy"]["directions"] = [
 ]
 
 # German language patterns
-patterns["de"]["cardinals"] = [
-    {"value": 1, "pattern": r"(?:1|eins)"},
-    {"value": 2, "pattern": r"(?:2|zwei)"},
-    {"value": 3, "pattern": r"(?:3|drei)"},
-    {"value": 4, "pattern": r"(?:4|vier)"},
-    {"value": 5, "pattern": r"(?:5|fünf)"},
-    {"value": 6, "pattern": r"(?:6|sechs)"},
-    {"value": 7, "pattern": r"(?:7|sieben)"},
-    {"value": 8, "pattern": r"(?:8|acht)"},
-    {"value": 9, "pattern": r"(?:9|neun)"},
-    {"value": 10, "pattern": r"(?:10|zehn)"},
-    {"value": 11, "pattern": r"(?:11|elf)"},
-    {"value": 12, "pattern": r"(?:12|zwölf)"},
-    {"value": 13, "pattern": r"(?:13|dreizehn)"},
-    {"value": 14, "pattern": r"(?:14|vierzehn)"},
-    {"value": 15, "pattern": r"(?:15|fünfzehn)"},
-    {"value": 16, "pattern": r"(?:16|sechzehn)"},
-    {"value": 17, "pattern": r"(?:17|siebzehn)"},
-    {"value": 18, "pattern": r"(?:18|achtzehn)"},
-    {"value": 19, "pattern": r"(?:19|neunzehn)"},
-    {"value": 20, "pattern": r"(?:20|zwanzig)"},
-    {"value": 21, "pattern": r"(?:21|einundzwanzig)"},
-    {"value": 22, "pattern": r"(?:22|zweiundzwanzig)"},
-    {"value": 23, "pattern": r"(?:23|dreiundzwanzig)"},
-    {"value": 24, "pattern": r"(?:24|vierundzwanzig)"},
-    {"value": 25, "pattern": r"(?:25|fünfundzwanzig)"},
-    {"value": 26, "pattern": r"(?:26|sechsundzwanzig)"},
-    {"value": 27, "pattern": r"(?:27|siebenundzwanzig)"},
-    {"value": 28, "pattern": r"(?:28|achtundzwanzig)"},
-    {"value": 29, "pattern": r"(?:29|neunundzwanzig)"},
-    {"value": 30, "pattern": r"(?:30|dreißig)"},
-    {"value": 31, "pattern": r"(?:31|einunddreißig)"}
-]
-
 patterns["de"]["ordinals"] = [
     {"value": 1, "pattern": r"(?:1\.|erstes?)"},                  # first
     {"value": 2, "pattern": r"(?:2\.|zweiten?)"},               # second
@@ -1136,206 +502,21 @@ patterns["de"]["dateprefix"] = [
 ]
 
 
-r"n(\.|a(.?|ch)?)(\sChr(\.?|istus)?)"
+#r"n(\.|a(.?|ch)?)(\sChr(\.?|istus)?)"
 
 patterns["de"]["datesuffix"] = [
-    {"value": enums.DateSuffix.AD,
+    {"value": enums.DateSuffix.CE,
         "pattern": r"(?:n(?:\.|a(?:.?|ch)?)?(?:\sChr(?:\.|istus)?)|A\.?D\.?|C\.?E\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.BCE,
         "pattern": r"(?:v(?:\.|or)?(?:\sChr(?:\.|istus)?)?|v\.u\.Z\.|(?:cal\.?\s)?B\.?C\.?(?:E\.?)?)"},
     {"value": enums.DateSuffix.BP, "pattern": r"B\.?P\.?"}
 ]
 
 patterns["de"]["dateseparator"] = [
-    {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\sbi[st]\s"},
-    {"pattern": r"\sund\s"},
-    {"pattern": r"\soder\s"}
-]
-
-# named periods from RxLookup-NamedPeriod.json - C# project, think originally from Perio.do??
-patterns["de"]["periodnames"] = [
-    # Palaeolithic
-    {"pattern": r"Paläolithikum", "value": YearSpan(-298000, -9550)},
-    # Middle palaeolithic
-    {"pattern": r"Mittelpaläolithikum", "value": YearSpan(-298000, -41500)},
-    {"pattern": r"Älteres Jungpaläolithikum",
-        "value": YearSpan(-41500, -32500)},   # Older early palaeolithic
-    {"pattern": r"Mittleres Jungpaläolithikum",
-        "value": YearSpan(-32500, -22500)},  # Middle palaeolithic
-    {"pattern": r"Jüngeres Jungpaläolithikum",
-        "value": YearSpan(-22500, -11950)},  # Younger palaeolithic
-    # Late palaeolithic
-    {"pattern": r"Spätpaläolithikum", "value": YearSpan(-11950, -9550)},
-    # Mesolithic
-    {"pattern": r"Mesolithikum", "value": YearSpan(-9550, -5600)},
-    # Neolithic
-    {"pattern": r"Neolithikum", "value": YearSpan(-5600, -4000)},
-    # Early Neolithic
-    {"pattern": r"Frühes Neolithikum", "value": YearSpan(-5600, -4800)},
-    # Middle Neolithic
-    {"pattern": r"Mittel Neolithikum", "value": YearSpan(-4800, -4000)},
-    # Copper age
-    {"pattern": r"Kupferzeit", "value": YearSpan(-4000, -2200)},
-    # Older copper age
-    {"pattern": r"Ältere Kupferzeit", "value": YearSpan(-4000, -3400)},
-    # Middle copper age
-    {"pattern": r"Mittlere Kupferzeit", "value": YearSpan(-3400, -3000)},
-    # Younger copper age
-    {"pattern": r"Jüngere Kupferzeit", "value": YearSpan(-3000, -2200)},
-    # Bronze age
-    {"pattern": r"Bronzezeit", "value": YearSpan(-2200, -800)},
-    # Early bronze age
-    {"pattern": r"Frühen? Bronzezeit", "value": YearSpan(-2200, -1600)},
-    # Middle bronze age
-    {"pattern": r"Mittlere Bronzezeit", "value": YearSpan(-1600, -1300)},
-    # Late bronze age
-    {"pattern": r"Späte Bronzezeit", "value": YearSpan(-1300, -800)},
-    # Iron age
-    {"pattern": r"Eisenzeit", "value": YearSpan(-800, 0)},
-    # Older iron age
-    {"pattern": r"Ältere Eisenzeit", "value": YearSpan(-800, -450)},
-    {"pattern": r"Jüngere Eisenzeit", "value": YearSpan(
-        450, 0)},                   # Younger iron age
-    {"pattern": r"Römische(\sPeriode)?", "value": YearSpan(
-        0, 375)},                # Roman period
-    {"pattern": r"Frühe Römische(\sPeriode)?", "value": YearSpan(
-        0, 180)},          # Early Roman period
-    {"pattern": r"Späte Römische(\sPeriode)?", "value": YearSpan(
-        180, 375)},        # Late Roman period
-    {"pattern": r"Völkerwanderungszeit", "value": YearSpan(
-        375, 586)},              # Migration period
-    # Medieval / Middle Ages
-    {"pattern": r"Mittelalter", "value": YearSpan(586, 1500)},
-    {"pattern": r"Frühes Mittelalter", "value": YearSpan(
-        586, 976)},                # Early middle ages
-    {"pattern": r"Hochmittelalter", "value": YearSpan(
-        976, 1250)},                  # High  middle ages
-    {"pattern": r"Spätmittelalter", "value": YearSpan(
-        1250, 1500)},                 # Late middle ages
-    {"pattern": r"Neuzeit", "value": YearSpan(
-        1500, 1850)},                         # Modern times
-    {"pattern": r"Zeitgeschichte", "value": YearSpan(
-        1850, 2000)}                   # Contemporary
-]
-
-patterns["de"]["datespans"] = [
-    {
-        # Month and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{month}})\s({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            month=oneofp(patterns["de"]["monthnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    },
-    {
-        # Season and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            season=oneofp(patterns["de"]["seasonnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    },
-    {
-        # year with suffix e.g. "circa 8100 BCE"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{year}})(\s?{{suffix}})".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    },
-    {
-        # year with prefix e.g. "bis 1854"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)+({{year}})(\s?{{suffix}})?".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    },
-    {
-        # from year to year
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromYear}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromYear=NUMERICYEAR,
-            separator=oneofp(patterns["de"]["dateseparator"]),
-            toYear=NUMERICYEAR,
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    },
-    {
-        # named historical periods
-        "pattern":  f"\b({{prefix}}{{spaceordash}}?)*({{named}})\b".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named=oneofp(patterns["de"]["periodnames"])
-        )
-    },
-    {
-        # from named to named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named1=oneofp(patterns["de"]["periodnames"]),
-            named2=oneofp(patterns["de"]["periodnames"]),
-            separator=oneofp(patterns["de"]["dateseparator"]),
-        )
-    },
-    {
-        # decades e.g. "e.g. Um 1850er"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade}})er(\sJahre)?(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade=r"\b[1-9]\d{1,2}0",
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    },
-    {
-        # from decade to decade e.g. e.g. "1850er bis 1890er"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade1=r"\b[1-9]\d{1,2}0er",
-            decade2=r"\b[1-9]\d{1,2}0er",
-            separator=oneofp(patterns["de"]["dateseparator"]),
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal centuries e.g. "5. Jahrhundert n.Chr" (5th century AD)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) (Jahrhunderts?|Jhs?\.?)(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["de"]["ordinals"]),
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal millennia e.g. "erste Hälfte des 6. Jahrtausends v. Chr." (first half of the 6th millennium BC)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) Jahrtausends?(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["de"]["ordinals"]),
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    },
-    {
-        # from ordinal millennium to ordinal millennium  "7. bis 6. Jahrtausend v. Chr."
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromMill}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toMill}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["de"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromMill=oneofp(patterns["de"]["ordinals"]),
-            separator=oneofp(patterns["de"]["dateseparator"]),
-            toMill=oneofp(patterns["de"]["ordinals"]),
-            suffix=oneofp(patterns["de"]["datesuffix"])
-        )
-    }
+    {"pattern": r"\p{Pd}"},
+    {"pattern": r"bi[st]"},
+    {"pattern": r"und"},
+    {"pattern": r"oder"}
 ]
 
 patterns["de"]["directions"] = [
@@ -1350,40 +531,6 @@ patterns["de"]["directions"] = [
 ]
 
 # English language patterns
-patterns["en"]["cardinals"] = [
-    {"value": 1, "pattern": r"(?:1|one)"},
-    {"value": 2, "pattern": r"(?:2|two)"},
-    {"value": 3, "pattern": r"(?:3|three)"},
-    {"value": 4, "pattern": r"(?:4|four)"},
-    {"value": 5, "pattern": r"(?:5|five)"},
-    {"value": 6, "pattern": r"(?:6|six)"},
-    {"value": 7, "pattern": r"(?:7|seven)"},
-    {"value": 8, "pattern": r"(?:8|eight)"},
-    {"value": 9, "pattern": r"(?:9|nine)"},
-    {"value": 10, "pattern": r"(?:10|ten)"},
-    {"value": 11, "pattern": r"(?:11|eleven)"},
-    {"value": 12, "pattern": r"(?:12|twelve)"},
-    {"value": 13, "pattern": r"(?:13|thirteen)"},
-    {"value": 14, "pattern": r"(?:14|fourteen)"},
-    {"value": 15, "pattern": r"(?:15|fifteen)"},
-    {"value": 16, "pattern": r"(?:16|sixteen)"},
-    {"value": 17, "pattern": r"(?:17|seventeen)"},
-    {"value": 18, "pattern": r"(?:18|eighteen)"},
-    {"value": 19, "pattern": r"(?:19|nineteen)"},
-    {"value": 20, "pattern": r"(?:20|twenty)"},
-    {"value": 21, "pattern": fr"(?:21|twenty{SPACEORDASH}one)"},
-    {"value": 22, "pattern": fr"(?:22|twenty{SPACEORDASH}two)"},
-    {"value": 23, "pattern": fr"(?:23|twenty{SPACEORDASH}three)"},
-    {"value": 24, "pattern": fr"(?:24|twenty{SPACEORDASH}four)"},
-    {"value": 25, "pattern": fr"(?:25|twenty{SPACEORDASH}five)"},
-    {"value": 26, "pattern": fr"(?:26|twenty{SPACEORDASH}six)"},
-    {"value": 27, "pattern": fr"(?:27|twenty{SPACEORDASH}seven)"},
-    {"value": 28, "pattern": fr"(?:28|twenty{SPACEORDASH}eight)"},
-    {"value": 29, "pattern": fr"(?:29|twenty{SPACEORDASH}nine)"},
-    {"value": 30, "pattern": r"(?:30|thirty)"},
-    {"value": 31, "pattern": fr"(?:31|thirty{SPACEORDASH}one)"}
-]
-
 patterns["en"]["ordinals"] = [
     # 1st, first
     {"value": 1, "pattern": r"(?:1|fir)st"},
@@ -1534,88 +681,19 @@ patterns["en"]["dateprefix"] = [
 ]
 
 patterns["en"]["datesuffix"] = [
-    {"value": enums.DateSuffix.AD, "pattern": r"(?:A\.?D\.?|C\.?E\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.CE, "pattern": r"(?:A\.?D\.?|C\.?E\.?)"},
+    {"value": enums.DateSuffix.BCE,
         "pattern": r"(?:cal\.?\s)?B\.?C\.?(?:E\.?)?"},
     {"value": enums.DateSuffix.BP, "pattern": r"B\.?P\.?"}
 ]
 
 patterns["en"]["dateseparator"] = [
-    {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\s?/\s?"},
-    {"pattern": r"\sto\s"},
-    {"pattern": r"\sor\s"},
-    {"pattern": r"\sand\s"},
-    {"pattern": r"\suntil\s"}
-]
-
-patterns["en"]["periodnames"] = [
-    {"pattern": r"pala?eolithic\b", "value": YearSpan(500000, -10000)},
-    {"pattern": r"lower pala?eolithic\b", "value": YearSpan(500000, -150000)},
-    {"pattern": r"middle pala?eolithic\b", "value": YearSpan(150000, -40000)},
-    {"pattern": r"upper pala?eolithic\b", "value": YearSpan(40000, -10000)},
-    {"pattern": r"mesolithic\b", "value": YearSpan(10000, -4000)},
-    {"pattern": r"early mesolithic\b", "value": YearSpan(10000, -7000)},
-    {"pattern": r"late mesolithic\b", "value": YearSpan(7000, -4000)},
-    {"pattern": r"early prehistoric\b", "value": YearSpan(500000, -4000)},
-    {"pattern": r"neolithic\b", "value": YearSpan(4000, -2200)},
-    {"pattern": r"early neolithic\b", "value": YearSpan(4000, -3300)},
-    {"pattern": r"middle neolithic\b", "value": YearSpan(3300, -2900)},
-    {"pattern": r"late neolithic\b", "value": YearSpan(2900, -2200)},
-    {"pattern": r"bronze age\b", "value": YearSpan(2600, -700)},
-    {"pattern": r"early bronze age\b", "value": YearSpan(2600, -1600)},
-    {"pattern": r"middle bronze age\b", "value": YearSpan(1600, -1200)},
-    {"pattern": r"late bronze age\b", "value": YearSpan(1200, -700)},
-    {"pattern": r"iron age\b", "value": YearSpan(800, 43)},
-    {"pattern": r"early iron age\b", "value": YearSpan(800, -300)},
-    {"pattern": r"middle iron age\b", "value": YearSpan(300, -100)},
-    {"pattern": r"late iron age\b", "value": YearSpan(100, 43)},
-    {"pattern": r"later? prehistoric\b", "value": YearSpan(4000, 43)},
-    {"pattern": r"prehistoric\b", "value": YearSpan(500000, 43)},
-    {"pattern": r"roman\b", "value": YearSpan(43, 410)},
-    # not in eh_periods, but occurs in archaeological texts
-    {"pattern": r"earl(?:y|ier) roman\b"},
-    # not in eh_periods, but occurs in archaeological texts
-    {"pattern": r"later? roman\b"},
-    # not in eh_periods, but occurs in archaeological texts
-    {"pattern": fr"romano{SPACEORDASH}british\b"},
-    # not in eh_periods, but occurs in archaeological texts
-    {"pattern": fr"(?:anglo{SPACEORDASH})?saxon\b"},
-    # not in eh_periods, but occurs in archaeological texts
-    {"pattern": fr"(?:saxo{SPACEORDASH})?norman\b"},
-    # not in eh_periods, but occurs in archaeological texts
-    {"pattern": r"later? media?eval\b"},
-    # not in eh_periods, but occurs in archaeological texts
-    {"pattern": r"modern era\b"},
-    # not in eh_periods, but occurs in archaeological texts
-    {"pattern": r"stone age\b"},
-    # not in eh_periods, but occurs in archaeological texts
-    {"pattern": r"chalcolithic\b"},
-    {"pattern": r"early media?eval\b(?:\speriod)?",
-     "value": YearSpan(410, 1066)},
-    {"pattern": r"media?eval\b(?:\speriod)?", "value": YearSpan(1066, 1540)},
-    {"pattern": fr"post{SPACEORDASH}media?eval\b(?:\speriod)?", "value": YearSpan(
-        1540, 1901)},
-    {"pattern": r"tudor\b", "value": YearSpan(1485, 1603)},
-    {"pattern": r"elizabethan\b", "value": YearSpan(1558, 1603)},
-    {"pattern": r"stuart", "value": YearSpan(1603, 1714)},
-    {"pattern": r"jacobean\b", "value": YearSpan(1603, 1625)},
-    {"pattern": r"hanoverian\b", "value": YearSpan(1714, 1837)},
-    {"pattern": r"georgian\b", "value": YearSpan(1714, 1837)},
-    {"pattern": r"victorian\b", "value": YearSpan(1837, 1901)},
-    {"pattern": r"20th century\b", "value": YearSpan(1901, 2000)},
-    {"pattern": r"early 20th century\b", "value": YearSpan(1901, 1932)},
-    {"pattern": r"edwardian\b", "value": YearSpan(1902, 1910)},
-    {"pattern": r"(?:first world war|world war I|WW\s?I)\b",
-     "value": YearSpan(1914, 1918)},
-    # added to accommodate ReMatch ADS CBA DOB records
-    {"pattern": fr"(?:inter{SPACEORDASH}war)\b",
-     "value": YearSpan(1919, 1938)},
-    {"pattern": r"mid 20th century\b", "value": YearSpan(1933, 1966)},
-    {"pattern": r"(?:second world war|world war II|WW\s?II)\b",
-     "value": YearSpan(1939, 1945)},
-    {"pattern": r"late 20th century\b", "value": YearSpan(1967, 2000)},
-    {"pattern": r"21st century\b", "value": YearSpan(2001, 2100)}
+    {"pattern": r"\p{Pd}"},
+    {"pattern": r"/"},
+    {"pattern": r"to"},
+    {"pattern": r"or"},
+    {"pattern": r"and"},
+    {"pattern": r"until"}
 ]
 
 # experimental only - not connected to datespan work
@@ -1645,32 +723,6 @@ patterns["en"]["elementnames"] = [
 ]
 
 # experimental only - not connected to datespan work
-patterns["en"]["activities"] = [
-    {"pattern": r"additions?"},                 # addition, additions
-    # altering, altered, alteration, alterations
-    {"pattern": r"alter(?:ing|ed|ations?)"},
-    # converting, converted, conversion, conversions
-    {"pattern": r"conver(?:ting|ted|sions?)"},
-    # completing, completed, completion
-    {"pattern": r"complet(?:ing|ed|ion)"},
-    {"pattern": r"damag(?:ing|ed?)"},           # damaging, damage, damaged
-    # demolishing, demolished, demolition
-    {"pattern": r"demoli(?:shing|shed|tion)"},
-    # modified, modification, modifications
-    {"pattern": r"modifi(?:ed|cations?)"},
-    {"pattern": r"rebuil(?:ding|t)"},           # rebuilding, rebuilt
-    {"pattern": r"repair(?:ing|s|ed)"},         # repairing, repairs, repaired
-    # replaced, replacement, replacing
-    {"pattern": r"replac(?:ed|ement|ing)"},
-    # refurbished, refurbishing, refurnished, refurnishing
-    {"pattern": r"refur[bn]ish(?:ing|ed)"},
-    {"pattern": r"remodell(?:ed|ing)"},         # remodelled, remodelling
-    {"pattern": r"renew(?:ing|ed|al)"},         # renewing, renewed, renewal
-    # renovating, renovated, renovation, renovations
-    {"pattern": r"renovat(?:ing|ed|ions?)"}
-]
-
-# experimental only - not connected to datespan work
 patterns["en"]["directions"] = [
     {"value": enums.Direction.N, "pattern": r"North"},
     {"value": enums.Direction.NE, "pattern": fr"North{SPACEORDASH}East"},
@@ -1684,40 +736,6 @@ patterns["en"]["directions"] = [
 
 
 # Spanish patterns
-patterns["es"]["cardinals"] = [
-    {"value": 1, "pattern": r"(?:1|I|un[oa]?)"},
-    {"value": 2, "pattern": r"(?:2|II|dos)"},
-    {"value": 3, "pattern": r"(?:3|III|tres)"},
-    {"value": 4, "pattern": r"(?:4|IV|cuatro)"},
-    {"value": 5, "pattern": r"(?:5|V|cinco)"},
-    {"value": 6, "pattern": r"(?:6|VI|seis)"},
-    {"value": 7, "pattern": r"(?:7|VII|siete)"},
-    {"value": 8, "pattern": r"(?:8|VIII|ocho)"},
-    {"value": 9, "pattern": r"(?:9|IX|nueve)"},
-    {"value": 10, "pattern": r"(?:10|X|diez)"},
-    {"value": 11, "pattern": r"(?:11|XI|once)"},
-    {"value": 12, "pattern": r"(?:12|XII|doce)"},
-    {"value": 13, "pattern": r"(?:13|XIII|trece)"},
-    {"value": 14, "pattern": r"(?:14|XIV|catorce)"},
-    {"value": 15, "pattern": r"(?:15|XV|quince)"},
-    {"value": 16, "pattern": r"(?:16|XVI|dieciséis)"},
-    {"value": 17, "pattern": r"(?:17|XVII|diecisiete)"},
-    {"value": 18, "pattern": r"(?:18|XVIII|dieciocho)"},
-    {"value": 19, "pattern": r"(?:19|XIX|diecinueve)"},
-    {"value": 20, "pattern": r"(?:20|XX|veinte)"},
-    {"value": 21, "pattern": r"(?:21|XXI|veintiuno)"},
-    {"value": 22, "pattern": r"(?:22|XXII|veintidós)"},
-    {"value": 23, "pattern": r"(?:23|XXIII|veintitres)"},
-    {"value": 24, "pattern": r"(?:24|XXIV|veinticuatro)"},
-    {"value": 25, "pattern": r"(?:25|XXV|veinticinco)"},
-    {"value": 26, "pattern": r"(?:26|XXVI|veintiseis)"},
-    {"value": 27, "pattern": r"(?:27|XXVII|veintisiete)"},
-    {"value": 28, "pattern": r"(?:28|XXVIII|veintiocho)"},
-    {"value": 29, "pattern": r"(?:29|XXIX|veintinueve)"},
-    {"value": 30, "pattern": r"(?:30|XXX|treinta)"},
-    {"value": 31, "pattern": r"(?:31|XXXI|treinta y uno)"}
-]
-
 patterns["es"]["ordinals"] = [
     # first
     {"value": 1, "pattern": r"(?:1\s?°|I|primer[oa]?)"},
@@ -1727,7 +745,8 @@ patterns["es"]["ordinals"] = [
     {"value": 3, "pattern": r"(?:3\s?°|III|3ro|tercer[oa]?)"},
     # fourth
     {"value": 4, "pattern": r"(?:4\s?°|IV|4to|cuart[oa])"},
-    {"value": 5, "pattern": r"(?:5\s?°|V|5to|quint[oa])"},              # fifth
+    # fifth    
+    {"value": 5, "pattern": r"(?:5\s?°|V|5to|quint[oa])"},              
     # sixth
     {"value": 6, "pattern": r"(?:6\s?°|VI|6to|sext[oa])"},
     # seventh
@@ -1837,186 +856,15 @@ patterns["es"]["dateprefix"] = [
 ]
 
 patterns["es"]["datesuffix"] = [
-    {"value": enums.DateSuffix.AD,
+    {"value": enums.DateSuffix.CE,
         "pattern": r"(?:d[.\s]?C\.?|A\.?D\.?|C\.?E\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.BCE,
         "pattern": r"(?:a[.\s]?C\.?|antes de Cristo|(?:cal\.?\s)?B\.?C\.?(?:E\.?)?)"},
     {"value": enums.DateSuffix.BP, "pattern": r"B\.?P\.?"}
 ]
 
 patterns["es"]["dateseparator"] = [
-    {"pattern": r"\s?(?:\p{Pd}|\/|hasta|a(?:\sla)?|y|o)\s?"}  # ,
-]
-
-patterns["es"]["periodnames"] = [
-    {"pattern": r"Paleolític[ao]", "value": YearSpan(528000, -50000)},
-    {"pattern": r"Paleolític[ao] Inferior",
-        "value": YearSpan(528000, -200000)},
-    {"pattern": r"Paleolític[ao] Medi[ao]", "value": YearSpan(200000, -50000)},
-    {"pattern": r"Paleolític[ao] Superior", "value": YearSpan(50000, -7000)},
-    {"pattern": r"Epipaleolític[ao]", "value": YearSpan(7000, -4500)},
-    {"pattern": r"neolític[ao]"},
-    {"pattern": r"Neolític[ao] Antigu[ao]", "value": YearSpan(4500, -2300)},
-    {"pattern": r"Neolític[ao] Antigu[ao]", "value": YearSpan(4500, -2700)},
-    {"pattern": r"Neolític[ao] Final", "value": YearSpan(2700, -2300)},
-    {"pattern": r"Edad del Bronce", "value": YearSpan(2300, -800)},
-    {"pattern": r"Edad del Bronce Inicial", "value": YearSpan(2300, -1700)},
-    {"pattern": r"Edad del Bronce Medi[ao]", "value": YearSpan(1700, -1200)},
-    {"pattern": r"Edad del Bronce Final", "value": YearSpan(1200, -800)},
-    {"pattern": r"Edad del Hierro", "value": YearSpan(1200, -50)},
-    {"pattern": r"Primera Edad del Hierro", "value": YearSpan(800, -400)},
-    {"pattern": r"Segunda Edad del Hierro", "value": YearSpan(400, -50)},
-    {"pattern": r"Roman[ao]", "value": YearSpan(50, 400)},
-    {"pattern": r"Alt[ao] Roman[ao]", "value": YearSpan(50, 200)},
-    {"pattern": r"Baj[ao] Roman[ao]", "value": YearSpan(200, 400)},
-    {"pattern": r"Edad Medi[ao]", "value": YearSpan(400, 1500)},
-    {"pattern": r"Alta Edad Medi[ao]", "value": YearSpan(400, 700)},
-    {"pattern": r"Edad Medi[ao] central", "value": YearSpan(700, 1200)},
-    {"pattern": r"Baja Edad Medi[ao]", "value": YearSpan(1200, 1500)},
-    {"pattern": r"Edad Modern[ao]", "value": YearSpan(1500, 1900)},
-    {"pattern": r"Edad Contemporáne[ao]", "value": YearSpan(1900, 1999)}
-]
-
-patterns["es"]["datespans"] = [
-    {
-        # Month and 4 digit year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{month}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            month=oneofp(patterns["es"]["monthnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # Season and 4 digit year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            season=oneofp(patterns["es"]["seasonnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # year with suffix e.g. "8100 BCE"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{year}})(\s?{{suffix}})".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # year with prefix e.g. "circa 1854"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)+({{year}})(\s?{{suffix}})?".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # from year to year
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromYear}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromYear=NUMERICYEAR,
-            separator=oneofp(patterns["es"]["dateseparator"]),
-            toYear=NUMERICYEAR,
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # named historical periods
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{named}})\b".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named=oneofp(patterns["es"]["periodnames"])
-        )
-    },
-    {
-        # from named to named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named1=oneofp(patterns["es"]["periodnames"]),
-            separator=oneofp(patterns["es"]["dateseparator"]),
-            named2=oneofp(patterns["es"]["periodnames"]),
-        )
-    },
-    {
-        # Ordinal centuries e.g. "5to siglo"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) siglo(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["es"]["ordinals"]),
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # decades e.g. "e.g. 1950's"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade}})(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade=r"\b[1-9]\d{1,2}0'?s",
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # from decade to decade e.g. e.g. "early 1920s to 1950s"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade1=r"\b[1-9]\d{1,2}0'?s",
-            decade2=r"\b[1-9]\d{1,2}0'?s",
-            separator=oneofp(patterns["es"]["dateseparator"]),
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # Roman numeral centuries e.g. "siglo V dC" (5th century AD)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*siglo [MDCLXVI]+(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # from century to century e.g. siglos XIX-XVII a. C.
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*siglos?\s({{fromCentury}})(\s{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toCentury}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromCentury=ROMAN,
-            separator=oneofp(patterns["es"]["dateseparator"]),
-            toCentury=ROMAN,
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # Roman numeral millennia e.g. "X millennio a.C."
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*[MDCLXVI]+ milenio(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal millennia e.g. "Primo millennio d.C."
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) milenio(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["es"]["ordinals"]),
-            suffix=oneofp(patterns["es"]["datesuffix"])
-        )
-    },
-    {
-        # dynasties e.g. "dinastía XII"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*dinastía [MDCLXVI]+".format(
-            prefix=oneofp(patterns["es"]["dateprefix"]),
-            spaceordash=SPACEORDASH
-        )
-    }
+    {"pattern": r"(?:\p{Pd}|\/|hasta|a(?:\sla)?|y|o)"}  
 ]
 
 patterns["es"]["directions"] = [
@@ -2031,41 +879,6 @@ patterns["es"]["directions"] = [
 ]
 
 # French patterns
-patterns["fr"]["cardinals"] = [
-    {"value": 0, "pattern": r"(?:0|zéro)"},
-    {"value": 1, "pattern": r"(?:1|une?)"},
-    {"value": 2, "pattern": r"(?:2|deux)"},
-    {"value": 3, "pattern": r"(?:3|trois)"},
-    {"value": 4, "pattern": r"(?:4|quatre)"},
-    {"value": 5, "pattern": r"(?:5|cinq)"},
-    {"value": 6, "pattern": r"(?:6|six)"},
-    {"value": 7, "pattern": r"(?:7|sept)"},
-    {"value": 8, "pattern": r"(?:8|huit)"},
-    {"value": 9, "pattern": r"(?:9|neuf)"},
-    {"value": 10, "pattern": r"(?:10|dix)"},
-    {"value": 11, "pattern": r"(?:11|onze)"},
-    {"value": 12, "pattern": r"(?:12|douze)"},
-    {"value": 13, "pattern": r"(?:13|treize)"},
-    {"value": 14, "pattern": r"(?:14|quatorze)"},
-    {"value": 15, "pattern": r"(?:15|quinze)"},
-    {"value": 16, "pattern": r"(?:16|seize)"},
-    {"value": 17, "pattern": fr"(?:17|dix{SPACEORDASH}sept)"},
-    {"value": 18, "pattern": fr"(?:18|dix{SPACEORDASH}huit)"},
-    {"value": 19, "pattern": fr"(?:19|dix{SPACEORDASH}neuf)"},
-    {"value": 20, "pattern": r"(?:20|vingt)"},
-    {"value": 21, "pattern": r"(?:21|vingt et un)"},
-    {"value": 22, "pattern": fr"(?:22|vingt{SPACEORDASH}deux)"},
-    {"value": 23, "pattern": fr"(?:23|vingt{SPACEORDASH}trois)"},
-    {"value": 24, "pattern": fr"(?:24|vingt{SPACEORDASH}quatre)"},
-    {"value": 25, "pattern": fr"(?:25|vingt{SPACEORDASH}cinq)"},
-    {"value": 26, "pattern": fr"(?:26|vingt{SPACEORDASH}six)"},
-    {"value": 27, "pattern": fr"(?:27|vingt{SPACEORDASH}sept)"},
-    {"value": 28, "pattern": fr"(?:28|vingt{SPACEORDASH}huit)"},
-    {"value": 29, "pattern": fr"(?:29|vingt{SPACEORDASH}neuf)"},
-    {"value": 30, "pattern": r"(?:30|trente)"},
-    {"value": 31, "pattern": fr"(?:31|trente et un)"}
-]
-
 patterns["fr"]["ordinals"] = [
     # zeroth
     {"value": 0, "pattern": r"zéro[iï]ème"},
@@ -2210,7 +1023,7 @@ patterns["fr"]["dateprefix"] = [
 
 patterns["fr"]["datesuffix"] = [
     {
-        "value": enums.DateSuffix.AD,
+        "value": enums.DateSuffix.CE,
         "pattern": oneof([
             r"apr(?:[eè]s|\.)?\s(?:J[ée]sus[-\s]Christ|J\.?[-\s]?C\.?)",
             r"J\.?C\.?",
@@ -2219,7 +1032,7 @@ patterns["fr"]["datesuffix"] = [
         ])
     },
     {
-        "value": enums.DateSuffix.BC,
+        "value": enums.DateSuffix.BCE,
         "pattern": oneof([
             r"av(?:ant|\.)?(?:\s(J[ée]sus[-\s]Christ|J\.?[-\s]?C\.?))?",
             r"(?:cal\.?\s)?B\.?C\.?(E\.?)?"
@@ -2229,279 +1042,12 @@ patterns["fr"]["datesuffix"] = [
 ]
 
 patterns["fr"]["dateseparator"] = [
-    {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\s?/\s?"},
-    {"pattern": r"\sà\s"},
-    {"pattern": r"\sau\s"},
-    {"pattern": r"\set\s"},
-    {"pattern": r"\sou\s"}
-]
-
-patterns["fr"]["periodnames"] = [
-    {"pattern": r"Paléolithique inférieur", "value": YearSpan(
-        800000, -300000)},        # Lower palaeolithic
-    {"pattern": r"Paléolithique moyen", "value": YearSpan(
-        300000, -40000)},             # Middle palaeolithic
-    {"pattern": r"Paléolithique supérieur", "value": YearSpan(
-        40000, -12500)},          # Upper palaeolithic
-    {"pattern": r"Épipaléolithique", "value": YearSpan(
-        12500, -9600)},                  # Epipalaeolithic
-    {"pattern": r"Mesolithique", "value": YearSpan(
-        9600, -5500)},                       # Mesolithic
-    {"pattern": r"(?:(?:époque|période)\s)?Néolithique",
-     "value": YearSpan(6000, -2100)},   # Neolithic
-    # patterns observed in text                      # Final Neolithic
-    {"pattern": r"Néolithique final"},
-    {"pattern": r"protohistorique"},
-    # Gallo Roman
-    {"pattern": fr"gallo{SPACEORDASH}romain[es]"},
-    # Bronze age
-    {"pattern": r"âge du Bronze"},
-    # Iron age
-    {"pattern": r"âge du Fer"},
-    # The final dinner
-    {"pattern": r"La Tène(?:\sfinale)?"},
-    {"pattern": r"âge du Bronze ancien", "value": YearSpan(
-        2200, -1600)},               # ancient bronze age
-    {"pattern": r"âge du Bronze moyen", "value": YearSpan(
-        1600, -1400)},                # middle bronze age
-    {"pattern": r"âge du Bronze final", "value": YearSpan(
-        1400, -1800)},                # final bronze age
-    {"pattern": r"premier âge du Fer", "value": YearSpan(
-        800, -450)},                   # first iron age
-    {"pattern": r"second âge du Fer", "value": YearSpan(
-        450, -50)},                     # Second iron age
-    {"pattern": fr"Haut{SPACEORDASH}Empire", "value": YearSpan(
-        50, 300)},               # High Empire
-    {"pattern": r"Antiquité tardive", "value": YearSpan(
-        300, 500)},                     # Late antiquity
-    {"pattern": r"Moyen [ÂA]ge", "value": YearSpan(
-        400, 400)},                          # Middle ages
-    {"pattern": r"haut Moyen [ÂA]ge", "value": YearSpan(
-        400, 1000)},                    # High middle age
-    {"pattern": r"Moyen [ÂA]ge classique", "value": YearSpan(
-        1000, 1400)},              # Classical middle ages
-    {"pattern": r"bas Moyen [ÂA]ge", "value": YearSpan(
-        1400, 1600)},                    # Low middle ages
-    {"pattern": r"(?:(?:époque|période)\s)?moderne",
-     "value": YearSpan(1600, 1800)},        # Modern period
-    {"pattern": r"Renaissance", "value": YearSpan(
-        1500, 1600)},                         # Renaissance
-    {"pattern": r"Siècle des Lumières", "value": YearSpan(
-        1600, 1800)},                 # Age of enlightenment
-    {"pattern": r"(?:(?:époque|période)\s)?contemporaine",
-     "value": YearSpan(1800, 2000)},  # Contemporary period
-    # Minoan
-    {"pattern": r"minoen", "value": YearSpan()},
-    # Ancient Minoan
-    {"pattern": r"minoen ancien", "value": YearSpan()},
-    # Middle Minoan
-    {"pattern": r"minoen moyen", "value": YearSpan()},
-    # recent Minoan
-    {"pattern": r"minoen récent", "value": YearSpan()},
-    # recent Minoan I A
-    {"pattern": r"minoen récent I A", "value": YearSpan()},
-    # recent Minoan I B
-    {"pattern": r"minoen récent I B", "value": YearSpan()},
-    # Recent Minoan II
-    {"pattern": r"minoen récent II", "value": YearSpan()},
-    # Minoan III
-    {"pattern": r"minoen récent III", "value": YearSpan()},
-    # sub Minoan
-    {"pattern": r"subminoen", "value": YearSpan()},
-    # Corinthian
-    {"pattern": r"corinthien", "value": YearSpan()},
-    # ancient Corinthian
-    {"pattern": r"corinthien ancien", "value": YearSpan()},
-    # Middle Corinthian
-    {"pattern": r"corinthien moyen", "value": YearSpan()},
-    # recent Corinthan I
-    {"pattern": r"corinthien récent I", "value": YearSpan()},
-    # recent Corinthan II
-    {"pattern": r"corinthien récent II", "value": YearSpan()},
-    {"pattern": r"(?:(?:époque|période)\s)?archaïque",
-     "value": YearSpan()},                # Archaic
-    {"pattern": r"(?:(?:époque|période)\s)?georgienne",
-     "value": YearSpan(1714, 1837)},     # Georgian
-    {"pattern": r"(?:(?:époque|période)\s)?victorienne",
-     "value": YearSpan(1837, 1901)},    # Victorian
-    {"pattern": r"(?:(?:époque|période)\s)?hellénistique",
-     "value": YearSpan(323, -31)},    # Hellenistic
-    {"pattern": fr"(?:(?:époque|période)\s)?julio{SPACEORDASH}claudienne",
-     "value": YearSpan(27, 68)},  # Claudian
-    {"pattern": r"(?:(?:époque|période)\s)?augustéenne",
-     "value": YearSpan(27, 14)},        # Augustan
-    {"pattern": r"(?:(?:époque|période)\s)?tibérienne",
-     "value": YearSpan(14, 37)},         # Tiberian
-    {"pattern": fr"(?:(?:époque|période)\s)?tibéro{SPACEORDASH}claudienne",
-     "value": YearSpan(14, 54)},
-    {"pattern": r"(?:(?:époque|période)\s)?claudienne",
-     "value": YearSpan(41, 54)},         # Claudian
-    {"pattern": r"(?:(?:époque|période)\s)?néronienne",
-     "value": YearSpan(54, 68)},         # Neronian
-    {"pattern": r"(?:(?:époque|période)\s)?flavienne",
-     "value": YearSpan(69, 96)},          # Flavian
-    {"pattern": r"(?:(?:époque|période)\s)?de Vespasien",
-     "value": YearSpan(69, 79)},       # Vespasian
-    {"pattern": r"(?:(?:époque|période)\s)?de Domitien",
-     "value": YearSpan(81, 96)},        # Domitian
-    {"pattern": r"(?:(?:époque|période)\s)?de Trajan",
-     "value": YearSpan(98, 117)},         # Trajan
-    {"pattern": r"(?:(?:époque|période)\s)?d'Hadrien",
-     "value": YearSpan(117, 138)},       # Hadrianic
-    {"pattern": r"(?:(?:époque|période)\s)?antonine",
-     "value": YearSpan(138, 161)},         # Antonine
-    {"pattern": r"(?:(?:époque|période)\s)?aurélienne",
-     "value": YearSpan(161, 180)},       # Aurelian
-    {"pattern": r"(?:(?:époque|période)\s)?sévérienne",
-     "value": YearSpan(193, 211)},       # Severian
-    {"pattern": r"(?:(?:époque|période)\s)?de Gallien",
-     "value": YearSpan(253, 268)},       # Gallien
-    {"pattern": r"(?:(?:époque|période)\s)?des Tétrarques",
-     "value": YearSpan(293, 364)},   # Tetrarchs
-    {"pattern": r"(?:(?:époque|période)\s)?constantinienne",
-     "value": YearSpan(305, 363)},  # Constantinian
-    {"pattern": fr"(?:(?:époque|période)\s)?Bas{SPACEORDASH}Empire",
-     "value": YearSpan(0, 0)},
-    {"pattern": r"(?:(?:époque|période)\s)?byzantine", "value": YearSpan(0, 0)}
-]
-
-patterns["fr"]["datespans"] = [
-    {
-        # Month and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{month}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            month=oneofp(patterns["fr"]["monthnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # Season and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            season=oneofp(patterns["fr"]["seasonnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # year with suffix
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{year}})( ans)?(\s?{{suffix}})\b".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # year with prefix
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)+({{year}})( ans)?(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # from year to year
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromYear}})( ans)?(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromYear=NUMERICYEAR,
-            separator=oneofp(patterns["fr"]["dateseparator"]),
-            toYear=NUMERICYEAR,
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # named historical periods
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{named}})\b".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named=oneofp(patterns["fr"]["periodnames"])
-        )
-    },
-    {
-        # from named to named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named1=oneofp(patterns["fr"]["periodnames"]),
-            separator=oneofp(patterns["fr"]["dateseparator"]),
-            named2=oneofp(patterns["fr"]["periodnames"])
-        )
-    },
-    {
-        # decades e.g. "1850's"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade=r"\b[1-9]\d{1,2}0'?s",
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # from decade to decade e.g. e.g. ""
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})\b".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade1=r"\b[1-9]\d{1,2}0'?s",
-            decade2=r"\b[1-9]\d{1,2}0'?s",
-            separator=oneofp(patterns["fr"]["dateseparator"])
-        )
-    },
-    {
-        # Ordinal century e.g. "cinquième siècle après JC", "5th century AD"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{ordinal}}) s(iècle|\.)(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["fr"]["ordinals"]),
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # From ordinal to ordinal century e.g. "le milieu du Ier siècle et le début du IIe siècle"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{fromOrdinal}}) s(iècle|\.){{separator}}({{prefix}}{{spaceordash}}?)*({{toOrdinal}}) s(iècle|\.)(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromOrdinal=oneofp(patterns["fr"]["ordinals"]),
-            separator=oneofp(patterns["fr"]["dateseparator"]),
-            toOrdinal=oneofp(patterns["fr"]["ordinals"]),
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal millennium
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{ordinal}}) millénaire(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["fr"]["ordinals"]),
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # Roman numeral centuries e.g. "IIe s. av. J.-C." (2nd century BC)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{roman}})er? s(iècle|\.)(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            roman=ROMAN,
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    },
-    {
-        # From Roman to Roman century e.g. "XIe-XIIIe siècle"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{fromRoman}})e{{separator}}({{prefix}}{{spaceordash}}?)*({{toRoman}})e s(iècle|\.)(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["fr"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromRoman=ROMAN,
-            separator=oneofp(patterns["fr"]["dateseparator"]),
-            toRoman=ROMAN,
-            suffix=oneofp(patterns["fr"]["datesuffix"])
-        )
-    }
+    {"pattern": r"\p{Pd}"},
+    {"pattern": r"/"},
+    {"pattern": r"à"},
+    {"pattern": r"au"},
+    {"pattern": r"et"},
+    {"pattern": r"ou"}
 ]
 
 patterns["fr"]["directions"] = [
@@ -2516,40 +1062,6 @@ patterns["fr"]["directions"] = [
 ]
 
 # Italian patterns
-patterns["it"]["cardinals"] = [
-    {"value": 1, "pattern": r"(?:1|I|un[oa])"},
-    {"value": 2, "pattern": r"(?:2|II|due)"},
-    {"value": 3, "pattern": r"(?:3|III|tre)"},
-    {"value": 4, "pattern": r"(?:4|IV|quattro)"},
-    {"value": 5, "pattern": r"(?:5|V|cinque)"},
-    {"value": 6, "pattern": r"(?:6|VI|sei)"},
-    {"value": 7, "pattern": r"(?:7|VII|sette)"},
-    {"value": 8, "pattern": r"(?:8|VIII|otto)"},
-    {"value": 9, "pattern": r"(?:9|IX|nove)"},
-    {"value": 10, "pattern": r"(?:10|X|dieci)"},
-    {"value": 11, "pattern": r"(?:11|XI|undici)"},
-    {"value": 12, "pattern": r"(?:12|XII|dodici)"},
-    {"value": 13, "pattern": r"(?:13|XIII|tredici)"},
-    {"value": 14, "pattern": r"(?:14|XIV|quattordici)"},
-    {"value": 15, "pattern": r"(?:15|XV|quindici)"},
-    {"value": 16, "pattern": r"(?:16|XVI|sedici)"},
-    {"value": 17, "pattern": r"(?:17|XVII|diciassette)"},
-    {"value": 18, "pattern": r"(?:18|XVIII|diciotto)"},
-    {"value": 19, "pattern": r"(?:19|XIX|diciannove)"},
-    {"value": 20, "pattern": r"(?:20|XX|venti)"},
-    {"value": 21, "pattern": r"(?:21|XXI|ventuno)"},
-    {"value": 22, "pattern": r"(?:22|XXII|ventidue)"},
-    {"value": 23, "pattern": r"(?:23|XXIII|ventitré)"},
-    {"value": 24, "pattern": r"(?:24|XXIV|ventiquattro)"},
-    {"value": 25, "pattern": r"(?:25|XXV|venticinque)"},
-    {"value": 26, "pattern": r"(?:26|XXVI|ventisei)"},
-    {"value": 27, "pattern": r"(?:27|XXVII|ventisette)"},
-    {"value": 28, "pattern": r"(?:28|XXVIII|ventotto)"},
-    {"value": 29, "pattern": r"(?:29|XXIX|ventinove)"},
-    {"value": 30, "pattern": r"(?:30|XXX|trenta)"},
-    {"value": 31, "pattern": r"(?:31|XXXI|quaranta)"}
-]
-
 patterns["it"]["ordinals"] = [
     {"value": 1, "pattern": r"(?:1\s?[°º]|I|primo)"},             # first
     {"value": 2, "pattern": r"(?:2\s?[°º]|II|secondo)"},           # second
@@ -2663,201 +1175,19 @@ patterns["it"]["dateprefix"] = [
 ]
 
 patterns["it"]["datesuffix"] = [
-    {"value": enums.DateSuffix.AD, "pattern": r"(?:d\.?C\.?|C\.?E\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.CE, "pattern": r"(?:d\.?C\.?|C\.?E\.?)"},
+    {"value": enums.DateSuffix.BCE,
         "pattern": r"(?:a\.?C\.?|(?:cal\.?\s)?B\.?C\.?(?:E\.?)?)"},
     {"value": enums.DateSuffix.BP, "pattern": r"B\.?P\.?"}
 ]
 
 patterns["it"]["dateseparator"] = [
-    {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\s?/\s?"},
-    {"pattern": r"\sa\s"},
-    {"pattern": r"\sall(?:a\s|')"},
-    {"pattern": r"\sed?\slo\s"},
-    {"pattern": r"\se\s"}
-]
-
-patterns["it"]["periodnames"] = [
-    {"pattern": r"Paleolitic[ao]", "value": YearSpan(
-        600000, -10000)},              # Palaeolithic
-    {"pattern": r"Paleolitic[ao] Inferiore", "value": YearSpan(
-        600000, -150000)},   # Lower Palaeolithic
-    {"pattern": r"Paleolitic[ao] Medio", "value": YearSpan(
-        149999, -40000)},        # Middle Palaeolithic
-    {"pattern": r"Paleolitic[ao] Superiore", "value": YearSpan(
-        39999, -10000)},     # Upper Palaeolithic
-    {"pattern": r"Mesolitic[ao]", "value": YearSpan(
-        9999, -5000)},                  # Mesolithic
-    {"pattern": r"Neolitic[ao]", "value": YearSpan(
-        5000, -3300)},                   # Neolithic
-    {"pattern": r"Eneolitic[ao]", "value": YearSpan(
-        3300, -2300)},                  # Eneolithic
-    {"pattern": r"Età del Bronzo", "value": YearSpan(
-        2300, -1000)},                 # Bronze Age
-    # Ancient Bronze Age
-    {"pattern": r"Antica Età del Bronzo"},
-    # Middle Bronze Age
-    {"pattern": r"Media Età del Bronzo"},
-    # Late Bronze Age
-    {"pattern": r"Tarda Età del Bronzo"},
-    {"pattern": r"Età del Ferro", "value": YearSpan(
-        1000, -750)},                   # Iron Age
-    {"pattern": r"Orientalizzante", "value": YearSpan(750, -580)},
-    {"pattern": r"Arcaic[ao]", "value": YearSpan(
-        580, -480)},                          # Archaic
-    {"pattern": r"Classic[ao]", "value": YearSpan(
-        480, -350)},                      # Classic
-    {"pattern": r"Roman[ao]", "value": YearSpan(
-        350, 600)},                         # Roman
-    {"pattern": r"Roman[ao] Repubblicano", "value": YearSpan(
-        350, -27)},            # Roman Republican
-    {"pattern": r"Roman[ao] Imperiale", "value": YearSpan(
-        27, 400)},                # Roman Imperial
-    {"pattern": r"Tard'antichità", "value": YearSpan(
-        400, 600)},                    # Late Antiquity
-    {"pattern": r"Medievale", "value": YearSpan(
-        600, 1350)},                        # Medieval
-    {"pattern": r"Rinasciment[ao]", "value": YearSpan(
-        1350, 1550)},                 # Renaissance
-    {"pattern": r"Modern[ao]", "value": YearSpan(
-        1550, 1788)},                      # Modern
-    {"pattern": r"Contemporane[ao]", "value": YearSpan(
-        1788, 2000)}                    # Contemporary
-]
-
-patterns["it"]["datespans"] = [
-    {
-        # Month and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{month}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            month=oneofp(patterns["it"]["monthnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # Season and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            season=oneofp(patterns["it"]["seasonnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # year with suffix e.g. "8100 BCE"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{year}})(\s?{{suffix}})".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # year with prefix e.g. "circa 1854"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)+({{year}})(\s?{{suffix}})?".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # from year to year
-        "pattern": fr"\b(tra lo\s)?({{prefix}}{{spaceordash}}?)*({{fromYear}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromYear=NUMERICYEAR,
-            separator=oneofp(patterns["it"]["dateseparator"]),
-            toYear=NUMERICYEAR,
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # named historical periods
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{named}})\b".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named=oneofp(patterns["it"]["periodnames"])
-        )
-    },
-    {
-        # from named to named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named1=oneofp(patterns["it"]["periodnames"]),
-            named2=oneofp(patterns["it"]["periodnames"]),
-            separator=oneofp(patterns["it"]["dateseparator"])
-        )
-    },
-    {
-        # decades e.g. "Intorno al decennio 1850esimo"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*decennio\s({{decade}})(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade=r"\b[1-9]\d{1,2}0(esimo)?",
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # from decade to decade e.g. e.g. ""
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})\b".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade1=r"\b[1-9]\d{1,2}0(esimo)?",
-            decade2=r"\b[1-9]\d{1,2}0(esimo)?",
-            separator=oneofp(patterns["it"]["dateseparator"]),
-        )
-    },
-    {
-        # Roman numeral centuries e.g. "V secolo d.C." (5th century AD)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*{{roman}} sec(olo|\.)(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            roman=ROMAN,
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # alt Roman numeral centuries e.g. "Sec. V d.C." (5th century AD)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*sec(olo|\.) {{roman}}(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            roman=ROMAN,
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal centuries e.g. "18º secolo"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) sec(olo|\.)(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["it"]["ordinals"]),
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # Roman numeral millennia e.g. "X millennio a.C."
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*{{roman}} mill(ennio|\.)(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            roman=ROMAN,
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal millennia e.g. "Primo millennio d.C."
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) mill(ennio|\.)(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["it"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["it"]["ordinals"]),
-            suffix=oneofp(patterns["it"]["datesuffix"])
-        )
-    }
+    {"pattern": r"\p{Pd}"},
+    {"pattern": r"/"},
+    {"pattern": r"a"},
+    {"pattern": r"all(?:a|')"},
+    {"pattern": r"ed?\slo"},
+    {"pattern": r"e"}
 ]
 
 patterns["it"]["directions"] = [
@@ -2872,40 +1202,6 @@ patterns["it"]["directions"] = [
 ]
 
 # Dutch patterns
-patterns["nl"]["cardinals"] = [
-    {"value": 1, "pattern": r"(?:1|één)"},
-    {"value": 2, "pattern": r"(?:2|twee)"},
-    {"value": 3, "pattern": r"(?:3|drie)"},
-    {"value": 4, "pattern": r"(?:4|vier)"},
-    {"value": 5, "pattern": r"(?:5|vijf)"},
-    {"value": 6, "pattern": r"(?:6|zes)"},
-    {"value": 7, "pattern": r"(?:7|zeven)"},
-    {"value": 8, "pattern": r"(?:8|acht)"},
-    {"value": 9, "pattern": r"(?:9|negen)"},
-    {"value": 10, "pattern": r"(?:10|tien)"},
-    {"value": 11, "pattern": r"(?:11|elf)"},
-    {"value": 12, "pattern": r"(?:12|twaalf)"},
-    {"value": 13, "pattern": r"(?:13|dertien)"},
-    {"value": 14, "pattern": r"(?:14|veertien)"},
-    {"value": 15, "pattern": r"(?:15|vijftien)"},
-    {"value": 16, "pattern": r"(?:16|zestien)"},
-    {"value": 17, "pattern": r"(?:17|zeventien)"},
-    {"value": 18, "pattern": r"(?:18|achttien)"},
-    {"value": 19, "pattern": r"(?:19|negentien)"},
-    {"value": 20, "pattern": r"(?:20|twintig)"},
-    {"value": 21, "pattern": r"(?:21|eenentwintig)"},
-    {"value": 22, "pattern": r"(?:22|tweeëntwintig)"},
-    {"value": 23, "pattern": r"(?:23|drieëntwintig)"},
-    {"value": 24, "pattern": r"(?:24|vierentwintig)"},
-    {"value": 25, "pattern": r"(?:25|vijfentwintig)"},
-    {"value": 26, "pattern": r"(?:26|zesentwintig)"},
-    {"value": 27, "pattern": r"(?:27|zevenentwintig)"},
-    {"value": 28, "pattern": r"(?:28|achtentwintig)"},
-    {"value": 29, "pattern": r"(?:29|negenentwintig)"},
-    {"value": 30, "pattern": r"(?:30|dertig)"},
-    {"value": 31, "pattern": r"(?:31|eenendertig)"}
-]
-
 patterns["nl"]["ordinals"] = [
     {"value": 1, "pattern": r"(?:1e|eerste)"},              # first
     {"value": 2, "pattern": r"(?:2e|tweede)"},              # second
@@ -2997,267 +1293,20 @@ patterns["nl"]["dateprefix"] = [
 ]
 
 patterns["nl"]["datesuffix"] = [
-    {"value": enums.DateSuffix.AD,
+    {"value": enums.DateSuffix.CE,
         "pattern": r"(?:na?\.?\s?(?:Christus|Chr\.?)|A\.?D\.?|C\.?E\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.BCE,
         "pattern": r"(?:(?:voor|vóór|v\.?)\s?(?:Christus|Chr\.?|c\.?)|(?:cal\.?\s)?B\.?C\.?(E\.?)?)"},
     {"value": enums.DateSuffix.BP,
         "pattern": r"(?:(?:år\s)?före nutid|B\.?P\.?)"}
 ]
 
 patterns["nl"]["dateseparator"] = [
-    {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\s?/\s?"},
-    {"pattern": r"\stot\s"},
-    {"pattern": r"\sen\s"},
-    {"pattern": r"\sof\s"}
-]
-
-patterns["nl"]["periodnames"] = [
-    {"pattern": r"Prehistorie", "value": YearSpan()},
-    {"pattern": r"Steentijd", "value": YearSpan()},
-    {"pattern": r"Paleolithicum", "value": YearSpan()},
-    {"pattern": r"Vroeg Paleolithicum", "value": YearSpan()},
-    {"pattern": r"Midden Paleolithicum", "value": YearSpan()},
-    {"pattern": r"Laat Paleolithicum",
-        "value": YearSpan(-35000, -8801)},       # Late Paleolithic
-    {"pattern": r"Laat Paleolithicum A",
-        "value": YearSpan(-35000, -18001)},    # Late Paleolithic A
-    {"pattern": r"Laat Paleolithicum B",
-        "value": YearSpan(-18000, -8801)},     # Late Paleolithic B
-    # Mesolithic
-    {"pattern": r"Mesolithicum", "value": YearSpan(-8800, -5301)},
-    {"pattern": r"Vroeg Mesolithicum",
-        "value": YearSpan(-8800, -7101)},        # Early Mesolithic
-    {"pattern": r"Midden Mesolithicum",
-        "value": YearSpan(-7100, -6451)},       # Middle Mesolithic
-    # Late Mesolithic
-    {"pattern": r"Laat Mesolithicum", "value": YearSpan(-6450, -5301)},
-    # Neolithic
-    {"pattern": r"Neolithicum", "value": YearSpan(-5300, -2001)},
-    # Early Neolithic
-    {"pattern": r"Vroeg Neolithicum", "value": YearSpan(-5300, -4201)},
-    {"pattern": r"Vroeg Neolithicum A",
-        "value": YearSpan(-5300, -4901)},       # Early Neolithic A
-    {"pattern": r"Vroeg Neolithicum B",
-        "value": YearSpan(-4900, -4201)},       # Early Neolithic B
-    {"pattern": r"Midden Neolithicum",
-        "value": YearSpan(-4200, -2851)},        # Middle Neolithic
-    {"pattern": r"Midden Neolithicum A",
-        "value": YearSpan(-4200, -3401)},      # Middle Neolithic A
-    {"pattern": r"Midden Neolithicum B",
-        "value": YearSpan(-3400, -2851)},      # Middle Neolithic B
-    # Late Neolithic
-    {"pattern": r"Laat Neolithicum", "value": YearSpan(-2850, -2451)},
-    {"pattern": r"Laat Neolithicum A",
-        "value": YearSpan(-2850, -2451)},        # Late Neolithic A
-    {"pattern": r"Laat Neolithicum B",
-        "value": YearSpan(-2450, -2001)},        # Late Neolithic B
-    # Metal Age
-    {"pattern": r"Metaaltijden", "value": YearSpan(-2450, -13)},
-    # Bronze Age
-    {"pattern": r"Bronstijd", "value": YearSpan(-2000, -801)},
-    # Early Bronze Age
-    {"pattern": r"Vroege Bronstijd", "value": YearSpan(-2000, -1801)},
-    # Middle Bronze Age
-    {"pattern": r"Midden Bronstijd", "value": YearSpan(-1800, -1101)},
-    # Middle Bronze Age A
-    {"pattern": r"Midden Bronstijd A", "value": YearSpan(-1800, -1501)},
-    # Middle Bronze Age B
-    {"pattern": r"Midden Bronstijd B", "value": YearSpan(-1500, -1101)},
-    # Late Bronze Age
-    {"pattern": r"Late Bronstijd", "value": YearSpan(-1101, -801)},
-    # Iron Age
-    {"pattern": r"IJzertijd", "value": YearSpan(-800, -13)},
-    # Early Iron Age
-    {"pattern": r"Vroege IJzertijd", "value": YearSpan(-800, -501)},
-    # Middle Iron Age
-    {"pattern": r"Midden IJzertijd", "value": YearSpan(-500, -251)},
-    # Late Iron Age
-    {"pattern": r"Late IJzertijd", "value": YearSpan(-250, -13)},
-    # Protohistory
-    {"pattern": r"Protohistorie", "value": YearSpan(-12, 449)},
-    {"pattern": r"Romeinse?(?:\sTijd)?",
-     "value": YearSpan(-12, 449)},           # Roman
-    # Early Roman
-    {"pattern": r"Vroeg Romeinse(?:\sTijd)?", "value": YearSpan(-12, 69)},
-    {"pattern": r"Vroeg Romeinse Tijd A",
-        "value": YearSpan(-12, 24)},          # Early Roman A
-    {"pattern": r"Vroeg Romeinse Tijd B", "value": YearSpan(
-        25, 69)},           # Early Roman B
-    {"pattern": r"Midden Romeinse(?:\sTijd)?", "value": YearSpan(
-        70, 269)},     # Middle Roman
-    {"pattern": r"Midden Romeinse Tijd A", "value": YearSpan(
-        70, 149)},         # Middle Roman A
-    {"pattern": r"Midden Romeinse Tijd B", "value": YearSpan(
-        150, 269)},        # Middle Roman B
-    {"pattern": r"Laat Romeinse(?:\sTijd)?", "value": YearSpan(
-        270, 449)},      # Late Roman
-    {"pattern": r"Laat Romeinse Tijd A", "value": YearSpan(
-        270, 349)},          # Late Roman A
-    {"pattern": r"Laat Romeinse Tijd B", "value": YearSpan(
-        350, 449)},          # Late Roman B
-    {"pattern": r"Historie", "value": YearSpan(
-        450, 1950)},                     # Historic
-    {"pattern": r"Middeleeuw(?:en|se?)", "value": YearSpan(
-        450, 1499)},         # Medieval
-    {"pattern": r"Vroege Middeleeuwen", "value": YearSpan(
-        450, 1049)},          # Early Medieval
-    {"pattern": r"Vroege Middeleeuwen A", "value": YearSpan(
-        450, 524)},         # Early Medieval A
-    {"pattern": r"Vroege Middeleeuwen B", "value": YearSpan(
-        525, 724)},         # Early Medieval B
-    {"pattern": r"Vroege Middeleeuwen C", "value": YearSpan(
-        725, 899)},         # Early Medieval C
-    {"pattern": r"Vroege Middeleeuwen D", "value": YearSpan(
-        900, 1049)},        # Early Medieval D
-    {"pattern": r"Late Middeleeuwen", "value": YearSpan(
-        1050, 1499)},           # Late Medieval
-    {"pattern": r"Late Middeleeuwen A", "value": YearSpan(
-        1050, 1249)},         # Late Medieval A
-    {"pattern": r"Late Middeleeuwen B", "value": YearSpan(
-        1250, 1499)},         # Late Medieval B
-    {"pattern": r"Nieuwe Tijd", "value": YearSpan(
-        1500, 1944)},                 # Modern period
-    # Modern period A
-    {"pattern": r"Nieuwe Tijd A", "value": YearSpan()},
-    # Modern period B
-    {"pattern": r"Nieuwe Tijd B", "value": YearSpan()},
-    # Modern period C
-    {"pattern": r"Nieuwe Tijd C", "value": YearSpan()},
-    {"pattern": r"Nieuwe Tijd Vroeg", "value": YearSpan(
-        1500, 1649)},           # Early Modern period
-    {"pattern": r"Nieuwe Tijd Midden", "value": YearSpan(
-        1650, 1849)},          # Middle Modern period
-    {"pattern": r"Nieuwe Tijd Laat", "value": YearSpan(
-        1850, 1944)},            # Late Modern period
-    {"pattern": r"Recent", "value": YearSpan(
-        1945, 2000)},                      # Contemporary
-    {"pattern": r"Onbekend", "value": YearSpan()},
-    {"pattern": r"Overige?", "value": YearSpan()},
-    {"pattern": r"Hoge Middeleeuwen", "value": YearSpan()},
-    {"pattern": r"Volle Middeleeuwen", "value": YearSpan()},
-    {"pattern": r"Tweede Wereldoorlog", "value": YearSpan()}
-
-]
-
-patterns["nl"]["datespans"] = [
-    {
-        # Month and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{month}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            month=oneofp(patterns["nl"]["monthnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["nl"]["datesuffix"])
-        )
-    },
-    {
-        # Season and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            season=oneofp(patterns["nl"]["seasonnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["nl"]["datesuffix"]),
-        )
-    },
-    {
-        # year with suffix e.g. "8100 BCE"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{year}})(\s?{{suffix}})\b".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["nl"]["datesuffix"])
-        )
-    },
-    {
-        # year with prefix e.g. "circa 1854"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)+({{year}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["nl"]["datesuffix"])
-        )
-    },
-    {
-        # from year to year
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromYear}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromYear=NUMERICYEAR,
-            separator=oneofp(patterns["nl"]["dateseparator"]),
-            toYear=NUMERICYEAR,
-            suffix=oneofp(patterns["nl"]["datesuffix"])
-        )
-    },
-    {
-        # named historical periods
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{named}})\b".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named=oneofp(patterns["nl"]["periodnames"])
-        )
-    },
-    {
-        # from named to named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named1=oneofp(patterns["nl"]["periodnames"]),
-            named2=oneofp(patterns["nl"]["periodnames"]),
-            separator=oneofp(patterns["nl"]["dateseparator"])
-        )
-    },
-    {
-        # decades e.g. "1850's"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade=r"\b[1-9]\d{1,2}0'?s",
-            suffix=oneofp(patterns["nl"]["datesuffix"])
-        )
-    },
-    {
-        # from decade to decade e.g. e.g. ""
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade1=r"\b[1-9]\d{1,2}0'?s",
-            decade2=r"\b[1-9]\d{1,2}0'?s",
-            separator=oneofp(patterns["nl"]["dateseparator"]),
-            suffix=oneofp(patterns["nl"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal century e.g. "vijfde eeuw na Christus", "5th century AD"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) eeuw(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["nl"]["ordinals"]),
-            suffix=oneofp(patterns["nl"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal"Ordinal century e.g. "14e - 15e eeuw", "14th"15th century"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{ordinal2}}) eeuw(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal1=oneofp(patterns["nl"]["ordinals"]),
-            ordinal2=oneofp(patterns["nl"]["ordinals"]),
-            separator=oneofp(patterns["nl"]["dateseparator"]),
-            suffix=oneofp(patterns["nl"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal millennium e.g. "begin 2de millennium AD"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) millennium(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["nl"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["nl"]["ordinals"]),
-            suffix=oneofp(patterns["nl"]["datesuffix"])
-        )
-    },
+    {"pattern": r"\p{Pd}"},
+    {"pattern": r"/"},
+    {"pattern": r"tot"},
+    {"pattern": r"en"},
+    {"pattern": r"of"}
 ]
 
 patterns["nl"]["directions"] = [
@@ -3272,41 +1321,6 @@ patterns["nl"]["directions"] = [
 ]
 
 # Norwegian patterns
-patterns["no"]["cardinals"] = [
-    {"value": 0, "pattern": r"(?:0|Null)"},
-    {"value": 1, "pattern": r"(?:1|En)"},
-    {"value": 2, "pattern": r"(?:2|To)"},
-    {"value": 3, "pattern": r"(?:3|Tre)"},
-    {"value": 4, "pattern": r"(?:4|Fire)"},
-    {"value": 5, "pattern": r"(?:5|Fem)"},
-    {"value": 6, "pattern": r"(?:6|Seks)"},
-    {"value": 7, "pattern": r"(?:7|Sju)"},
-    {"value": 8, "pattern": r"(?:8|Åtte)"},
-    {"value": 9, "pattern": r"(?:9|Ni)"},
-    {"value": 10, "pattern": r"(?:10|Ti)"},
-    {"value": 11, "pattern": r"(?:11|Elleve)"},
-    {"value": 12, "pattern": r"(?:12|Tolv)"},
-    {"value": 13, "pattern": r"(?:13|Tretten)"},
-    {"value": 14, "pattern": r"(?:14|Fjorten)"},
-    {"value": 15, "pattern": r"(?:15|Femten)"},
-    {"value": 16, "pattern": r"(?:16|Seksten)"},
-    {"value": 17, "pattern": r"(?:17|Sytten)"},
-    {"value": 18, "pattern": r"(?:18|Atten)"},
-    {"value": 19, "pattern": r"(?:19|Nitten)"},
-    {"value": 20, "pattern": r"(?:20|Tjue)"},
-    {"value": 21, "pattern": r"(?:21|Tjueen)"},
-    {"value": 22, "pattern": r"(?:22|Tjueto)"},
-    {"value": 23, "pattern": r"(?:23|Tjuetre)"},
-    {"value": 24, "pattern": r"(?:24|Tjuefire)"},
-    {"value": 25, "pattern": r"(?:25|Tjuefem)"},
-    {"value": 26, "pattern": r"(?:26|Tjueseks)"},
-    {"value": 27, "pattern": r"(?:27|Tjuesju)"},
-    {"value": 28, "pattern": r"(?:28|TjueÅtte)"},
-    {"value": 29, "pattern": r"(?:29|Tjueni)"},
-    {"value": 30, "pattern": r"(?:30|tretti)"},
-    {"value": 31, "pattern": r"(?:31|trettien)"}
-]
-
 patterns["no"]["ordinals"] = [
     {"value": 1, "pattern": r"(?:1\.?|f?ørste?)"},          # first
     {"value": 2, "pattern": r"(?:2\.?|an(?:nen|na|net|dre))"},  # second
@@ -3422,20 +1436,20 @@ patterns["no"]["dateprefix"] = [
 ]
 
 patterns["no"]["datesuffix"] = [
-    {"value": enums.DateSuffix.AD,
+    {"value": enums.DateSuffix.CE,
         "pattern": r"(?:e\.\s?Kr\.?|A\.?D\.?|C\.?E\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.BCE,
         "pattern": r"(?:før nåtid|f\.\s?Kr\.?|fvt\.?|(?:cal\.?\s)?B\.?C\.?(?:E\.?)?)"},
     {"value": enums.DateSuffix.BP, "pattern": r"B\.?P\.?"}
 ]
 
 patterns["no"]["dateseparator"] = [
-    {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\s?/\s?"},
-    {"pattern": r"\stil\s"},
-    {"pattern": r"\sog\s"},
-    {"pattern": r"\soch\s"},
-    {"pattern": r"\seller\s"}
+    {"pattern": r"\p{Pd}"},
+    {"pattern": r"/"},
+    {"pattern": r"til"},
+    {"pattern": r"og"},
+    {"pattern": r"och"},
+    {"pattern": r"eller"}
 ]
 
 patterns["no"]["century"] = [
@@ -3444,290 +1458,6 @@ patterns["no"]["century"] = [
 
 patterns["no"]["millennium"] = [
     {"pattern": r"årtusen"}
-]
-
-# named historical periods. See https:#no.wikipedia.org"wiki"Steinalderen_i_Norge
-# and also Perio.do collection http://n2t.net/ark:/99152/p04h98q
-patterns["no"]["periodnames"] = [
-    # early stone age
-    {"pattern": r"eldre steinalder(?:en)?", "value": YearSpan(-9500, -4000)},
-    # stone age
-    {"pattern": r"steinalder(?:en)?", "value": YearSpan(-9500, -1700)},
-    # Early Mesolithic
-    {"pattern": r"tidlig(?:mesolitt?iske?|mesol[iuo]tikk?um)",
-     "value": YearSpan(-9500, -8000)},
-    # Middle Mesolithic
-    {"pattern": r"mellom(?:mesolitt?iske?|mesol[iuo]tikk?um)",
-     "value": YearSpan(-8000, -6000)},
-    # Late Mesolithic
-    {"pattern": r"sen(?:mesolitt?iske?|mesol[iuo]tikk?um)",
-     "value": YearSpan(-8000, -6000)},
-    # Neolithic
-    {"pattern": r"yngre steinalder(?:en)?", "value": YearSpan(-4000, -1700)},
-    {"pattern": r"tidlig(?:neolittiske?|neolitikum)",
-     "value": YearSpan(-4000, -2800)},  # Early Neolithic
-    {"pattern": r"mellom(?:neolittiske?|neolitikum)",
-     "value": YearSpan(-2800, -2400)},  # Middle Neolithic
-    {"pattern": r"sei?n(?:neolittiske?|neolitikum)",
-     "value": YearSpan(-2400, -1700)},  # Late Neolithic
-    {"pattern": r"tidlig metalltid",
-        "value": YearSpan(-2000, -300)},  # Early Metal Age
-    {"pattern": r"brons(?:ea|å|aa?)lder(?:en)?",
-     "value": YearSpan(-1700, -500)},  # Bronze age
-    {"pattern": r"eldre brons(?:ea|å|aa?)lder(?:en)?",
-     "value": YearSpan(-1700, -1100)},  # Early Bronze age
-    {"pattern": r"yngre brons(?:ea|å|aa?)lder(?:en)?",
-     "value": YearSpan(-1700, -500)},  # Late Bronze age
-    {"pattern": r"j[eäæ]rn(?:å|aa?)lder(?:en)?",
-     "value": YearSpan(-500, 1050)},  # Iron age
-    {"pattern": r"eldre j[eäæ]rn(?:å|aa?)lder(?:en)?",
-     "value": YearSpan(-500, 550)},  # Early Iron age
-    {"pattern": r"yngre j[eäæ]rn(?:å|aa?)lder(?:en)?", "value": YearSpan(
-        550, 1050)},  # Late Iron age
-    # Pre-Roman Iron age
-    {"pattern": r"førromersk j[eäæ]rn(?:å|aa?)lder(?:en)?",
-     "value": YearSpan(-500, 0)},
-    {"pattern": r"romer(?:ske?|tid)", "value": YearSpan(
-        0, 400)},  # Roman Iron Age
-    {"pattern": r"eldre romer(?:ske?|tid)", "value": YearSpan(
-        0, 200)},  # Early Roman Iron Age
-    {"pattern": r"yngre romer(?:ske?|tid)", "value": YearSpan(
-        200, 400)},  # Early Roman Iron Age
-    {"pattern": r"Folkevandringstid(?:en)?", "value": YearSpan(
-        400, 550)},  # migration period
-    {"pattern": r"merovingertid(?:en)?", "value": YearSpan(
-        550, 750)},  # Merovingian
-    {"pattern": r"Vikinge?tid(?:en)?", "value": YearSpan(
-        750, 1050)},  # Viking age
-    {"pattern": r"(?:middelalder(?:en)?|medeltida)",
-     "value": YearSpan(1050, 1500)},  # Medieval
-    {"pattern": r"tidlig(?:middelalder(?:en)?|medeltida)",
-     "value": YearSpan(1050, 1130)},  # Early Medieval
-    {"pattern": r"høy(?:middelalder(?:en)?|medeltida)",
-     "value": YearSpan(1050, 1350)},  # High Middle Ages
-    {"pattern": r"sen(?:middelalder(?:en)?|medeltida)",
-     "value": YearSpan(1350, 1500)},  # Late Middle Ages
-    {"pattern": r"(?:nyere|moderne|vår) tida?",
-     "value": YearSpan(1500, 2050)},    # Modern period
-    {"pattern": r"istid(?:ens?)?"},  # ice age
-    {"pattern": r"oldtid(?:ens?)?"},  # ancient times
-    {"pattern": r"forhistoriske"},  # prehistoric
-    {"pattern": r"(?:paleolittiske?|paleolitikum)"},  # Paleolithic
-    {"pattern": r"jegersteinalder(?:en)?"},  # Early Mesolithic
-    {"pattern": r"pionerfase"},  # subdivision of early Mesolithic
-    {"pattern": r"pionerbosetning(en)?"},  # subdivision of early Mesolithic
-    # subdivision of early Mesolithic
-    {"pattern": r"jeger(?:\p{Pd}?kultur(?:en)?)?"},
-    # subdivision of Mesolithic
-    {"pattern": r"fosna(?:\p{Pd}?kultur(?:en)?)?"},
-    # subdivision of Mesolithic
-    {"pattern": r"komsa(?:\p{Pd}?kultur(?:en)?)?"},
-    # subdivision of middle Mesolithic
-    {"pattern": r"(?:Mikrolittfasen|\bMM\b)"},
-    {"pattern": r"Tørkopfasen"},  # subdivision of middle Mesolithic
-    # subdivision of middle Mesolithic
-    {"pattern": r"Lundev(?:å|aa?)genfasen"},
-    {"pattern": r"Nøstvet"},  # subdivision of late Mesolithic
-    # subdivision of late Mesolithic
-    {"pattern": r"Nøstvet(?:\p{Pd}?kultur(?:en)?)?"},
-    {"pattern": r"Nøstvetfasen"},  # subdivision of late Mesolithic
-    {"pattern": r"Gjølstadfasen"},  # subdivision of late Mesolithic
-    {"pattern": r"Tverrpilfasen"},  # subdivision of late Mesolithic
-    {"pattern": r"Nøstvetøksfasen"},  # subdivision of late Mesolithic
-    # subdivision of Early Neolithic (from Marianne Moen)
-    {"pattern": r"(?:Traktbeger(?:fasen)?|\bTRB\b)"},
-    # subdivision of Neolithic (from Marianne Moen)
-    {"pattern": r"Senstenalder"},
-    # subdivision of Neolithic (from Marianne Moen)
-    {"pattern": r"Bondesteinalder"},
-    # subdivision of middle neolithic (from Marianne Moen)
-    {"pattern": r"Stridsøksfasen"},
-    # subdivision of late neolithic (from Marianne Moen)
-    {"pattern": r"seinneolitikum"},
-    {"pattern": r"metalltid(en)?"},  # Metal age
-    {"pattern": r"Germansk j[eäæ]rn(?:å|aa?)lder(?:en)?"},  # Germanic iron age
-    {"pattern": r"reformatorisk"},  # reformation
-    {"pattern": r"Borgerkrigstid(?:en)?"},  # Civil War Period
-    {"pattern": r"mellomkrigstid(?:en)?"},  # inter war period
-    # { "pattern": r"i dag"},   # the present
-    {"pattern": r"etter\p{Pd}reformatorisk"},
-    # period numbers related to Bronze age (from Marianne Moen)
-    {"pattern": r"Per(?:\.|iode) [IV]+"}
-]
-
-# composite patterns for expressions of datespans
-patterns["no"]["datespans"] = [
-    {
-        # Prefix and numeric year, maybe a suffix e.g. "frå 1984"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)+({{year}})(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # maybe a prefix, numeric year and a suffix e.g. "frå 1984"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{year}})(\s{{suffix}})\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # Month and year e.g. "Oktober 1984"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{month}}) ({{year}})(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            month=oneofp(patterns["no"]["monthnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # Season and year e.g. "høst 1984 f.Kr"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            season=oneofp(patterns["no"]["seasonnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # e.g. 2+ digits, starting with 1..9, ending with 0, then "-årene" e.g. "30-årene" (the 30s)
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{year}}){{spaceordash}}år(a|s|ene)\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=r"[1-9]\d{0,}0"
-        )
-    },
-    {
-        # e.g. "i år 166" (the year 166)
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*i år ({{year}})(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # ordinal century e.g. "første halvdel av det andre århundre f.Kr."
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{ordinal}}) århundre(t|de)?(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["no"]["ordinals"]),
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # Part of ordinal millennium e.g. "første halvdel av det andre årtusen f.Kr."
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{ordinal}}) årtusen(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["no"]["ordinals"]),
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # numeric year (not starting with 0) with suffix e.g. "ca. 8100 f.Kr."
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*(år\s)?({{year}})(\s?{{suffix}})\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # numeric year (not starting with 0) with tolerance followed by suffix e.g. "2735±35 BP"
-        "pattern": fr"\b({{year}})(\s?{{tolerance}})(\s?{{suffix}})?".format(
-            year=NUMERICYEAR,
-            tolerance=r"±[1-9]\d*",
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # numeric year with suffix followed by tolerance e.g. "2735 BP±35"
-        "pattern": fr"\b({{year}})(\s?{{suffix}})?(\s?{{tolerance}})".format(
-            year=NUMERICYEAR,
-            tolerance=r"±[1-9]\d*",
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # from year to year e.g. "ca. 8100–7800 f.Kr."
-        # see https:#www.regular-expressions.info"unicode.html
-        # and https:#www.fileformat.info"info"unicode"category"Pd"list.htm
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromYear}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            suffix=oneofp(patterns["no"]["datesuffix"]),
-            # note unicode property \p{Pd} covers all types of hyphen"dash https:#www.fileformat.info"info"unicode"category"Pd"list.htm
-            spaceordash=SPACEORDASH,
-            fromYear=NUMERICYEAR,
-            separator=oneofp(patterns["no"]["dateseparator"]),
-            toYear=NUMERICYEAR
-        )
-    },
-    {
-        # From ordinal to ordinal century e.g. "andre eller tredje århundre e.Kr."
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromOrdinal}}){{separator}}({{prefix}}{{spaceordash}}?)*({{toOrdinal}}) århundret?(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromOrdinal=oneofp(patterns["no"]["ordinals"]),
-            separator=oneofp(patterns["no"]["dateseparator"]),
-            toOrdinal=oneofp(patterns["no"]["ordinals"]),
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # From ordinal to ordinal millennium e.g. "andre eller tredje årtusen e.Kr."
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromOrdinal}}){{separator}}({{prefix}}{{spaceordash}}?)*({{toOrdinal}}) årtusen(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromOrdinal=oneofp(patterns["no"]["ordinals"]),
-            separator=oneofp(patterns["no"]["dateseparator"]),
-            toOrdinal=oneofp(patterns["no"]["ordinals"]),
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # Decades e.g. "1100-tallet" (1100s i.e. 12th century)
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade}})(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade=r"[1-9]\d{0,2}0-tal(ls|l?ets?)",
-            suffix=oneofp(patterns["no"]["datesuffix"])
-        )
-    },
-    {
-        # from decade to decade e.g. e.g. ""
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})\b".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade1=r"[1-9]\d{0,2}0-tal(ls|l?ets?)",
-            decade2=r"[1-9]\d{0,2}0-tal(ls|l?ets?)",
-            separator=oneofp(patterns["no"]["dateseparator"]),
-        )
-    },
-    {
-        # named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*{{named}}".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named=oneofp(patterns["no"]["periodnames"])
-        )
-    },
-    {
-        # from named to named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})".format(
-            prefix=oneofp(patterns["no"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named1=oneofp(patterns["no"]["periodnames"]),
-            separator=oneofp(patterns["no"]["dateseparator"]),
-            named2=oneofp(patterns["no"]["periodnames"])
-        )
-    }
 ]
 
 patterns["no"]["directions"] = [
@@ -3743,40 +1473,6 @@ patterns["no"]["directions"] = [
 
 # 12th century = 1100-tallet, 12. århundre , 12. århundre f.Kr. (f.Kr. =BC e.Kr. = AD) Femte århundre e.Kr.
 # Swedish patterns
-patterns["sv"]["cardinals"] = [
-    {"value": 1, "pattern": r"(?:1|enn)"},
-    {"value": 2, "pattern": r"(?:2|två)"},
-    {"value": 3, "pattern": r"(?:3|tre)"},
-    {"value": 4, "pattern": r"(?:4|fyra)"},
-    {"value": 5, "pattern": r"(?:5|fem)"},
-    {"value": 6, "pattern": r"(?:6|sex)"},
-    {"value": 7, "pattern": r"(?:7|sju)"},
-    {"value": 8, "pattern": r"(?:8|åtta)"},
-    {"value": 9, "pattern": r"(?:9|nio)"},
-    {"value": 10, "pattern": r"(?:10|tio)"},
-    {"value": 11, "pattern": r"(?:11|elva)"},
-    {"value": 12, "pattern": r"(?:12|tolv)"},
-    {"value": 13, "pattern": r"(?:13|tretton)"},
-    {"value": 14, "pattern": r"(?:14|fjorton)"},
-    {"value": 15, "pattern": r"(?:15|femton)"},
-    {"value": 16, "pattern": r"(?:16|sexton)"},
-    {"value": 17, "pattern": r"(?:17|sjutton)"},
-    {"value": 18, "pattern": r"(?:18|arton)"},
-    {"value": 19, "pattern": r"(?:19|nitton)"},
-    {"value": 20, "pattern": r"(?:20|tjugo)"},
-    {"value": 21, "pattern": r"(?:21|tjugoett)"},
-    {"value": 22, "pattern": r"(?:22|tjugotvå)"},
-    {"value": 23, "pattern": r"(?:23|tjugotre)"},
-    {"value": 24, "pattern": r"(?:24|tjugofyra)"},
-    {"value": 25, "pattern": r"(?:25|tjugofem)"},
-    {"value": 26, "pattern": r"(?:26|tjugosex)"},
-    {"value": 27, "pattern": r"(?:27|tjugosju)"},
-    {"value": 28, "pattern": r"(?:28|tjugoåtta)"},
-    {"value": 29, "pattern": r"(?:29|tjugonio)"},
-    {"value": 30, "pattern": r"(?:30|trettio)"},
-    {"value": 31, "pattern": r"(?:31|trettioett)"}
-]
-
 patterns["sv"]["ordinals"] = [
     {"value": 1, "pattern": r"(?:1\:\s?a|första)"},         # first
     {"value": 2, "pattern": r"(?:2\:\s?a|andra)"},          # second
@@ -3874,181 +1570,24 @@ patterns["sv"]["dateprefix"] = [
 ]
 
 patterns["sv"]["datesuffix"] = [
-    {"value": enums.DateSuffix.AD,
+    {"value": enums.DateSuffix.CE,
         "pattern": r"(?:(?:Efter|e\.?\s?)(?:Kristus|Kr\.?|K\.?)|A\.?D\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.BCE,
         "pattern": r"(?:(?:före|f\.?\s?)(?:Kristus|Kr\.?|K\.?)|(?:(?:cal\.?\s)?B\.?C\.?))"},
     {"value": enums.DateSuffix.BP,
         "pattern": r"(?:(?:år\s)?före nutid|B\.?P\.?)"},
-    {"value": enums.DateSuffix.AD,
+    {"value": enums.DateSuffix.CE,
         "pattern": r"(?:(?:Efter|Enligt) vår tideräkning|(?:e\.?)?v\.?t\.?|C\.?E\.?)"},
-    {"value": enums.DateSuffix.BC,
+    {"value": enums.DateSuffix.BCE,
         "pattern": r"(?:Före vår tideräkning|f\.?v\.?t\.?|B\.?C\.?E\.?)"}
 ]
 
 patterns["sv"]["dateseparator"] = [
-    {"pattern": r"\s?\p{Pd}\s?"},
-    {"pattern": r"\s?/\s?"},
-    {"pattern": r"\still\s"},
-    {"pattern": r"\soch\s"},
-    {"pattern": r"\se\s"}
-]
-
-patterns["sv"]["periodnames"] = [
-    {"pattern": r"Paleolitikum", "value": YearSpan(35000, -8200)},
-    {"pattern": r"Förhistorisk tid", "value": YearSpan(8200, 1050)},
-    {"pattern": r"Stenålder", "value": YearSpan(8200, -1800)},
-    {"pattern": r"Äldre stenålder", "value": YearSpan(8200, -4200)},
-    {"pattern": r"Tidigmesolitikum", "value": YearSpan(8200, -7000)},
-    {"pattern": r"Mellanmesolitikum", "value": YearSpan(7000, -6000)},
-    {"pattern": r"Senmesolitikum", "value": YearSpan(6000, -4200)},
-    {"pattern": r"Maglemosekulturen", "value": YearSpan(7500, -6000)},
-    {"pattern": r"Kongemosekulturen", "value": YearSpan(6000, -5200)},
-    {"pattern": r"Erteböllekulturen", "value": YearSpan(5200, -4000)},
-    {"pattern": r"Yngre stenåldern", "value": YearSpan(3900, -1800)},
-    {"pattern": r"Tidigneolitikum", "value": YearSpan(3900, -3300)},
-    {"pattern": r"Mellanneolitikum", "value": YearSpan(3300, -2400)},
-    {"pattern": r"Mellanneolitisk tid A", "value": YearSpan(3300, -2800)},
-    {"pattern": r"Mellanneolitisk tid B", "value": YearSpan(2800, -2400)},
-    {"pattern": r"Senneolitikum", "value": YearSpan(2400, -1800)},
-    {"pattern": r"Trattbägarkulturen", "value": YearSpan(3900, -2400)},
-    {"pattern": r"Klockbägarkultur", "value": YearSpan(3000, -2000)},
-    {"pattern": r"Gropkeramisk kultur", "value": YearSpan(3200, -2300)},
-    {"pattern": r"Stridsyxekulturen", "value": YearSpan(2800, -2400)},
-    {"pattern": r"Bronsålder", "value": YearSpan(1800, -500)},
-    {"pattern": r"Äldre bronsålder", "value": YearSpan(1800, -1100)},
-    {"pattern": r"Yngre bronsålder", "value": YearSpan(1100, -500)},
-    {"pattern": r"Järnåldern?", "value": YearSpan(500, 1050)},
-    {"pattern": r"Äldre järnålder", "value": YearSpan(500, 400)},
-    {"pattern": r"Förromersk järnålder", "value": YearSpan(500, 0)},
-    {"pattern": r"Romersk järnålder", "value": YearSpan(0, 400)},
-    {"pattern": r"Yngre järnålder", "value": YearSpan(400, 1050)},
-    {"pattern": r"Folkvandringstid", "value": YearSpan(400, 550)},
-    {"pattern": r"Vendeltid", "value": YearSpan(550, 800)},
-    {"pattern": r"Vikingatid", "value": YearSpan(800, 1050)},
-    {"pattern": r"Historisk tid", "value": YearSpan(1050, 2000)},
-    {"pattern": r"Medeltida?", "value": YearSpan(1050, 1520)},
-    {"pattern": r"Tidig medeltid", "value": YearSpan(1050, 1200)},
-    {"pattern": r"Högmedeltid", "value": YearSpan(1200, 1350)},
-    {"pattern": r"Senmedeltid", "value": YearSpan(1350, 1527)},
-    {"pattern": r"Folkungatiden", "value": YearSpan(1250, 1363)},
-    {"pattern": r"Kalmarunionen", "value": YearSpan(1397, 1523)},
-    {"pattern": r"Modern tid", "value": YearSpan(1521, 2000)},
-    {"pattern": r"Tidigmodern tid", "value": YearSpan(1500, 1789)},
-    {"pattern": r"Vasatiden", "value": YearSpan(1521, 1654)},
-    {"pattern": r"Äldre vasatiden", "value": YearSpan(1521, 1611)},
-    {"pattern": r"Yngre vasatiden", "value": YearSpan(1611, 1654)},
-    {"pattern": r"Karolinska tiden", "value": YearSpan(1654, 1718)},
-    {"pattern": r"Stormaktstiden", "value": YearSpan(1611, 1721)},
-    {"pattern": r"Frihetstiden", "value": YearSpan(1719, 1772)},
-    {"pattern": r"Senmodern tid", "value": YearSpan(1789, 2000)}
-]
-
-patterns["sv"]["datespans"] = [
-    {
-        # Month and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{month}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            month=oneofp(patterns["sv"]["monthnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["sv"]["datesuffix"])
-        )
-    },
-    {
-        # Season and year
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{season}}) ({{year}})(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            season=oneofp(patterns["sv"]["seasonnames"]),
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["sv"]["datesuffix"])
-        )
-    },
-    {
-        # year with prefix e.g. "sedan 1850"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)+({{year}})(\s?{{suffix}})?".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["sv"]["datesuffix"])
-        )
-    },
-    {
-        # year with suffix e.g. "circa 8100 BCE"
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{year}})(\s?{{suffix}})".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            year=NUMERICYEAR,
-            suffix=oneofp(patterns["sv"]["datesuffix"])
-        )
-    },
-    {
-        # from year to year
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{fromYear}})(\s?{{suffix}})?{{separator}}({{prefix}}{{spaceordash}}?)*({{toYear}})(\s?{{suffix}})?\b".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            fromYear=NUMERICYEAR,
-            separator=oneofp(patterns["sv"]["dateseparator"]),
-            toYear=NUMERICYEAR,
-            suffix=oneofp(patterns["sv"]["datesuffix"])
-        )
-    },
-    {
-        # named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named}})".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named=oneofp(patterns["sv"]["periodnames"])
-        )
-    },
-    {
-        # from named to named historical periods
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{named1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{named2}})".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            named1=oneofp(patterns["sv"]["periodnames"]),
-            named2=oneofp(patterns["sv"]["periodnames"]),
-            separator=oneofp(patterns["sv"]["dateseparator"]),
-        )
-    },
-    {
-        # decades e.g. "1850-talet"
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade}})(\s{{suffix}})?\b".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade=r"\b[1-9]\d{1,2}0-tal(e[nt]s?|\.)?",
-            suffix=oneofp(patterns["sv"]["datesuffix"])
-        )
-    },
-    {
-        # from decade to decade e.g. e.g. ""
-        "pattern": fr"\b({{prefix}}{{spaceordash}}?)*({{decade1}}){{separator}}({{prefix}}{{spaceordash}}?)*({{decade2}})\b".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            decade1=r"\b[1-9]\d{1,2}0-tal(e[nt]s?|\.)?",
-            decade2=r"\b[1-9]\d{1,2}0-tal(e[nt]s?|\.)?",
-            separator=oneofp(patterns["sv"]["dateseparator"])
-        )
-    },
-    {
-        # Ordinal century e.g. "femte århundradet e.Kr." (5th century AD)
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) århundradet(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["sv"]["ordinals"]),
-            suffix=oneofp(patterns["sv"]["datesuffix"])
-        )
-    },
-    {
-        # Ordinal millennium e.g. "tidigt 2: a årtusendet e.Kr."
-        "pattern": fr"({{prefix}}{{spaceordash}}?)*({{ordinal}}) årtusendet(\s{{suffix}})?".format(
-            prefix=oneofp(patterns["sv"]["dateprefix"]),
-            spaceordash=SPACEORDASH,
-            ordinal=oneofp(patterns["sv"]["ordinals"]),
-            suffix=oneofp(patterns["sv"]["datesuffix"])
-        )
-    },
+    {"pattern": r"\p{Pd}"},
+    {"pattern": r"/"},
+    {"pattern": r"till"},
+    {"pattern": r"och"},
+    {"pattern": r"e"}
 ]
 
 patterns["sv"]["directions"] = [

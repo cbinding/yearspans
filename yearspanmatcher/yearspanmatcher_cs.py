@@ -15,16 +15,31 @@ History
 =============================================================================
 """
 import regex
-from . import enums
-from .relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
-from .yearspan import YearSpan
-from .yearspanmatcher_en import YearSpanMatcherEN
+#from . import enums
+#from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR, patterns
+#from .yearspan import YearSpan
+#from .yearspanmatcher_en import YearSpanMatcherEN
+
+if __package__ is None or __package__ == '':
+    # uses current directory visibility
+    import enums  # Useful enumerations for use in ReMatch 
+    from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR   
+    from yearspan import YearSpan
+    from yearspanmatcher_en import YearSpanMatcherEN
+else:   
+    from .yearspan import YearSpan    
+    from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
+    from . import enums
+    from .yearspanmatcher_en import YearSpanMatcherEN
 
 
 class YearSpanMatcherCS(YearSpanMatcherEN):
-
-    def __init__(self) -> None:
-        super(YearSpanMatcherEN, self).__init__("cs")
+    # default periodo authority http://n2t.net/ark:/99152/p0wctqt (may be overridden)
+    def __init__(self, present: int=2000, periodo_authority_id: str="p0wctqt") -> None:
+        super(YearSpanMatcherEN, self).__init__(
+            language="cs", 
+            periodo_authority_id=periodo_authority_id
+        )
         self.MILLENNIUM = r"tisíciletí"
         self.CENTURY = r"století"
 
@@ -32,12 +47,12 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
     def matchSeasonYear(self, value: str) -> YearSpan:
         year = 0
 
-        pattern = "".join([
-            maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
+        pattern = r"\s*".join([
+            maybe(oneof(self.DATEPREFIXES, "datePrefix")),
             oneof(self.SEASONNAMES, "seasonName"),
-            (SPACE + "roku" + SPACE),
+            "roku",
             group(NUMERICYEAR, "year"),
-            maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))
+            maybe(oneof(self.DATESUFFIXES, "dateSuffix"))
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
@@ -47,7 +62,7 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
             year = int(match.group("year"))
         if 'dateSuffix' in match.groupdict():
             suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
-        if (suffixEnum == enums.DateSuffix.BC):
+        if (suffixEnum == enums.DateSuffix.BCE):
             year *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
             year = self.present - year
@@ -60,11 +75,11 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
         prefixEnum = None
         suffixEnum = None
 
-        pattern = "".join([
+        pattern = r"\s*".join([
             oneof(self.DATEPREFIXES, "datePrefix"),
-            (SPACE + "roku" + SPACE),
+            "roku",
             group(NUMERICYEAR, "year"),
-            maybe(SPACEORDASH + oneof(self.DATESUFFIXES, "dateSuffix"))
+            maybe(oneof(self.DATESUFFIXES, "dateSuffix"))
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
@@ -75,7 +90,7 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
             suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
         if 'year' in match.groupdict():
             year = int(match.group('year'))
-        if (suffixEnum == enums.DateSuffix.BC):
+        if (suffixEnum == enums.DateSuffix.BCE):
             year *= -1
         elif (suffixEnum == enums.DateSuffix.BP):
             year = self.present - year
@@ -87,13 +102,13 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
         # e.g. "1950er"
         decade = 0
 
-        pattern = "".join([
-            maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
+        pattern = r"\s*".join([
+            maybe(oneof(self.DATEPREFIXES, "datePrefix")),
             group(r"\b\d0", "decade"),
             group(r"\. l[eé]ta?"),
-            maybe(group(r"\s\d{1,2}", "century") + "\."), 
-            SPACE + "století",
-            maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))           
+            maybe(group(r"\s\d{1,2}", "century") + r"\."), 
+            "století",
+            maybe(oneof(self.DATESUFFIXES, "dateSuffix"))           
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
@@ -109,15 +124,15 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
     def matchDecadeToDecade(self, value: str) -> YearSpan:
         decade1 = 0
         decade2 = 0
-        pattern = "".join([
-            maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
+        pattern = r"\s*".join([
+            maybe(oneof(self.DATEPREFIXES, "datePrefix")),
             group(r"\b\d0", "decade1") + r"\.",
             oneof(self.DATESEPARATORS),
             group(r"\b\d0", "decade2") + r"\.",
             group(r"\sl[eé]ta?"),
-            maybe(group(r"\s\d{1,2}", "century") + "\."),
-            SPACE + "století",
-            maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))            
+            maybe(group(r"\s\d{1,2}", "century") + r"\."),
+            "století",
+            maybe(oneof(self.DATESUFFIXES, "dateSuffix"))            
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
@@ -132,3 +147,7 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
             decade2 += century
         span = YearSpan(decade1, decade2 + 9, value)
         return span
+
+if __name__ == "__main__":
+    span = YearSpanMatcherCS().match("počátek roku 1950 n. l.")
+    print(span)

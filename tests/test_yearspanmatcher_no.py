@@ -186,14 +186,14 @@ class TestYearSpanMatcherNO(unittest.TestCase):
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedPeriod(self):
-        span = self.matcher.match("Romersk")  # Roman
-        expected = "0000/0400"
+        span = self.matcher.match("vikingtid")  # http://n2t.net/ark:/99152/p04h98qjpf9 (Viking Age)
+        expected = "0750/1050"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchNamedToNamedPeriod(self):
         span = self.matcher.match(
-            "Romersk til middelalderen")  # Roman to Medieval
-        expected = "0000/1500"
+            "vikingtid til høymiddelalder")  # Viking Age to High Middle Age
+        expected = "0750/1350"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
 

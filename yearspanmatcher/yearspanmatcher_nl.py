@@ -15,16 +15,30 @@ History
 =============================================================================
 """
 import regex
-from . import enums
-from .relib import maybe, oneof, group, zeroormore, oneormore, SPACE, SPACEORDASH, NUMERICYEAR, patterns
-from .yearspan import YearSpan
-from .yearspanmatcher_en import YearSpanMatcherEN
+#from . import enums
+#from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR, patterns
+#from .yearspan import YearSpan
+#from .yearspanmatcher_en import YearSpanMatcherEN
 
+if __package__ is None or __package__ == '':
+    # uses current directory visibility
+    import enums
+    from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR 
+    from yearspan import YearSpan
+    from yearspanmatcher_en import YearSpanMatcherEN
+else:  
+    from . import enums 
+    from .yearspan import YearSpan    
+    from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
+    from .yearspanmatcher_en import YearSpanMatcherEN
 
 class YearSpanMatcherNL(YearSpanMatcherEN):
 
-    def __init__(self) -> None:
-        super(YearSpanMatcherEN, self).__init__("nl")
+    def __init__(self, present: int=2000, periodo_authority_id="p0pqptc") -> None:
+        super(YearSpanMatcherEN, self).__init__(
+            language="nl", 
+            periodo_authority_id=periodo_authority_id
+        )
         self.MILLENNIUM = r"millennium"
         self.CENTURY = r"eeuw"
 
@@ -34,11 +48,11 @@ class YearSpanMatcherNL(YearSpanMatcherEN):
         #dateSuffix = None
         decade = 0
 
-        pattern = "".join([
-            maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
-            (r"jaren" + SPACE),
+        pattern = r"\s*".join([
+            maybe(oneof(self.DATEPREFIXES, "datePrefix")),
+            "jaren",
             group(r"\b[1-9]\d{1,2}0", "decade"),
-            maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))
+            maybe(oneof(self.DATESUFFIXES, "dateSuffix"))
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
@@ -54,13 +68,13 @@ class YearSpanMatcherNL(YearSpanMatcherEN):
 
     def matchDecadeToDecade(self, value: str) -> YearSpan:
         # e.g. "1950au i 1960au"
-        pattern = "".join([
-            maybe(oneof(self.DATEPREFIXES, "datePrefix") + SPACE),
-            (r"jaren" + SPACE),
+        pattern = r"\s*".join([
+            maybe(oneof(self.DATEPREFIXES, "datePrefix")),
+            "jaren",
             group(r"\b[1-9]\d{1,2}0", "decade1"),
             oneof(self.DATESEPARATORS),
             group(r"\b[1-9]\d{1,2}0", "decade2"),
-            maybe(SPACE + oneof(self.DATESUFFIXES, "dateSuffix"))
+            maybe(oneof(self.DATESUFFIXES, "dateSuffix"))
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
@@ -75,3 +89,8 @@ class YearSpanMatcherNL(YearSpanMatcherEN):
             decade2 = int(match.group('decade2'))
         span = YearSpan(decade1, decade2 + 9, value)
         return span
+
+
+if __name__ == "__main__":
+    span = YearSpanMatcherNL().match("Begin elfde eeuw na Christus")
+    print(span)

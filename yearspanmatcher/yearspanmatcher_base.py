@@ -12,27 +12,52 @@ License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 =============================================================================
 History
 14/02/2020 CFB Initially created script
+12/04/2024 CFB Added Perio.do support
 =============================================================================
 """
 import abc           # for Abstract Base Classes
 # from . import enums  # Useful enumerations for use in ReMatch
 # from . import relib  # Regular Expressions pattern library and associated functionality
 #from .yearspan import YearSpan
-from yearspanmatcher import enums  # Useful enumerations for use in ReMatch
-# Regular Expressions pattern library and associated functionality
-from yearspanmatcher import relib
-from yearspanmatcher.yearspan import YearSpan
+if __package__ is None or __package__ == '':
+    # uses current directory visibility
+    from patterns import patterns_en_dateprefix
+    from PeriodoData import PeriodoData
+    from yearspan import YearSpan
+    import relib, enums  # Useful enumerations for use in ReMatch
+else:
+    from .patterns import patterns_en_dateprefix
+    from .PeriodoData import PeriodoData
+    from .yearspan import YearSpan
+    from . import relib, enums
 
 
 class YearSpanMatcherBase(object):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, language: str="en", present: int=2000) -> None:
+    def __init__(self, language: str="en", present: int=2000, periodo_authority_id: str="") -> None:
 
         self.language = language.strip().lower()  # default language overridden in concrete classes
         # for use in calculating BP dates; may be overridden (sometimes BP refers to 1950)
         self.present = present
-        
+        self.periodo_authority_id = (periodo_authority_id or "").strip()
+
+        # 12/08/2024 override to use period names from Perio.do data instead
+        if(self.periodo_authority_id != ""):
+            pd = PeriodoData()
+            # list from Perio.do [{id, uri, label, language, minYear, maxYear}]
+            periods_from_periodo = pd.get_period_list(self.periodo_authority_id) 
+            # filter to specified language 
+            #lex = f"http://lexvo.org/id/iso639-1/{self.language}"
+            periods_for_language = list(filter(lambda p: p.get("language", "") == self.language, periods_from_periodo))
+            # convert to [{id, value, pattern}, {id, value, pattern}]        
+            relib.patterns[self.language]["periods"] = list(map(lambda p: {
+                    "id": p.get("uri", p.get("id", "")),
+                    "value": YearSpan(minYear=p.get("minYear", None), maxYear=p.get("maxYear", None)),
+                    "pattern": p.get("label", "") 
+                }, periods_for_language))            
+            #print(periods_for_language[0:5])
+
         def get_pattern(item) -> str: return item.get("pattern", "") 
 
         # ["EARLY", "MID", "LATE", "etc."]        
@@ -52,7 +77,7 @@ class YearSpanMatcherBase(object):
         # ["first", "second", "third", "etc."]
         self.ORDINALS = list(map(get_pattern, relib.patterns_for_key("ordinals", self.language)))
         # ["Elizabethan", "Victorian", "etc."]
-        self.PERIODNAMES = list(map(get_pattern, relib.patterns_for_key("periodnames", self.language)))
+        self.PERIODNAMES = list(map(get_pattern, relib.patterns_for_key("periods", self.language)))
     
     
     def getDayNameEnum(self, s: str) -> enums.Day:
@@ -67,11 +92,11 @@ class YearSpanMatcherBase(object):
         return relib.getSeasonNameEnum(s, self.language)
         
 
-    def getCardinalValue(self, s: str) -> int:  # Cardinal:
+    def getCardinalValue(self, s: str) -> int:
         return relib.getCardinalValue(s, self.language)
         
 
-    def getOrdinalValue(self, s: str) -> int:  # Ordinal:
+    def getOrdinalValue(self, s: str) -> int:
         return relib.getOrdinalValue(s, self.language)
         
 
@@ -85,12 +110,15 @@ class YearSpanMatcherBase(object):
 
     def getNamedPeriodValue(self, s: str) -> YearSpan:
         return relib.getNamedPeriodValue(s, self.language)
-        
 
+            
     def match(self, value: str) -> YearSpan:
-        span = None
         cleanValue = (value or "").strip()
 
+        # try named periods first, if no match then try other patterns
+        span = self.matchNamedPeriod(cleanValue)
+        if span is None:
+            span = self.matchNamedToNamedPeriod(cleanValue)
         if span is None:
             span = self.matchMonthYear(cleanValue)
         if span is None:
@@ -123,10 +151,6 @@ class YearSpanMatcherBase(object):
             span = self.matchLoneDecade(cleanValue)
         if span is None:
             span = self.matchDecadeToDecade(cleanValue)
-        if span is None:
-            span = self.matchNamedPeriod(cleanValue)
-        if span is None:
-            span = self.matchNamedToNamedPeriod(cleanValue)
         if span is None:
             span = self.matchLoneYear(cleanValue)
         if span is not None:
@@ -219,7 +243,7 @@ class YearSpanMatcherBase(object):
         span = YearSpan()
         # adjust boundaries if E/M/L qualifier is present using
         # (invented) boundaries: EARLY=1-40, MID=30-70, LATE=60-100
-        if dateSuffix == enums.DateSuffix.BC:
+        if dateSuffix == enums.DateSuffix.BCE:
             span.minYear = centuryNo * -100
             if datePrefix == enums.DatePrefix.HALF1:
                 span.maxYear = span.minYear + 50
@@ -338,7 +362,7 @@ class YearSpanMatcherBase(object):
 
         # adjust boundaries if E/M/L qualifier is present using
         # (invented) boundaries: EARLY=1-40, MID=30-70, LATE=60-100
-        if dateSuffix == enums.DateSuffix.BC:
+        if dateSuffix == enums.DateSuffix.BCE:
             span.minYear = (millenniumNo * -1000)
 
             if datePrefix == enums.DatePrefix.HALF1:

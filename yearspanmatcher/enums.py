@@ -230,3 +230,6 @@ class Millennium(Enum):
     AD01 = "http://vocab.getty.edu/aat/300404550"
     AD02 = "http://vocab.getty.edu/aat/300404551"
     AD03 = "http://vocab.getty.edu/aat/300404552"
+
+if __name__ == "__main__":    
+    print(Season.SPRING.value)

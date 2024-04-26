@@ -103,7 +103,6 @@ def patterns_for_key(key: str="", language: str="en") -> list:
     patterns_for_language = patterns.get(language.strip().lower(), "")
     return patterns_for_language.get(key.strip(), "")
 
-
 def getDayNameEnum(s: str, language: str) -> enums.Day:
      return getValue(s, patterns_for_key("daynames", language))
 

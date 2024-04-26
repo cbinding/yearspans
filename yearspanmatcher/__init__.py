@@ -1,3 +1,5 @@
+#from .enums import * as enums
+#from .enums import *
 from .yearspan import YearSpan
 from .PeriodoData import PeriodoData
 from .yearspanmatcher_cs import YearSpanMatcherCS

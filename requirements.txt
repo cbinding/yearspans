@@ -2,3 +2,4 @@
 regex>=2022.7.9
 pandas>=1.5.0
 jsonpath-ng>=1.6.1
+brotli # required for Periodo dataset retrieved from uri

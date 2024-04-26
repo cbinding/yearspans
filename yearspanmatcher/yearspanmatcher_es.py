@@ -22,7 +22,7 @@ import regex
 
 if __package__ is None or __package__ == '':
     # uses current directory visibility
-    import enums
+    import enums as enums
     from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR 
     from yearspan import YearSpan
     from yearspanmatcher_en import YearSpanMatcherEN

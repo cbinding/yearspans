@@ -23,13 +23,15 @@ import regex
 if __package__ is None or __package__ == '':
     # uses current directory visibility
     import enums  # Useful enumerations for use in ReMatch 
+    #from enums import *
+    from yearspan import YearSpan    
     from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR   
-    from yearspan import YearSpan
     from yearspanmatcher_en import YearSpanMatcherEN
 else:   
+    from . import enums    
+    #from .enums import *   
     from .yearspan import YearSpan    
     from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
-    from . import enums
     from .yearspanmatcher_en import YearSpanMatcherEN
 
 

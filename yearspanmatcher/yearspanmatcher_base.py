@@ -21,15 +21,15 @@ import abc           # for Abstract Base Classes
 #from .yearspan import YearSpan
 if __package__ is None or __package__ == '':
     # uses current directory visibility
-    from patterns import patterns_en_dateprefix
     from PeriodoData import PeriodoData
+    import enums # Useful enumerations for use in ReMatch
     from yearspan import YearSpan
-    import relib, enums  # Useful enumerations for use in ReMatch
+    import relib  
 else:
-    from .patterns import patterns_en_dateprefix
     from .PeriodoData import PeriodoData
+    from . import enums
     from .yearspan import YearSpan
-    from . import relib, enums
+    from . import relib
 
 
 class YearSpanMatcherBase(object):

@@ -6,7 +6,7 @@ Classes   : PeriodoData
 Creator   : Ceri Binding, University of South Wales / Prifysgol de Cymru
 Contact   : ceri.binding@southwales.ac.uk
 Project   : 
-Summary   : PeriodoData class copied from rematch2 repo
+Summary   : PeriodoData class
 Imports   : json, os, urllib, jsonpath
 Example   : pd = PeriodoData();
             authorities = pd.get_authority_list();
@@ -17,7 +17,7 @@ History
 17/06/2022 CFB Initially created script
 27/10/2023 CFB type hints added for function signatures
 28/02/2024 CFB locate periodo cache file with vocabulary patterns
-11/04/2024 CFB copied from rematch2 repo for use with YearSpans
+26/04/2028 CFB Always use cache file if present
 =============================================================================
 """
 import json
@@ -28,34 +28,32 @@ from jsonpath_ng.ext import parse
 from os.path import exists
 from urllib.request import urlopen
 from pathlib import Path
+import requests
 
 
 class PeriodoData:
     """gets and manipulates Perio.do data"""
 
     # default data sources
-    PERIODO_URI = "https://n2t.net/ark:/99152/p0dataset.json"
-    CACHE_FILE_NAME = "periodo-cache.json"
+    #PERIODO_URI = "https://n2t.net/ark:/99152/p0dataset.json"
+    PERIODO_URI = "https://data.perio.do/dataset.json"
+    CACHE_FILE_PATH = Path(__file__).parent
+    CACHE_FILE_NAME = os.path.join(CACHE_FILE_PATH, "periodo-cache.json")
+      
+    def __init__(self):
+        self._jsondata = None
+        self.load()
 
-    def __init__(self, from_cache: bool=True) -> None:
-        self.jsondata = None
-        self.load(from_cache)
-
-    def load(self, from_cache: bool=True) -> None:
+    def load(self) -> None:
         """load data from cache or from url"""
 
-        # checking if cache file exists first
-        file_name = os.path.join(Path(__file__).parent, PeriodoData.CACHE_FILE_NAME)
-        print(file_name)
-        cache_file_exists = exists(file_name)
-
-        # if cache not present or we want to force a refresh,
-        # get Perio.do data from URI and store to local file
-        if (cache_file_exists == False or from_cache == False):
-            PeriodoData._cache_from_url(PeriodoData.PERIODO_URI)
-
-        # either way, now get Perio.do data from the cache file
-        self.jsondata = PeriodoData._json_from_file(file_name)
+        # if cache not present get Perio.do data from URI and store to cache
+        if not exists(self.CACHE_FILE_NAME):
+            data = PeriodoData._json_from_url(self.PERIODO_URI)
+            PeriodoData._json_to_file(data, self.CACHE_FILE_NAME)
+            
+        # now get Perio.do data from the cache file
+        self.jsondata = PeriodoData._json_from_file(self.CACHE_FILE_NAME)
 
     @property
     def jsondata(self):
@@ -69,9 +67,17 @@ class PeriodoData:
     @staticmethod
     def _json_from_url(url: str):
         """download JSON data from URL"""
-        data = json.loads(urlopen(url).read().decode("utf-8"))
-        #data = json.loads(urlopen(url).read())
-        return data
+       
+        headers = {
+            'Content-Type':'application/json',
+            'Accept':'application/json',
+        }
+        # note 'pip install brotli' to make this work, as the
+        # response from the Periodo dataset is brotli compressed
+        response = requests.get(url, timeout=30, headers=headers)
+        output = response.json()
+        return output
+        
 
     @staticmethod
     def _json_from_file(file_name: str):
@@ -86,20 +92,7 @@ class PeriodoData:
         """write JSON data to file"""
         with open(file_name, "w") as f:
             json.dump(data, f, indent=3)
-
-    @staticmethod
-    def _cache_from_url(url=None, file_name: str=None):
-        """refresh locally cached JSON file"""
-        if url == None:
-            url = PeriodoData.PERIODO_URI
-        if file_name == None:
-            base_path = Path(__file__).parent
-            file_name = os.path.join(base_path, PeriodoData.CACHE_FILE_NAME)            
-
-        data = PeriodoData._json_from_url(url)
-        PeriodoData._json_to_file(data, file_name)
-        return file_name
-
+    
     # this is really versatile once we have the JSON data loaded...
     # pip3 install jmespath
     # see https://jmespath.org/tutorial.html
@@ -145,21 +138,17 @@ class PeriodoData:
         for period in periods:
             id = period.value.get("id", "")
 
-            uri = f"{BASE_URI}{ id }"
+            uri = f"{BASE_URI}{ period.value.get('id', '') }"
             label = period.value.get("label", "")
-            language = period.value.get("languageTag", "")
+            language = period.value.get("language", "")
             localized = period.value.get("localizedLabels", {}).items()
-            min_year = period.value.get("start", {}).get("in", {}).get("year")
-            max_year = period.value.get("stop", {}).get("in", {}).get("year")
 
             # main terms
             lst.append({
                 "id": id,
                 "uri": f"{BASE_URI}{id}",
                 "label": label,
-                "language": language, 
-                "minYear": min_year,
-                "maxYear": max_year
+                "language": language
             })
 
             # alt terms
@@ -170,9 +159,7 @@ class PeriodoData:
                             "id": id,
                             "uri": f"{BASE_URI}{id}",
                             "label": localizedLabel,
-                            "language": localizedLanguage,
-                            "minYear": min_year,
-                            "maxYear": max_year
+                            "language": localizedLanguage
                         })
 
         # localizedLabels = self.find(f"authorities.{ authorityID }.periods.*.localizedLabels.*.{{id: id, label: label, language: languageTag}}")
@@ -187,7 +174,7 @@ class PeriodoData:
 # This class may be tested as a standalone script using the parameters below
 #  e.g. python PeriodoData.py
 if __name__ == "__main__":
-    pd = PeriodoData(True)
+    pd = PeriodoData()
     # pd.load()
     # print(pd.authorities) # all authorities
     # print(pd.data) # this specific authority
@@ -208,7 +195,7 @@ if __name__ == "__main__":
     lst2 = pd.get_period_list("p02chr4")
     # lst = pd.get_period_list("p0h9ttq")
     print(lst1[0:2])
-    print(lst2)
+    #print(lst2)
     # PeriodoData._periods_to_pattern_file(lst2, "en-periodo-data.json")
     # print(pd.find("authorities.*.[@.source.title, id]"))
 

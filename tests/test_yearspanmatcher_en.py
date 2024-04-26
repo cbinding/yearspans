@@ -17,7 +17,6 @@ History
 import unittest
 from yearspanmatcher import YearSpan, YearSpanMatcherEN
 
-
 class TestYearSpanMatcherEN(unittest.TestCase):
     matcher = YearSpanMatcherEN()
 

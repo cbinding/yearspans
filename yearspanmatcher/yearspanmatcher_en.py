@@ -40,14 +40,16 @@ else:
 
 
 class YearSpanMatcherEN(YearSpanMatcherBase):
-    # default periodo authority http://n2t.net/ark:/99152/p0kh9ds (may be overridden)
+    # default periodo authority http://n2t.net/ark:/99152/p0kh9ds (but may be overridden)
     def __init__(self, present: int=2000, periodo_authority_id="p0kh9ds") -> None:
         super(YearSpanMatcherEN, self).__init__(
             language="en", 
+            present=present,
             periodo_authority_id=periodo_authority_id
         )
         self.CENTURY = r"C(?:entury)?"
         self.MILLENNIUM = r"millennium"
+
 
     def matchMonthYear(self, value: str) -> YearSpan:
         year = 0
@@ -72,6 +74,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             year = self.present - year
         span = YearSpan(year, year, value)
         return span
+
 
     def matchSeasonYear(self, value: str) -> YearSpan:
         # e.g. "early Summer 1950 AD"
@@ -103,6 +106,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span = YearSpan(year, year, value)
         return span
 
+
     def matchCardinalCentury(self, value: str) -> YearSpan:
         # e.g. "early 11C AD"
         prefixEnum = None
@@ -127,6 +131,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span = self.getCenturyYearSpan(centuryNo, prefixEnum, suffixEnum)
         span.label = value
         return span
+
 
     def matchCardinalToCardinalCentury(self, value: str) -> YearSpan:
         # e.g. "early 11th to late 12th century AD"
@@ -165,6 +170,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         #span.label = value
         return span
 
+
     def matchOrdinalCentury(self, value: str) -> YearSpan:
         # e.g. "early eleventh century AD"
         prefixEnum = None
@@ -189,6 +195,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span = self.getCenturyYearSpan(centuryNo, prefixEnum, suffixEnum)
         span.label = value
         return span
+
 
     def matchOrdinalToOrdinalCentury(self, value: str) -> YearSpan:
         # e.g. "early eleventh to late twelfth century AD"
@@ -226,6 +233,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span.label = value
         return span
 
+
     def matchOrdinalMillennium(self, value: str) -> YearSpan:
         # e.g. "late 1st millennium AD"
         prefixEnum = None
@@ -250,6 +258,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span = self.getMillenniumYearSpan(millenniumNo, prefixEnum, suffixEnum)
         span.label = value
         return span
+
 
     def matchOrdinalToOrdinalMillennium(self, value: str) -> YearSpan:
         # e.g. "late 1st to early 2nd millennium AD"
@@ -288,6 +297,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span = YearSpan(span1.minYear, span2.maxYear, value)
         return span
 
+
     def matchYearWithPrefix(self, value: str) -> YearSpan:
         # e.g. "early 1950"
         year = 0
@@ -314,6 +324,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             year = self.present - year
         span = YearSpan(year, year, value)
         return span
+
 
     def matchYearWithSuffix(self, value: str) -> YearSpan:
         # e.g. "1950 AD"
@@ -342,6 +353,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span = YearSpan(year, year, value)
         return span
 
+
     # e.g. "1537-13+20"
     def matchYearWithTolerance1(self, value: str) -> YearSpan:
         year = 0
@@ -366,6 +378,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span = YearSpan(year + tolA, year + tolB, value)
         return span
 
+
     # e.g. "1537±9"
     def matchYearWithTolerance2(self, value: str) -> YearSpan:
         year = 0
@@ -386,6 +399,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
 
         span = YearSpan(year - tol, year + tol, value)
         return span
+
 
     # e.g. 1674-75, 1672-8
 
@@ -433,6 +447,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
 
         return YearSpan(fromYear, toYear, value)
 
+
     # e.g. 1674 - 1715
 
     def matchYearToYear(self, value: str) -> YearSpan:
@@ -471,6 +486,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             fromYear = self.present - fromYear
             toYear = self.present - toYear
         return YearSpan(fromYear, toYear, value)
+
 
     def matchYearToYear2(self, value: str) -> YearSpan:
         fromYear = None
@@ -512,6 +528,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             toYear = self.present - toYear
         return YearSpan(fromYear, toYear, value)
 
+
     def matchLoneDecade(self, value: str) -> YearSpan:
         # e.g. "1950's"
         #datePrefix = None
@@ -534,6 +551,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             decade = int(match.group('decade'))
         span = YearSpan(decade, decade + 9, value)
         return span
+
 
     def matchDecadeToDecade(self, value: str) -> YearSpan:
         # e.g. "1950's to 1960's"
@@ -558,13 +576,12 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         span = YearSpan(decade1, decade2 + 9, value)
         return span
 
+
     def matchNamedPeriod(self, value: str) -> YearSpan:
         # e.g. "Medieval"
-        span = None
-        pattern = r"\s*".join([
-            maybe(oneof(self.DATEPREFIXES, "datePrefix")),
-            oneof(self.PERIODNAMES, "periodName")
-        ])
+        span = None        
+        pattern = oneof(self.PERIODNAMES, "periodName")
+        
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
             return None
@@ -572,6 +589,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             span = self.getNamedPeriodValue(match.group('periodName'))
             if span: span.label = value
         return span
+
 
     def matchNamedToNamedPeriod(self, value: str) -> YearSpan:
         # e.g. "Medieval to modern"
@@ -598,6 +616,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             span2 = YearSpan()
         span = YearSpan(span1.minYear, span2.maxYear, value)
         return span
+
 
     def matchLoneYear(self, value: str) -> YearSpan:
         # wouldnt normally allow just a number - one-off to cater for ADS data for ReMatch ingest

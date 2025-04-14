@@ -34,26 +34,34 @@ from yearspanmatcher import YearSpanMatcher
 def main() -> None:
     # initiate the input arguments parser
     parser = argparse.ArgumentParser(prog=__file__,
-                                     description='derive start/end years from text file of timespan expressions')
+                                     description="Bulk process to derive start/end years from text file of timespan expressions")
 
     # add long and short argument descriptions
     parser.add_argument("--inputfile", "-i",
-                        required=False,
-                        help="Input file name with path")
+                        required=True,
+                        help="Input file name (with path)")
 
     parser.add_argument("--outputfile", "-o",
-                        nargs='?',
-                        help="Output file name with path. If not provided the output file will be inputfile.output.csv")
+                        required=False,
+                        nargs="?",
+                        help="Output file name (with path). If not supplied the name will be <inputfile>.output.csv")
 
     parser.add_argument("--language", "-l",
+                        required=False,
                         nargs='?',
-                        choices=['cy', 'de', 'en', 'es',
-                                 'fr', 'it', 'nl', 'no', 'sv'],
-                        default='en',
-                        help="Language of timespan expressions in input file")
+                        choices=["cy", "de", "en", "es",
+                                 "fr", "it", "nl", "no", "sv"],
+                        default="en",
+                        help="Language of timespan expressions in input file. If not supplied the default is 'en' (English)")
+
+    parser.add_argument("--periodo", "-p",
+                        required=False,
+                        nargs='?',                       
+                        help="Perio.do authority ID. If not supplied a default is used for each language (see docs)")
 
     inputFilePath = ""
     outputFilePath = ""
+    periodoAuthorityID = ""
 
     # parse and return command line arguments
     args = parser.parse_args()
@@ -66,6 +74,8 @@ def main() -> None:
         outputFilePath = args.outputfile.strip()  # ..overridden if supplied
     if args.language:
         language = args.language.strip().lower()
+    if args.periodo:
+        periodoAuthorityID = args.periodo.strip().lower()
 
     # write header information to screen
     print("\n**********************************************************")
@@ -74,10 +84,11 @@ def main() -> None:
     print(f"input file = {inputFilePath}")
     print(f"output file = {outputFilePath}")
     print(f"language = '{language}'")
+    print(f"periodo authority ID = '{periodoAuthorityID}'")
 
     data = []
     counter = 0
-    matcher = YearSpanMatcher(language)
+    matcher = YearSpanMatcher(language=language, periodo_authority_id=periodoAuthorityID)
 
     # read and parse text input rows into [{"value": "x"}, {"value": "y"}, {"value": "x"}]
     print(f"Reading '{inputFilePath}'")

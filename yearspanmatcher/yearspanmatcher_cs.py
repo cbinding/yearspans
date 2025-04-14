@@ -150,6 +150,7 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
         span = YearSpan(decade1, decade2 + 9, value)
         return span
 
+
 if __name__ == "__main__":
     span = YearSpanMatcherCS().match("počátek roku 1950 n. l.")
     print(span)

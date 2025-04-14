@@ -14,6 +14,9 @@ License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 History
 18/02/2020 CFB Initially created script
 09/04/2024 CFB Added type hints, zeroIsBCE, property getters and setters
+10/04/2025 CFB Added 'id' property (applies to named periods), 
+                spanSimilarity(), similarityTo(), relationshipTo()
+
 =============================================================================
 """
 from __future__ import annotations # to refer to YearSpan in static methods
@@ -30,23 +33,36 @@ class YearSpan(object):
     def __init__(self, 
         minYear: int=None, 
         maxYear: int=None, 
-        label: str=None, 
-        zeroIsBCE: bool=True # regard year 0 as 1 BCE (there is no year 0)
+        label: str=None,         
+        zeroIsBCE: bool=True, # regard year 0 as 1 BCE (there is no year 0)
+        id: str="" # named periods have an ID, other year spans might not 
     ) -> None:
         # init properties with values passed in
         self.minYear = minYear
         self.maxYear = maxYear
         self.label = label
         self.zeroIsBCE = zeroIsBCE
+        self.id = id        
 
         # ensure minYear and maxYear values are ordered correctly,
         # regardless of how they were passed in. If only one value 
         # is passed it is used for both minYear and maxYear values
         if (minYear is not None or maxYear is not None):
             values = list(filter(lambda x: x is not None, [minYear, maxYear]))
-            self.minYear = min(values)
-            self.maxYear = max(values)
+            self.minYear = int(min(values))
+            self.maxYear = int(max(values))
     
+
+    # id property getter and setter
+    # YearSpan might not have an id
+    @property
+    def id(self) -> str:
+        return self._id
+
+    @id.setter
+    def id(self, value: str):
+        self._id = (value or "").strip()
+
 
     # minYear property getter and setter
     @property
@@ -94,6 +110,14 @@ class YearSpan(object):
         return abs((self.maxYear or 0) - (self.minYear or 0)) + 1
 
 
+    def relationshipTo(self, span: YearSpan) -> Allen:
+        return YearSpan.spanRelationship(self, span)
+
+
+    def similarityTo(self, span: YearSpan, w1: float=0.4, w2: float=0.2, w3: float=0.4) -> object:
+        return YearSpan.spanSimilarity(self, span, w1, w2, w3)
+
+
     # string representation of this instance (e.g. "0043/0410 (Roman)")
     def __str__(self):
         return f"{self.toISO8601()} ({self.label})"
@@ -126,6 +150,7 @@ class YearSpan(object):
     # JSON representation of this instance (as python dict)
     def toJSON(self) -> dict:
         return {
+            "id": self.id,            
             "label": self.label,
             "minYear": self.yearToISO8601(self.minYear, zeroIsBCE=self.zeroIsBCE),
             "maxYear": self.yearToISO8601(self.maxYear, zeroIsBCE=self.zeroIsBCE),
@@ -277,6 +302,114 @@ class YearSpan(object):
             rel = Allen.EQUALS
         return rel
 
-if __name__ == "__main__":
-    span = YearSpan(-50,48,"test period")
-    print(span)
+
+    # see https://pure.southwales.ac.uk/admin/files/2142006/ESWC2010_binding_paper.pdf
+    # calculating degree of match / similarity between two year spans
+    # probably a more elegant/efficient implementation is possible here..
+    @staticmethod
+    def spanSimilarity(spanA: YearSpan, spanB: YearSpan, w1: float=0.4, w2: float=0.2, w3: float=0.4) -> object:
+        rel = YearSpan.spanRelationship(spanA, spanB)        
+        durationA = spanA.duration()
+        durationB = spanB.duration()
+        iu = durationA # duration of period used as the basis for comparison
+        d = 0  # years elapsed between one period ending and another starting
+        mp = 0 # matching portion (overlap) - no of years two periods have in common
+        nm = 0 # non-matching portion – no of years two periods do not have in common  
+
+        if rel == Allen.BEFORE:
+            d = YearSpan(spanA.maxYear, spanB.minYear).duration() - 1
+            mp = 0
+            nm = durationA + durationB
+        elif rel == Allen.AFTER:
+            d = YearSpan(spanB.maxYear, spanA.minYear).duration() - 1
+            mp = 0
+            nm = durationA + durationB           
+        elif rel == Allen.CONTAINS:
+            d = 0
+            mp = durationB
+            nm = durationA - durationB
+        elif rel == Allen.WITHIN:
+            d = 0
+            mp = durationA
+            nm = durationB - durationA
+        elif rel == Allen.EQUALS:
+            d = 0
+            mp = durationA
+            nm = 0
+        elif rel == Allen.FINISHEDBY:
+            d = 0
+            mp = durationB
+            nm = durationA - durationB
+        elif rel == Allen.FINISHES:
+            d = 0
+            mp = durationA
+            nm = durationB - durationA
+        elif rel == Allen.MEETS or rel == Allen.METBY:
+            d = 0
+            mp = 0
+            nm = durationA + durationB
+        elif rel == Allen.OVERLAPPEDBY:
+            d = 0
+            mp = YearSpan(spanB.maxYear, spanA.minYear).duration()
+            nm = YearSpan(spanA.maxYear, spanB.minYear).duration() - mp
+        elif rel == Allen.OVERLAPS:
+            d = 0
+            mp = YearSpan(spanA.maxYear, spanB.minYear).duration()
+            nm = YearSpan(spanB.maxYear, spanA.minYear).duration() - mp 
+
+        sim = (w1 * (mp / iu)) + (w2 * (iu / (nm + iu))) + (w3 * (iu / (d + iu)))
+
+        # retun all params in result so we can check calcs
+        result = {
+            "w1": w1,
+            "w2": w2,
+            "w3": w3,
+            "d": d,
+            "mp": mp,
+            "nm": nm,
+            "iu": iu,
+            "sim": sim
+        }
+        return result
+
+# testing the YearSpan class
+if __name__ == "__main__": 
+    spans1 = [
+        YearSpan(0, 150, "span1"),
+        YearSpan(200, 300, "span2"),
+        YearSpan(150, 250, "span3"),
+        YearSpan(50, 100, "span4"),        
+        YearSpan(-50, 200, "span5"),
+        YearSpan(100, 200, "span6"),
+        YearSpan(-50, 100, "span7"),
+        YearSpan(50, 150, "span8"),
+        YearSpan(0, 200, "span9")
+    ]   
+
+    #table 3 from ESWC 2010 paper
+    spans2 = [
+        YearSpan(175, 190, "spanA"),
+        YearSpan(167, 200, "LATE 2ND CENTURY"),
+        YearSpan(176, 200, "4TH QUARTER 2ND CENTURY AD"),
+        YearSpan(151, 200, "2ND HALF 2ND CENTURY AD"),        
+        YearSpan(101, 200, "2ND CENTURY AD"),
+        YearSpan(43, 410, "ROMAN"),
+        YearSpan(180, 192, "COMMODUS"),
+        YearSpan(161, 180, "AURELIUS"),
+        YearSpan(151, 175, "3RD QUARTER 2ND CENTURY AD"),
+        YearSpan(193, 193, "PERTINAX"),
+        YearSpan(193, 193, "DIDIUS JULIANUS"),
+    ] 
+
+    data = spans2
+    for span in data:
+        lbl = data[0].label
+        iso = data[0].toISO8601()
+        similarity = data[0].similarityTo(span)
+        rel = "{:^15}".format(data[0].relationshipTo(span).value) 
+        sim = "{:.3f}".format(similarity["sim"])
+
+        #print(similarity)
+        print(f"{lbl} ({iso}) {rel} {span.label} ({span.toISO8601()}) {sim}")  
+    
+    #print(YearSpan(1,10).similarityTo(YearSpan(3,14)))

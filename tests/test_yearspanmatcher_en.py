@@ -19,6 +19,7 @@ from yearspanmatcher import YearSpan, YearSpanMatcherEN
 
 class TestYearSpanMatcherEN(unittest.TestCase):
     matcher = YearSpanMatcherEN()
+    matcher2 = YearSpanMatcherEN(present=1950) # for testing BP dates with alt "present" parameter
 
     def test_matchMonthYearAD(self):
         span = self.matcher.match("January 1066 AD")
@@ -30,9 +31,14 @@ class TestYearSpanMatcherEN(unittest.TestCase):
         expected = "-1065/-1065"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
-    def test_matchMonthYearBP(self):
+    def test_matchMonthYearBP2000(self):
         span = self.matcher.match("January 1066 BP")
         expected = "0934/0934"
+        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+
+    def test_matchMonthYearBP1950(self):
+        span = self.matcher2.match("January 1066 BP")
+        expected = "0884/0884"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchSeasonYearAD(self):
@@ -45,7 +51,7 @@ class TestYearSpanMatcherEN(unittest.TestCase):
         expected = "-1065/-1065"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
-    def test_matchSeasonYearBP(self):
+    def test_matchSeasonYearBP2000(self):
         span = self.matcher.match("Spring 1066 BP")
         expected = "0934/0934"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
@@ -115,9 +121,14 @@ class TestYearSpanMatcherEN(unittest.TestCase):
         expected = "-1949/-1949"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
-    def test_matchYearWithPrefixBP(self):
+    def test_matchYearWithPrefixBP2000(self):
         span = self.matcher.match("early 1950 BP")
         expected = "0050/0050"
+        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+
+    def test_matchYearWithPrefixBP1950(self):
+        span = self.matcher2.match("early 1920 BP")
+        expected = "0030/0030"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchYearWithSuffixAD(self):
@@ -130,9 +141,14 @@ class TestYearSpanMatcherEN(unittest.TestCase):
         expected = "-1949/-1949"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
-    def test_matchYearWithSuffixBP(self):
+    def test_matchYearWithSuffixBP2000(self):
         span = self.matcher.match("1950 BP")
         expected = "0050/0050"
+        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+
+    def test_matchYearWithSuffixBP1950(self):
+        span = self.matcher2.match("1920 BP")
+        expected = "0030/0030"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchYearWithTolerance1(self):
@@ -165,9 +181,14 @@ class TestYearSpanMatcherEN(unittest.TestCase):
         expected = "-1499/-1199"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
-    def test_matchYearToYearBP(self):
+    def test_matchYearToYearBP2000(self):
         span = self.matcher.match("1200 - 1500 BP")
         expected = "0500/0800"
+        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+
+    def test_matchYearToYearBP1950(self):
+        span = self.matcher2.match("1200 - 1500 BP")
+        expected = "0450/0750"
         self.assertEqual(expected, (span or YearSpan()).toISO8601())
 
     def test_matchLoneDecade(self):

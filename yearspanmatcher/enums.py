@@ -15,7 +15,7 @@ License   : https://github.com/cbinding/yearspans/blob/main/LICENSE.md
 History
 28/01/2020 CFB Initially created script (ported from Javascript prototype)
 30/01/2024 CFB Lexvo URIs updated ("/code/" => "/iso639-1/")
-11/04/2024 CFB Allen enum added - relationships between year spans
+11/04/2024 CFB Allen enum added (relationships between year spans)
 =============================================================================
 """
 from enum import Enum, unique

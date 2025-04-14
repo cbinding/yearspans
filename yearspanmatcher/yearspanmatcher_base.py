@@ -50,10 +50,12 @@ class YearSpanMatcherBase(object):
             # filter to specified language 
             #lex = f"http://lexvo.org/id/iso639-1/{self.language}"
             periods_for_language = list(filter(lambda p: p.get("language", "") == self.language, periods_from_periodo))
-            # convert to [{id, value, pattern}, {id, value, pattern}]        
+            # convert to [{id, value, pattern}, {id, value, pattern}]   
+            # Note: perio.do year values already account for zeroIsBCE, 
+            # so here we don't want to make any additional adjustments      
             relib.patterns[self.language]["periods"] = list(map(lambda p: {
                     "id": p.get("uri", p.get("id", "")),
-                    "value": YearSpan(minYear=p.get("minYear", None), maxYear=p.get("maxYear", None)),
+                    "value": YearSpan(minYear=p.get("minYear", None), maxYear=p.get("maxYear", None), zeroIsBCE=False),
                     "pattern": p.get("label", "") 
                 }, periods_for_language))            
             #print(periods_for_language[0:5])

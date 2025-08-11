@@ -16,27 +16,10 @@ History
 """
 import regex
 
-#from . import enums
-#from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR, patterns
-#from .yearspan import YearSpan
-#from .yearspanmatcher_base import YearSpanMatcherBase
-
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    #from enums import * #import enums  # Useful enumerations for use in ReMatch 
-    import enums  # Useful enumerations for use in ReMatch 
-    #from enums import *
-    #import enums
-    from yearspan import YearSpan    
-    from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR   
-    from yearspanmatcher_base import YearSpanMatcherBase
-else:   
-    #from .enums import *  
-    from . import enums  
-    from .yearspan import YearSpan    
-    from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
-    #from . import enums
-    from .yearspanmatcher_base import YearSpanMatcherBase
+from . import enums  
+from .yearspan import YearSpan    
+from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
+from .yearspanmatcher_base import YearSpanMatcherBase
 
 
 class YearSpanMatcherEN(YearSpanMatcherBase):
@@ -51,8 +34,9 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         self.MILLENNIUM = r"millennium"
 
 
-    def matchMonthYear(self, value: str) -> YearSpan:
+    def matchMonthYear(self, value: str) -> YearSpan | None:
         year = 0
+        suffixEnum = enums.DateSuffix.CE
 
         pattern = r"\s*".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix")),
@@ -76,12 +60,14 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         return span
 
 
-    def matchSeasonYear(self, value: str) -> YearSpan:
+    def matchSeasonYear(self, value: str) -> YearSpan | None:
         # e.g. "early Summer 1950 AD"
         #prefixEnum = None
         #suffixEnum = None
         #monthEnum = None
         year = 0
+        suffixEnum = enums.DateSuffix.CE
+
         pattern = r"\s*".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix")),
             oneof(self.SEASONNAMES, "seasonName"),
@@ -107,7 +93,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         return span
 
 
-    def matchCardinalCentury(self, value: str) -> YearSpan:
+    def matchCardinalCentury(self, value: str) -> YearSpan | None:
         # e.g. "early 11C AD"
         prefixEnum = None
         suffixEnum = None
@@ -126,14 +112,14 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             prefixEnum = self.getDatePrefixEnum(match.group('datePrefix'))
         if 'dateSuffix' in match.groupdict():
             suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
-        if 'cardinal' in match.groupdict():
-            centuryNo = self.getCardinalValue(match.group('cardinal'))
+        #if 'cardinal' in match.groupdict():
+            #centuryNo = self.getCardinalValue(match.group('cardinal'))
         span = self.getCenturyYearSpan(centuryNo, prefixEnum, suffixEnum)
         span.label = value
         return span
 
 
-    def matchCardinalToCardinalCentury(self, value: str) -> YearSpan:
+    def matchCardinalToCardinalCentury(self, value: str) -> YearSpan | None:
         # e.g. "early 11th to late 12th century AD"
         prefixEnum1 = None
         prefixEnum2 = None
@@ -171,7 +157,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         return span
 
 
-    def matchOrdinalCentury(self, value: str) -> YearSpan:
+    def matchOrdinalCentury(self, value: str) -> YearSpan | None:
         # e.g. "early eleventh century AD"
         prefixEnum = None
         suffixEnum = None
@@ -192,12 +178,12 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
         if 'ordinal' in match.groupdict():
             centuryNo = self.getOrdinalValue(match.group('ordinal'))
-        span = self.getCenturyYearSpan(centuryNo, prefixEnum, suffixEnum)
+        span = self.getCenturyYearSpan(centuryNo or 0, prefixEnum, suffixEnum)
         span.label = value
         return span
 
 
-    def matchOrdinalToOrdinalCentury(self, value: str) -> YearSpan:
+    def matchOrdinalToOrdinalCentury(self, value: str) -> YearSpan | None:
         # e.g. "early eleventh to late twelfth century AD"
         prefixEnum1 = None
         prefixEnum2 = None
@@ -227,14 +213,14 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             fromCenturyNo = self.getOrdinalValue(match.group('fromOrdinal'))
         if 'toOrdinal' in match.groupdict():
             toCenturyNo = self.getOrdinalValue(match.group('toOrdinal'))
-        span1 = self.getCenturyYearSpan(fromCenturyNo, prefixEnum1, suffixEnum)
-        span2 = self.getCenturyYearSpan(toCenturyNo, prefixEnum2, suffixEnum)
+        span1 = self.getCenturyYearSpan(fromCenturyNo or 0, prefixEnum1, suffixEnum)
+        span2 = self.getCenturyYearSpan(toCenturyNo or 0, prefixEnum2, suffixEnum)
         span = YearSpan(span1.minYear, span2.maxYear)
         span.label = value
         return span
 
 
-    def matchOrdinalMillennium(self, value: str) -> YearSpan:
+    def matchOrdinalMillennium(self, value: str) -> YearSpan | None:
         # e.g. "late 1st millennium AD"
         prefixEnum = None
         suffixEnum = None
@@ -255,12 +241,12 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
         if 'ordinal' in match.groupdict():
             millenniumNo = self.getOrdinalValue(match.group('ordinal'))
-        span = self.getMillenniumYearSpan(millenniumNo, prefixEnum, suffixEnum)
+        span = self.getMillenniumYearSpan(millenniumNo or 0, prefixEnum, suffixEnum)
         span.label = value
         return span
 
 
-    def matchOrdinalToOrdinalMillennium(self, value: str) -> YearSpan:
+    def matchOrdinalToOrdinalMillennium(self, value: str) -> YearSpan | None:
         # e.g. "late 1st to early 2nd millennium AD"
         prefixEnum1 = None
         prefixEnum2 = None
@@ -291,14 +277,14 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         if 'toOrdinal' in match.groupdict():
             toMillenniumNo = self.getOrdinalValue(match.group('toOrdinal'))
         span1 = self.getMillenniumYearSpan(
-            fromMillenniumNo, prefixEnum1, suffixEnum)
+            fromMillenniumNo or 0, prefixEnum1, suffixEnum)
         span2 = self.getMillenniumYearSpan(
-            toMillenniumNo, prefixEnum2, suffixEnum)
+            toMillenniumNo or 0, prefixEnum2, suffixEnum)
         span = YearSpan(span1.minYear, span2.maxYear, value)
         return span
 
 
-    def matchYearWithPrefix(self, value: str) -> YearSpan:
+    def matchYearWithPrefix(self, value: str) -> YearSpan | None:
         # e.g. "early 1950"
         year = 0
         prefixEnum = None
@@ -326,7 +312,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         return span
 
 
-    def matchYearWithSuffix(self, value: str) -> YearSpan:
+    def matchYearWithSuffix(self, value: str) -> YearSpan | None:
         # e.g. "1950 AD"
         year = 0
         #prefixEnum = None
@@ -355,7 +341,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
 
 
     # e.g. "1537-13+20"
-    def matchYearWithTolerance1(self, value: str) -> YearSpan:
+    def matchYearWithTolerance1(self, value: str) -> YearSpan | None:
         year = 0
         tolA = 0
         tolB = 0
@@ -380,7 +366,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
 
 
     # e.g. "1537±9"
-    def matchYearWithTolerance2(self, value: str) -> YearSpan:
+    def matchYearWithTolerance2(self, value: str) -> YearSpan | None:
         year = 0
         tol = 0
 
@@ -403,7 +389,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
 
     # e.g. 1674-75, 1672-8
 
-    def matchYearToYear2(self, value: str) -> YearSpan:
+    def matchYearToYear2(self, value: str) -> YearSpan | None:
         fromYear = None
         toYear = None
         suffixEnum = None
@@ -432,25 +418,27 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         elif (toYear is not None and fromYear is None):
             fromYear = toYear
 
-        if (toYear < fromYear and suffixEnum == enums.DateSuffix.CE):
-            if (toYear < 10):
-                toYear = fromYear - (fromYear % 10) + toYear
-            elif (toYear < 100):
-                toYear = fromYear - (fromYear % 100) + toYear
+        if (toYear is not None and fromYear is not None):
 
-        if (suffixEnum == enums.DateSuffix.BCE):
-            fromYear *= -1
-            toYear *= -1
-        elif (suffixEnum == enums.DateSuffix.BP):
-            fromYear = self.present - fromYear
-            toYear = self.present - toYear
+            if (toYear < fromYear and suffixEnum == enums.DateSuffix.CE):
+                if (toYear < 10):
+                    toYear = fromYear - (fromYear % 10) + toYear
+                elif (toYear < 100):
+                    toYear = fromYear - (fromYear % 100) + toYear
+
+            if (toYear is not None and fromYear is not None and suffixEnum == enums.DateSuffix.BCE):
+                fromYear *= -1
+                toYear *= -1
+            elif (suffixEnum == enums.DateSuffix.BP):
+                fromYear = self.present - fromYear
+                toYear = self.present - toYear
 
         return YearSpan(fromYear, toYear, value)
 
 
     # e.g. 1674 - 1715
 
-    def matchYearToYear(self, value: str) -> YearSpan:
+    def matchYearToYear(self, value: str) -> YearSpan | None:
         # allowable numeric years slackened to allow for ADS data
         fromYear = None
         toYear = None
@@ -479,16 +467,19 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             toYear = fromYear
         elif (toYear and fromYear is None):
             fromYear = toYear
-        if (suffixEnum == enums.DateSuffix.BCE):
-            fromYear *= -1
-            toYear *= -1
-        elif (suffixEnum == enums.DateSuffix.BP):
-            fromYear = self.present - fromYear
-            toYear = self.present - toYear
+
+        if (toYear is not None and fromYear is not None):
+            if (suffixEnum == enums.DateSuffix.BCE):
+                fromYear *= -1
+                toYear *= -1
+            elif (suffixEnum == enums.DateSuffix.BP):
+                fromYear = self.present - fromYear
+                toYear = self.present - toYear
+
         return YearSpan(fromYear, toYear, value)
 
 
-    def matchYearToYear2(self, value: str) -> YearSpan:
+    def matchYearToYear3(self, value: str) -> YearSpan | None:
         fromYear = None
         toYear = None
         #datePrefix = None
@@ -516,20 +507,25 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
             toYear = fromYear
         elif (toYear and fromYear is None):
             fromYear = toYear
-        if (toYear < 10):
-            toYear = fromYear - (fromYear % 10) + toYear
-        else:
-            toYear = fromYear - (fromYear % 100) + toYear
-        if (suffixEnum == enums.DateSuffix.BCE):
-            fromYear *= -1
-            toYear *= -1
-        elif (suffixEnum == enums.DateSuffix.BP):
-            fromYear = self.present - fromYear
-            toYear = self.present - toYear
+
+        if (toYear is not None and fromYear is not None):
+
+            if (toYear < 10):
+                toYear = fromYear - (fromYear % 10) + toYear
+            else:
+                toYear = fromYear - (fromYear % 100) + toYear
+
+            if (suffixEnum == enums.DateSuffix.BCE):
+                fromYear *= -1
+                toYear *= -1
+            elif (suffixEnum == enums.DateSuffix.BP):
+                fromYear = self.present - fromYear
+                toYear = self.present - toYear
+
         return YearSpan(fromYear, toYear, value)
 
 
-    def matchLoneDecade(self, value: str) -> YearSpan:
+    def matchLoneDecade(self, value: str) -> YearSpan | None:
         # e.g. "1950's"
         #datePrefix = None
         #dateSuffix = None
@@ -553,7 +549,10 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         return span
 
 
-    def matchDecadeToDecade(self, value: str) -> YearSpan:
+    def matchDecadeToDecade(self, value: str) -> YearSpan | None:
+        decade1: int = 0
+        decade2: int = 0
+
         # e.g. "1950's to 1960's"
         pattern = r"\s*".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix")),
@@ -577,7 +576,7 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         return span
 
 
-    def matchNamedPeriod(self, value: str) -> YearSpan:
+    def matchNamedPeriod(self, value: str) -> YearSpan | None:
         # e.g. "Medieval"
         span = None        
         pattern = oneof(self.PERIODNAMES, "periodName")
@@ -591,7 +590,11 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         return span
 
 
-    def matchNamedToNamedPeriod(self, value: str) -> YearSpan:
+    def matchNamedToNamedPeriod(self, value: str) -> YearSpan | None:
+        span = None
+        span1 = None
+        span2 = None
+
         # e.g. "Medieval to modern"
         pattern = r"\s*".join([
             oneof(self.PERIODNAMES, "periodName1"),
@@ -610,15 +613,14 @@ class YearSpanMatcherEN(YearSpanMatcherBase):
         if span2 is None:
             span2 = span1
         if span1 is None:
-            span1 = span2
-        if (span1 is None and span2 is None):
-            span1 = YearSpan()
-            span2 = YearSpan()
-        span = YearSpan(span1.minYear, span2.maxYear, value)
+            span1 = span2        
+        
+        if(span1 is not None and span2 is not None):
+            span = YearSpan(span1.minYear, span2.maxYear, value)
         return span
 
 
-    def matchLoneYear(self, value: str) -> YearSpan:
+    def matchLoneYear(self, value: str) -> YearSpan | None:
         # wouldnt normally allow just a number - one-off to cater for ADS data for ReMatch ingest
         suffixEnum = None
         year = 0

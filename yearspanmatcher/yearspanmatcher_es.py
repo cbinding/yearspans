@@ -15,22 +15,11 @@ History
 =============================================================================
 """
 import regex
-#from . import enums
-#from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR, patterns
-#from .yearspan import YearSpan
-#from .yearspanmatcher_en import YearSpanMatcherEN
 
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    import enums as enums
-    from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR 
-    from yearspan import YearSpan
-    from yearspanmatcher_en import YearSpanMatcherEN
-else:   
-    from . import enums
-    from .yearspan import YearSpan    
-    from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
-    from .yearspanmatcher_en import YearSpanMatcherEN
+from . import enums
+from .yearspan import YearSpan    
+from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
+from .yearspanmatcher_en import YearSpanMatcherEN
 
 class YearSpanMatcherES(YearSpanMatcherEN):
 
@@ -42,7 +31,7 @@ class YearSpanMatcherES(YearSpanMatcherEN):
         self.MILLENNIUM = "milenio"
         self.CENTURY = "siglo"
 
-    def matchMonthYear(self, value: str) -> YearSpan:
+    def matchMonthYear(self, value: str) -> YearSpan | None:
         year = 0
 
         pattern = r"\s*".join([
@@ -68,7 +57,7 @@ class YearSpanMatcherES(YearSpanMatcherEN):
         span = YearSpan(year, year, value)
         return span
 
-    def matchLoneDecade(self, value: str) -> YearSpan:
+    def matchLoneDecade(self, value: str) -> YearSpan | None:
         # e.g. la década de 1950"
         decade = 0
 
@@ -85,7 +74,7 @@ class YearSpanMatcherES(YearSpanMatcherEN):
         span = YearSpan(decade, decade + 9, value)
         return span
 
-    def matchDecadeToDecade(self, value: str) -> YearSpan:
+    def matchDecadeToDecade(self, value: str) -> YearSpan | None:
         # e.g. "finales de la década de 1950 hasta finales de la década de 1960"
         decade1 = 0
         decade2 = 0
@@ -109,7 +98,8 @@ class YearSpanMatcherES(YearSpanMatcherEN):
         span = YearSpan(decade1, decade2 + 9, value)
         return span
 
-    def matchCardinalCentury(self, value: str) -> YearSpan:
+
+    def matchCardinalCentury(self, value: str) -> YearSpan | None:
         # e.g. "early 11C AD"
         prefixEnum = None
         suffixEnum = None
@@ -128,13 +118,13 @@ class YearSpanMatcherES(YearSpanMatcherEN):
             prefixEnum = self.getDatePrefixEnum(match.group('datePrefix'))
         if 'dateSuffix' in match.groupdict():
             suffixEnum = self.getDateSuffixEnum(match.group('dateSuffix'))
-        if 'cardinal' in match.groupdict():
-            centuryNo = self.getCardinalValue(match.group('cardinal'))
+        #if 'cardinal' in match.groupdict():
+            #centuryNo = self.getCardinalValue(match.group('cardinal'))
         span = self.getCenturyYearSpan(centuryNo, prefixEnum, suffixEnum)
         span.label = value
         return span
 
-    def matchOrdinalCentury(self, value: str) -> YearSpan:
+    def matchOrdinalCentury(self, value: str) -> YearSpan | None:
         # e.g. "early 11th century AD"
         prefixEnum = None
         suffixEnum = None
@@ -159,7 +149,7 @@ class YearSpanMatcherES(YearSpanMatcherEN):
         span.label = value
         return span
 
-    def matchOrdinalToOrdinalCentury(self, value: str) -> YearSpan:
+    def matchOrdinalToOrdinalCentury(self, value: str) -> YearSpan | None:
         # e.g. "principios del siglo XII a finales del siglo XI a.C."
         prefixEnum1 = None
         prefixEnum2 = None
@@ -195,7 +185,7 @@ class YearSpanMatcherES(YearSpanMatcherEN):
         span.label = value
         return span
 
-    def matchOrdinalMillennium(self, value: str) -> YearSpan:
+    def matchOrdinalMillennium(self, value: str) -> YearSpan | None:
         # e.g. "late 1st millennium AD"
         prefixEnum = None
         suffixEnum = None
@@ -220,7 +210,7 @@ class YearSpanMatcherES(YearSpanMatcherEN):
         span.label = value
         return span
 
-    def matchOrdinalToOrdinalMillennium(self, value: str) -> YearSpan:
+    def matchOrdinalToOrdinalMillennium(self, value: str) -> YearSpan | None:
         # e.g. "late 1st to early 2nd millennium AD"
         prefixEnum1 = None
         prefixEnum2 = None

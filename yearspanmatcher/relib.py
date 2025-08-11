@@ -38,12 +38,12 @@ NUMERICYEAR = r"[+-]?[1-9]\d{0,2}(?:\d|[\s,](?:\d{3}))*"
 # note unicode property \p{Pd} covers all variants of hyphen/dash
 # see https://www.fileformat.info/info/unicode/category/Pd/list.htm
 DASH = r"\p{Pd}"
-SPACEORDASH = r"(?:\s|\p{Pd})"
+SPACEORDASH = r"(?:\s+|\p{Pd})"
 ROMAN = r"[MCDLXVI]+"
 
 # functions for constructing regex groups
 # returns: '(?:value)' or '(?P<name>value)'
-def group(value: str, name: str=None, repeater: str=None) -> str:
+def group(value: str, name: str|None=None, repeater: str|None=None) -> str:
     clean_name = (name or "").strip()
     clean_val = (value or "").strip()    
     clean_rep = (repeater or "").strip()
@@ -59,28 +59,28 @@ def isgrouped(value: str) -> bool:
     return (clean_val.startswith("(") and clean_val.endswith(")"))
 
 # returns: '(?:value)?' or '(?P<name>value)?'
-def maybe(value: str, name: str=None) -> str:
+def maybe(value: str, name: str|None=None) -> str:
     return group(value, name, "?")
 
 # returns: '(?:value)*' or '(?P<name>value)*'
-def zeroormore(value: str, name: str=None) -> str:
+def zeroormore(value: str, name: str|None=None) -> str:
     return group(value, name, "*")
 
 # returns: '(?:value)+' or '(?P<name>value)+'
-def oneormore(value: str, name: str=None) -> str:
+def oneormore(value: str, name: str|None=None) -> str:
     return group(value, name, "+")
 
 # returns: '(?:value){n}' or '(?P<name>value){n}'
-def exactly(value: str, name: str=None, n: int=1) -> str:
+def exactly(value: str, name: str|None=None, n: int=1) -> str:
     return group(value, name, f"{{{n}}}")
 
 # returns: '(?:value){n,m}' or '(?P<name>value){n,m}'
-def range(value: str, name: str=None, n: int=None, m: int=None) -> str:
+def range(value: str, name: str|None=None, n: int|None=None, m: int|None=None) -> str:
     return group(value, name, f"{{{n or ''},{m or ''}}}")
 
 # Regular expression value options group e.g. where values = [value1, value2, value3]
 # returns: '(?:value1|value2|value3)' or '(?P<name>value1|value2|value3)'
-def oneof(values: list=[], name: str=None, repeater: str=None) -> str:
+def oneof(values: list=[], name: str|None=None, repeater: str|None=None) -> str:
     clean_values = list(map(lambda value: (value or "").strip(), values))
     choices = '|'.join(clean_values)
     return group(choices, name, repeater)
@@ -100,42 +100,42 @@ def getValue(s: str, patts: list=[]):
 
 
 def patterns_for_key(key: str="", language: str="en") -> list:
-    patterns_for_language = patterns.get(language.strip().lower(), "")
+    patterns_for_language = patterns.get(language.strip().lower(), {})
     return patterns_for_language.get(key.strip(), "")
 
-def getDayNameEnum(s: str, language: str) -> enums.Day:
+def getDayNameEnum(s: str, language: str) -> enums.Day | None:
      return getValue(s, patterns_for_key("daynames", language))
 
 
-def getMonthNameEnum(s: str, language: str) -> enums.Month:
+def getMonthNameEnum(s: str, language: str) -> enums.Month | None:
     return getValue(s, patterns_for_key("monthnames", language))
 
 
-def getSeasonNameEnum(s: str, language: str) -> enums.Season:
+def getSeasonNameEnum(s: str, language: str) -> enums.Season | None:
     return getValue(s, patterns_for_key("seasonnames", language))
 
 
-def getOrdinalValue(s: str, language: str) -> int:
+def getOrdinalValue(s: str, language: str) -> int | None:
     return getValue(s, patterns_for_key("ordinals", language))
 
 
-def getDatePrefixEnum(s: str, language: str) -> enums.DatePrefix:
+def getDatePrefixEnum(s: str, language: str) -> enums.DatePrefix | None:
     return getValue(s, patterns_for_key("dateprefix", language))
 
 
-def getDateSuffixEnum(s: str, language: str) -> enums.DateSuffix:
+def getDateSuffixEnum(s: str, language: str) -> enums.DateSuffix | None:
     return getValue(s, patterns_for_key("datesuffix", language))
 
 
-def getNamedPeriodValue(s: str, language: str) -> YearSpan:
+def getNamedPeriodValue(s: str, language: str) -> YearSpan | None:
     return getValue(s, patterns_for_key("periods", language))
 
 
 # reusable multilingual regular expression pattern library
 # defaultdict creates keys if they don't exist when first accessed
-patterns = defaultdict(dict)
-
+patterns = defaultdict(defaultdict)
 # new (29/01/24) Czech language patterns
+
 patterns["cs"]["ordinals"] = [
     {"value": 1, "pattern": r"(?:1\.|první)"},                          # first
     {"value": 2, "pattern": r"(?:2\.|druh(?:ý|ého))"},                  # second
@@ -524,75 +524,75 @@ patterns["de"]["directions"] = [
     {"value": enums.Direction.E, "pattern": r"Osten"},
     {"value": enums.Direction.SE, "pattern": r"Süd-Ost"},
     {"value": enums.Direction.S, "pattern": r"Süden"},
-    {"value": enums.Direction.SW, "pattern": fr"Südwesten"},
+    {"value": enums.Direction.SW, "pattern": r"Südwesten"},
     {"value": enums.Direction.W, "pattern": r"Westen"},
-    {"value": enums.Direction.NW, "pattern": fr"Nordwest"}
+    {"value": enums.Direction.NW, "pattern": r"Nordwest"}
 ]
 
 # English language patterns
 patterns["en"]["ordinals"] = [
-    # 1st, first
-    {"value": 1, "pattern": r"(?:1|fir)st"},
-    # 2nd, second
-    {"value": 2, "pattern": r"(?:2|seco)nd"},
-    # 3rd, third
-    {"value": 3, "pattern": r"(?:3|thi)rd"},
-    # 4th, fourth
-    {"value": 4, "pattern": r"(?:4|four)th"},
-    # 5th, fifth
-    {"value": 5, "pattern": r"(?:5|fif)th"},
-    # 6th, sixth
-    {"value": 6, "pattern": r"(?:6|six)th"},
-    # 7th, seventh
-    {"value": 7, "pattern": r"(?:7|seven)th"},
-    # 8th, eighth
-    {"value": 8, "pattern": r"(?:8|eigh)th"},
-    # 9th, ninth
-    {"value": 9, "pattern": r"(?:9|nin)th"},
-    # 10th, tenth
-    {"value": 10, "pattern": r"(?:10|ten)th"},
-    # 11th, eleventh
-    {"value": 11, "pattern": r"(?:11|eleven)th"},
-    # 12th, twelfth
-    {"value": 12, "pattern": r"(?:12|twelf)th"},
-    # 13th, thirteenth
-    {"value": 13, "pattern": r"(?:13|thirteen)th"},
-    # 14th, fourteenth
-    {"value": 14, "pattern": r"(?:14|fourteen)th"},
-    # 15th, fifteenth
-    {"value": 15, "pattern": r"(?:15|fifteen)th"},
-    # 16th, sixteenth
-    {"value": 16, "pattern": r"(?:16|sixteen)th"},
-    # 17th, seventeenth
-    {"value": 17, "pattern": r"(?:17|seventeen)th"},
-    # 18th, eighteenth
-    {"value": 18, "pattern": r"(?:18|eighteen)th"},
-    # 19th, nineteenth
-    {"value": 19, "pattern": r"(?:19|nineteen)th"},
-    # 20th, twentieth
-    {"value": 20, "pattern": r"(?:20|twentie)th"},
-    # 21st, twenty first
-    {"value": 21, "pattern": fr"(?:21|twenty{SPACEORDASH}fir)st"},
-    # 22nd, twenty second
-    {"value": 22, "pattern": fr"(?:22|twenty{SPACEORDASH}seco)nd"},
-    # 23rd, twenty third
-    {"value": 23, "pattern": fr"(?:23|twenty{SPACEORDASH}thi)rd"},
-    # 24th, twenty fourth
-    {"value": 24, "pattern": fr"(?:24|twenty{SPACEORDASH}four)th"},
-    # 25th, twenty fifth
-    {"value": 25, "pattern": fr"(?:25|twenty{SPACEORDASH}fif)th"},
-    # 26th, twenty sixth
-    {"value": 26, "pattern": fr"(?:26|twenty{SPACEORDASH}six)th"},
-    # 27th, twenty seventh
-    {"value": 27, "pattern": fr"(?:27|twenty{SPACEORDASH}seven)th"},
-    # 28th, twenty eighth
-    {"value": 28, "pattern": fr"(?:28|twenty{SPACEORDASH}eigh)th"},
-    # 29th, twenty ninth
-    {"value": 29, "pattern": fr"(?:29|twenty{SPACEORDASH}nin)th"},
-    # 30th, thirtieth
-    {"value": 30, "pattern": fr"(?:30|thirtie)th"},
-    # 31st, thirty first
-    {"value": 31, "pattern": fr"(?:31|thirty{SPACEORDASH}fir)st"}
+    # 1st, I, first
+    {"value": 1, "pattern": r"(?:1st|I|first)"},
+    # 2nd, II, second
+    {"value": 2, "pattern": r"(?:2nd|II|second)"},
+    # 3rd, III, third
+    {"value": 3, "pattern": r"(?:3rd|III|third)"},
+    # 4th, IV, fourth
+    {"value": 4, "pattern": r"(?:4th|IV|fourth)"},
+    # 5th, V, fifth
+    {"value": 5, "pattern": r"(?:5th|V|fifth)"},
+    # 6th, VI, sixth
+    {"value": 6, "pattern": r"(?:6th|VI|sixth)"},
+    # 7th, VII, seventh
+    {"value": 7, "pattern": r"(?:7th|VII|seventh)"},
+    # 8th, VIII, eighth
+    {"value": 8, "pattern": r"(?:8th|VIII|eighth)"},
+    # 9th, IX, ninth
+    {"value": 9, "pattern": r"(?:9th|IX|ninth)"},
+    # 10th, X, tenth
+    {"value": 10, "pattern": r"(?:10th|X|tenth)"},
+    # 11th, XI, eleventh
+    {"value": 11, "pattern": r"(?:11th|XI|eleventh)"},
+    # 12th, XII, twelfth
+    {"value": 12, "pattern": r"(?:12th|XII|twelfth)"},
+    # 13th, XIII, thirteenth
+    {"value": 13, "pattern": r"(?:13th|XIII|thirteenth)"},
+    # 14th, XIV, fourteenth
+    {"value": 14, "pattern": r"(?:14th|XIV|fourteenth)"},
+    # 15th, XV, fifteenth
+    {"value": 15, "pattern": r"(?:15th|XV|fifteenth)"},
+    # 16th, XVI, sixteenth
+    {"value": 16, "pattern": r"(?:16th|XVI|sixteenth)"},
+    # 17th, XVII, seventeenth
+    {"value": 17, "pattern": r"(?:17th|XVII|seventeenth)"},
+    # 18th, XVIII, eighteenth
+    {"value": 18, "pattern": r"(?:18th|XVIII|eighteenth)"},
+    # 19th, XIX, nineteenth
+    {"value": 19, "pattern": r"(?:19th|XIX|nineteenth)"},
+    # 20th, XX, twentieth
+    {"value": 20, "pattern": r"(?:20th|XX|twentieth)"},
+    # 21st, XXI, twenty first
+    {"value": 21, "pattern": fr"(?:21st|XXI|twenty{SPACEORDASH}first)"},
+    # 22nd, XXII, twenty second
+    {"value": 22, "pattern": fr"(?:22nd|XXII|twenty{SPACEORDASH}second)"},
+    # 23rd, XXIII, twenty third
+    {"value": 23, "pattern": fr"(?:23rd|XXIII|twenty{SPACEORDASH}third)"},
+    # 24th, XXIV, twenty fourth
+    {"value": 24, "pattern": fr"(?:24th|XXIV|twenty{SPACEORDASH}fourth)"},
+    # 25th, XXV, twenty fifth
+    {"value": 25, "pattern": fr"(?:25th|XXV|twenty{SPACEORDASH}fifth)"},
+    # 26th, XXVI, twenty sixth
+    {"value": 26, "pattern": fr"(?:26th|XXVI|twenty{SPACEORDASH}sixth)"},
+    # 27th, XXVII, twenty seventh
+    {"value": 27, "pattern": fr"(?:27th|XXVII|twenty{SPACEORDASH}seventh)"},
+    # 28th, XXVIII, twenty eighth
+    {"value": 28, "pattern": fr"(?:28th|XXVIII|twenty{SPACEORDASH}eighth)"},
+    # 29th, XXIX, twenty ninth
+    {"value": 29, "pattern": fr"(?:29th|XXIX|twenty{SPACEORDASH}ninth)"},
+    # 30th, XXX, thirtieth
+    {"value": 30, "pattern": fr"(?:30th|XXX|thirtieth)"},
+    # 31st, XXXI, thirty first
+    {"value": 31, "pattern": fr"(?:31st|XXXI|thirty{SPACEORDASH}first)"}
 ]
 
 patterns["en"]["daynames"] = [
@@ -621,7 +621,8 @@ patterns["en"]["monthnames"] = [
     {"value": enums.Month.MAR, "pattern": r"Mar(?:\.|ch)?"},
     # Apr, Apr., April
     {"value": enums.Month.APR, "pattern": r"Apr(?:\.|il)?"},
-    {"value": enums.Month.MAY, "pattern": r"May"},                      # May
+    # May
+    {"value": enums.Month.MAY, "pattern": r"May"},       
     # Jun, Jun., June
     {"value": enums.Month.JUN, "pattern": r"Jun[\.e]?"},
     # Jul, Jul., July

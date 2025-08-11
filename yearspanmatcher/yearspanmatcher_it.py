@@ -15,22 +15,11 @@ History
 =============================================================================
 """
 import regex
-#from . import enums
-#from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR, patterns
-#from .yearspan import YearSpan
-#from .yearspanmatcher_en import YearSpanMatcherEN
 
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    import enums
-    from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
-    from yearspan import YearSpan
-    from yearspanmatcher_en import YearSpanMatcherEN
-else:   
-    from . import enums
-    from .yearspan import YearSpan    
-    from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
-    from .yearspanmatcher_en import YearSpanMatcherEN
+from . import enums
+from .yearspan import YearSpan    
+from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
+from .yearspanmatcher_en import YearSpanMatcherEN
 
 class YearSpanMatcherIT(YearSpanMatcherEN):
 
@@ -42,7 +31,7 @@ class YearSpanMatcherIT(YearSpanMatcherEN):
         self.MILLENNIUM = r"millennio"
         self.CENTURY = r"sec(\.|olo)"
 
-    def matchLoneDecade(self, value: str) -> YearSpan:
+    def matchLoneDecade(self, value: str) -> YearSpan | None:
         # e.g. "primi anni 1850"
         decade = 0
 
@@ -60,7 +49,10 @@ class YearSpanMatcherIT(YearSpanMatcherEN):
         span = YearSpan(decade, decade + 9, value)
         return span
 
-    def matchDecadeToDecade(self, value: str) -> YearSpan:
+    def matchDecadeToDecade(self, value: str) -> YearSpan | None:
+        decade1: int = 0
+        decade2: int = 0
+        
         # e.g. "inizio del 1850 alla fine del 1860"
         pattern = r"\s*".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix1")),

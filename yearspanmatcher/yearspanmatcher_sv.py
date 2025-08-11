@@ -15,22 +15,11 @@ History
 =============================================================================
 """
 import regex
-#from . import enums
-#from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR, patterns
-#from .yearspan import YearSpan
-#from .yearspanmatcher_en import YearSpanMatcherEN
 
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    import enums
-    from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR   
-    from yearspan import YearSpan
-    from yearspanmatcher_en import YearSpanMatcherEN
-else:   
-    from . import enums
-    from .yearspan import YearSpan    
-    from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
-    from .yearspanmatcher_en import YearSpanMatcherEN
+from . import enums
+from .yearspan import YearSpan    
+from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
+from .yearspanmatcher_en import YearSpanMatcherEN
 
 class YearSpanMatcherSV(YearSpanMatcherEN):
 
@@ -42,7 +31,7 @@ class YearSpanMatcherSV(YearSpanMatcherEN):
         self.MILLENNIUM = r"millenniet"
         self.CENTURY = r"århundradet?"
 
-    def matchCardinalCentury(self, value: str) -> YearSpan:
+    def matchCardinalCentury(self, value: str) -> YearSpan | None:
         # e.g. "Tidigt 1100-tal e.Kr."
         prefixEnum = None
         suffixEnum = None
@@ -66,7 +55,7 @@ class YearSpanMatcherSV(YearSpanMatcherEN):
         span.label = value
         return span
 
-    def matchCardinalToCardinalCentury(self, value: str) -> YearSpan:
+    def matchCardinalToCardinalCentury(self, value: str) -> YearSpan | None:
         # e.g. "tidigt 1000-tal till slutet av 1100-talet e.Kr." (early 11th to late 12th century AD)
         prefixEnum1 = None
         prefixEnum2 = None
@@ -101,7 +90,7 @@ class YearSpanMatcherSV(YearSpanMatcherEN):
         #span.label = value
         return span
 
-    def matchLoneDecade(self, value: str) -> YearSpan:
+    def matchLoneDecade(self, value: str) -> YearSpan | None:
         # e.g. "1950-tallet"
         #datePrefix = None
         #dateSuffix = None
@@ -124,7 +113,7 @@ class YearSpanMatcherSV(YearSpanMatcherEN):
         span = YearSpan(decade, decade + 9, value)
         return span
 
-    def matchDecadeToDecade(self, value: str) -> YearSpan:
+    def matchDecadeToDecade(self, value: str) -> YearSpan | None:
         # e.g. "1950- til 1960-tallet"
         decade1 = 0
         decade2 = 0

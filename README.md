@@ -72,12 +72,12 @@ All output years are expressed relative to Common Era (CE) as ISO 8601 compatibl
 Commands:
 
 ```python
-python yearspanmatcher.py -i "{input}" [-l "{language}"] [-p "{PeriodO authority id}"] 
+python -m yearspanmatcher.yearspanmatcher -i "{input}" [-l "{language}"] [-p "{PeriodO authority id}"] 
 
-python yearspanmatcher.py -i "Early 2nd Century" -l "en" -p "p0kh9ds" 
+python -m yearspanmatcher.yearspanmatcher -i "Early 2nd Century" -l "en" -p "p0kh9ds" 
 # result: "0101/0132 (Early 2nd Century)"
 
-python yearspanmatcher.py -i "Principios del siglo XI d.C." -l "es" 
+python -m yearspanmatcher.yearspanmatcher -i "Principios del siglo XI d.C." -l "es" 
 # result: "1001/1040 (Principios del siglo XI d.C.)" 
 ```
 

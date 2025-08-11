@@ -16,20 +16,11 @@ History
 =============================================================================
 """
 import abc           # for Abstract Base Classes
-# from . import enums  # Useful enumerations for use in ReMatch
-# from . import relib  # Regular Expressions pattern library and associated functionality
-#from .yearspan import YearSpan
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    from PeriodoData import PeriodoData
-    import enums # Useful enumerations for use in ReMatch
-    from yearspan import YearSpan
-    import relib  
-else:
-    from .PeriodoData import PeriodoData
-    from . import enums
-    from .yearspan import YearSpan
-    from . import relib
+
+from .PeriodoData import PeriodoData
+from . import enums
+from .yearspan import YearSpan
+from . import relib
 
 
 class YearSpanMatcherBase(object):
@@ -82,39 +73,39 @@ class YearSpanMatcherBase(object):
         self.PERIODNAMES = list(map(get_pattern, relib.patterns_for_key("periods", self.language)))
     
     
-    def getDayNameEnum(self, s: str) -> enums.Day:
+    def getDayNameEnum(self, s: str) -> enums.Day | None:
         return relib.getDayNameEnum(s, self.language)
         
 
-    def getMonthNameEnum(self, s: str) -> enums.Month:
+    def getMonthNameEnum(self, s: str) -> enums.Month | None:
         return relib.getMonthNameEnum(s, self.language)
        
 
-    def getSeasonNameEnum(self, s: str) -> enums.Season:
+    def getSeasonNameEnum(self, s: str) -> enums.Season | None:
         return relib.getSeasonNameEnum(s, self.language)
         
 
-    def getCardinalValue(self, s: str) -> int:
-        return relib.getCardinalValue(s, self.language)
+    #def getCardinalValue(self, s: str) -> int:
+        #return relib.getCardinalValue(s, self.language)
         
 
-    def getOrdinalValue(self, s: str) -> int:
+    def getOrdinalValue(self, s: str) -> int | None:
         return relib.getOrdinalValue(s, self.language)
         
 
-    def getDatePrefixEnum(self, s: str) -> enums.DatePrefix:
+    def getDatePrefixEnum(self, s: str) -> enums.DatePrefix | None:
         return relib.getDatePrefixEnum(s, self.language)
         
 
-    def getDateSuffixEnum(self, s: str) -> enums.DateSuffix:
+    def getDateSuffixEnum(self, s: str) -> enums.DateSuffix | None:
         return relib.getDateSuffixEnum(s, self.language)
         
 
-    def getNamedPeriodValue(self, s: str) -> YearSpan:
+    def getNamedPeriodValue(self, s: str) -> YearSpan | None:
         return relib.getNamedPeriodValue(s, self.language)
 
             
-    def match(self, value: str) -> YearSpan:
+    def match(self, value: str) -> YearSpan | None:
         cleanValue = (value or "").strip()
 
         # try named periods first, if no match then try other patterns
@@ -161,317 +152,336 @@ class YearSpanMatcherBase(object):
 
 
     @abc.abstractmethod
-    def matchMonthYear(self, value: str) -> YearSpan:
-        return
+    def matchMonthYear(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchSeasonYear(self, value: str) -> YearSpan:
-        return
+    def matchSeasonYear(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchOrdinalCentury(self, value: str) -> YearSpan:
-        return
+    def matchOrdinalCentury(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchOrdinalToOrdinalCentury(self, value: str) -> YearSpan:
-        return
+    def matchOrdinalToOrdinalCentury(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchOrdinalMillennium(self, value: str) -> YearSpan:
-        return
+    def matchCardinalCentury(self, value: str) -> YearSpan | None:
+        return None
+    
+
+    @abc.abstractmethod
+    def matchCardinalToCardinalCentury(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchOrdinalToOrdinalMillennium(self, value: str) -> YearSpan:
-        return
+    def matchOrdinalMillennium(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchYearWithPrefix(self, value: str) -> YearSpan:
-        return
+    def matchOrdinalToOrdinalMillennium(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchYearWithSuffix(self, value: str) -> YearSpan:
-        return
+    def matchYearWithPrefix(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchYearWithTolerance(self, value: str) -> YearSpan:
-        return
+    def matchYearWithSuffix(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchYearToYear(self, value: str) -> YearSpan:
-        return
+    def matchYearWithTolerance1(self, value: str) -> YearSpan | None:
+        return None
+    
+
+    @abc.abstractmethod
+    def matchYearWithTolerance2(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchYearToYear2(self, value: str) -> YearSpan:
-        return
+    def matchYearToYear(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchLoneDecade(self, value: str) -> YearSpan:
-        return
+    def matchYearToYear2(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchDecadeToDecade(self, value: str) -> YearSpan:
-        return
+    def matchLoneDecade(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchNamedPeriod(self, value: str) -> YearSpan:
-        return
+    def matchDecadeToDecade(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchNamedToNamedPeriod(self, value: str) -> YearSpan:
-        return
+    def matchNamedPeriod(self, value: str) -> YearSpan | None:
+        return None
 
 
     @abc.abstractmethod
-    def matchLoneYear(self, value: str) -> YearSpan:
-        return
+    def matchNamedToNamedPeriod(self, value: str) -> YearSpan | None:
+        return None
+
+
+    @abc.abstractmethod
+    def matchLoneYear(self, value: str) -> YearSpan | None:
+        return None
 
 
     # ported from RxMatcher.cs 10/02/20 CFB
     def getCenturyYearSpan(self, centuryNo: int, datePrefix=None, dateSuffix=None) -> YearSpan:
-        span = YearSpan()
+        minYear = 0
+        maxYear = 0
+
         # adjust boundaries if E/M/L qualifier is present using
         # (invented) boundaries: EARLY=1-40, MID=30-70, LATE=60-100
         if dateSuffix == enums.DateSuffix.BCE:
-            span.minYear = centuryNo * -100
+            minYear = centuryNo * -100
             if datePrefix == enums.DatePrefix.HALF1:
-                span.maxYear = span.minYear + 50
+                maxYear = minYear + 50
             elif datePrefix == enums.DatePrefix.HALF2:
-                span.minYear += 50
-                span.maxYear = span.minYear + 49
+                minYear += 50
+                maxYear = minYear + 49
             elif datePrefix == enums.DatePrefix.EARLY:
-                span.maxYear = span.minYear + 40
+                maxYear = minYear + 40
             elif datePrefix == enums.DatePrefix.MID:
-                span.minYear += 30
-                span.maxYear = span.minYear + 40
+                minYear += 30
+                maxYear = minYear + 40
             elif datePrefix == enums.DatePrefix.LATE:
-                span.minYear += 60
-                span.maxYear = span.minYear + 39
+                minYear += 60
+                maxYear = minYear + 39
             elif datePrefix == enums.DatePrefix.THIRD1:
-                span.maxYear = span.minYear + 33
+                maxYear = minYear + 33
             elif datePrefix == enums.DatePrefix.THIRD2:
-                span.minYear += 33
-                span.maxYear = span.minYear + 33
+                minYear += 33
+                maxYear = minYear + 33
             elif datePrefix == enums.DatePrefix.THIRD3:
-                span.minYear += 66
-                span.maxYear = span.minYear + 33
+                minYear += 66
+                maxYear = minYear + 33
             elif datePrefix == enums.DatePrefix.QUARTER1:
-                span.maxYear = span.minYear + 25
+                maxYear = minYear + 25
             elif datePrefix == enums.DatePrefix.QUARTER2:
-                span.minYear += 25
-                span.maxYear = span.minYear + 25
+                minYear += 25
+                maxYear = minYear + 25
             elif datePrefix == enums.DatePrefix.QUARTER3:
-                span.minYear += 50
-                span.maxYear = span.minYear + 25
+                minYear += 50
+                maxYear = minYear + 25
             elif datePrefix == enums.DatePrefix.QUARTER4:
-                span.minYear += 75
-                span.maxYear = span.minYear + 24
+                minYear += 75
+                maxYear = minYear + 24
             else:  # There is no year zero...
-                span.maxYear = span.minYear + 99
+                maxYear = minYear + 99
         elif dateSuffix == enums.DateSuffix.BP:
-            span.minYear = self.present - (centuryNo * 100) + 1
+            minYear = self.present - (centuryNo * 100) + 1
             if datePrefix == enums.DatePrefix.HALF1:
-                span.maxYear = span.minYear + 50
+                maxYear = minYear + 50
             elif datePrefix == enums.DatePrefix.HALF2:
-                span.minYear += 50
-                span.maxYear = span.minYear + 49
+                minYear += 50
+                maxYear = minYear + 49
             elif datePrefix == enums.DatePrefix.EARLY:
-                span.maxYear = span.minYear + 40
+                maxYear = minYear + 40
             elif datePrefix == enums.DatePrefix.MID:
-                span.minYear += 30
-                span.maxYear = span.minYear + 40
+                minYear += 30
+                maxYear = minYear + 40
             elif datePrefix == enums.DatePrefix.LATE:
-                span.minYear += 60
-                span.maxYear = span.minYear + 39
+                minYear += 60
+                maxYear = minYear + 39
             elif datePrefix == enums.DatePrefix.THIRD1:
-                span.maxYear = span.minYear + 33
+                maxYear = minYear + 33
             elif datePrefix == enums.DatePrefix.THIRD2:
-                span.minYear += 33
-                span.maxYear = span.minYear + 33
+                minYear += 33
+                maxYear = minYear + 33
             elif datePrefix == enums.DatePrefix.THIRD3:
-                span.minYear += 66
-                span.maxYear = span.minYear + 33
+                minYear += 66
+                maxYear = minYear + 33
             elif datePrefix == enums.DatePrefix.QUARTER1:
-                span.maxYear = span.minYear + 25
+                maxYear = minYear + 25
             elif datePrefix == enums.DatePrefix.QUARTER2:
-                span.minYear += 25
-                span.maxYear = span.minYear + 25
+                minYear += 25
+                maxYear = minYear + 25
             elif datePrefix == enums.DatePrefix.QUARTER3:
-                span.minYear += 50
-                span.maxYear = span.minYear + 25
+                minYear += 50
+                maxYear = minYear + 25
             elif datePrefix == enums.DatePrefix.QUARTER4:
-                span.minYear += 75
-                span.maxYear = span.minYear + 24
+                minYear += 75
+                maxYear = minYear + 24
             else:  # There is no year zero...
-                span.maxYear = span.minYear + 99
+                maxYear = minYear + 99
         else:  # AD, CE or NONE
-            span.minYear = (centuryNo * 100) - 99
+            minYear = (centuryNo * 100) - 99
             if datePrefix == enums.DatePrefix.HALF1:
-                span.maxYear = span.minYear + 49
+                maxYear = minYear + 49
             elif datePrefix == enums.DatePrefix.HALF2:
-                span.minYear += 49
-                span.maxYear = span.minYear + 50
+                minYear += 49
+                maxYear = minYear + 50
             elif datePrefix == enums.DatePrefix.EARLY:
-                span.maxYear = span.minYear + 39
+                maxYear = minYear + 39
             elif datePrefix == enums.DatePrefix.MID:
-                span.minYear += 29
-                span.maxYear = span.minYear + 40
+                minYear += 29
+                maxYear = minYear + 40
             elif datePrefix == enums.DatePrefix.LATE:
-                span.minYear += 59
-                span.maxYear = span.minYear + 40
+                minYear += 59
+                maxYear = minYear + 40
             elif datePrefix == enums.DatePrefix.THIRD1:
-                span.maxYear = span.minYear + 33
+                maxYear = minYear + 33
             elif datePrefix == enums.DatePrefix.THIRD2:
-                span.minYear += 33
-                span.maxYear = span.minYear + 33
+                minYear += 33
+                maxYear = minYear + 33
             elif datePrefix == enums.DatePrefix.THIRD3:
-                span.minYear += 66
-                span.maxYear = span.minYear + 33
+                minYear += 66
+                maxYear = minYear + 33
             elif datePrefix == enums.DatePrefix.QUARTER1:
-                span.maxYear = span.minYear + 24
+                maxYear = minYear + 24
             elif datePrefix == enums.DatePrefix.QUARTER2:
-                span.minYear += 24
-                span.maxYear = span.minYear + 25
+                minYear += 24
+                maxYear = minYear + 25
             elif datePrefix == enums.DatePrefix.QUARTER3:
-                span.minYear += 49
-                span.maxYear = span.minYear + 25
+                minYear += 49
+                maxYear = minYear + 25
             elif datePrefix == enums.DatePrefix.QUARTER4:
-                span.minYear += 74
-                span.maxYear = span.minYear + 25
+                minYear += 74
+                maxYear = minYear + 25
             else:
-                span.maxYear = span.minYear + 99
+                maxYear = minYear + 99
         # TODO: not currently accounting for earlymid, or midlate
-        return span
+
+        return YearSpan(minYear, maxYear)
 
 
     # ported from RxMatcher.cs 10/02/20 CFB
 
     def getMillenniumYearSpan(self, millenniumNo: int, datePrefix=None, dateSuffix=None) -> YearSpan:
-        span = YearSpan()
-
+        minYear = 0
+        #maxYear = 0
+        
         # adjust boundaries if E/M/L qualifier is present using
         # (invented) boundaries: EARLY=1-40, MID=30-70, LATE=60-100
         if dateSuffix == enums.DateSuffix.BCE:
-            span.minYear = (millenniumNo * -1000)
+            minYear = (millenniumNo * -1000)
 
             if datePrefix == enums.DatePrefix.HALF1:
-                span.maxYear = span.minYear + 500
+                maxYear = minYear + 500
             elif datePrefix == enums.DatePrefix.HALF2:
-                span.minYear += 500
-                span.maxYear = span.minYear + 499
+                minYear += 500
+                maxYear = minYear + 499
             elif datePrefix == enums.DatePrefix.EARLY:
-                span.maxYear = span.minYear + 400
+                maxYear = minYear + 400
             elif datePrefix == enums.DatePrefix.MID:
-                span.minYear += 300
-                span.maxYear = span.minYear + 400
+                minYear += 300
+                maxYear = minYear + 400
             elif datePrefix == enums.DatePrefix.LATE:
-                span.minYear += 600
-                span.maxYear = span.minYear + 399
+                minYear += 600
+                maxYear = minYear + 399
             elif datePrefix == enums.DatePrefix.THIRD1:
-                span.maxYear = span.minYear + 333
+                maxYear = minYear + 333
             elif datePrefix == enums.DatePrefix.THIRD2:
-                span.minYear += 333
-                span.maxYear = span.minYear + 333
+                minYear += 333
+                maxYear = minYear + 333
             elif datePrefix == enums.DatePrefix.THIRD3:
-                span.minYear += 666
-                span.maxYear = span.minYear + 333
+                minYear += 666
+                maxYear = minYear + 333
             elif datePrefix == enums.DatePrefix.QUARTER1:
-                span.maxYear = span.minYear + 250
+                maxYear = minYear + 250
             elif datePrefix == enums.DatePrefix.QUARTER2:
-                span.minYear += 250
-                span.maxYear = span.minYear + 250
+                minYear += 250
+                maxYear = minYear + 250
             elif datePrefix == enums.DatePrefix.QUARTER3:
-                span.minYear += 500
-                span.maxYear = span.minYear + 250
+                minYear += 500
+                maxYear = minYear + 250
             elif datePrefix == enums.DatePrefix.QUARTER4:
-                span.minYear += 750
-                span.maxYear = span.minYear + 249
+                minYear += 750
+                maxYear = minYear + 249
             else:  # There is no year zero...
-                span.maxYear = span.minYear + 999
+                maxYear = minYear + 999
         elif dateSuffix == enums.DateSuffix.BP:
-            span.minYear = self.present - (millenniumNo * 1000) + 1
+            minYear = self.present - (millenniumNo * 1000) + 1
             if datePrefix == enums.DatePrefix.HALF1:
-                span.maxYear = span.minYear + 500
+                maxYear = minYear + 500
             elif datePrefix == enums.DatePrefix.HALF2:
-                span.minYear += 500
-                span.maxYear = span.minYear + 499
+                minYear += 500
+                maxYear = minYear + 499
             elif datePrefix == enums.DatePrefix.EARLY:
-                span.maxYear = span.minYear + 400
+                maxYear = minYear + 400
             elif datePrefix == enums.DatePrefix.MID:
-                span.minYear += 300
-                span.maxYear = span.minYear + 400
+                minYear += 300
+                maxYear = minYear + 400
             elif datePrefix == enums.DatePrefix.LATE:
-                span.minYear += 600
-                span.maxYear = span.minYear + 399
+                minYear += 600
+                maxYear = minYear + 399
             elif datePrefix == enums.DatePrefix.THIRD1:
-                span.maxYear = span.minYear + 333
+                maxYear = minYear + 333
             elif datePrefix == enums.DatePrefix.THIRD2:
-                span.minYear += 333
-                span.maxYear = span.minYear + 333
+                minYear += 333
+                maxYear = minYear + 333
             elif datePrefix == enums.DatePrefix.THIRD3:
-                span.minYear += 666
-                span.maxYear = span.minYear + 333
+                minYear += 666
+                maxYear = minYear + 333
             elif datePrefix == enums.DatePrefix.QUARTER1:
-                span.maxYear = span.minYear + 250
+                maxYear = minYear + 250
             elif datePrefix == enums.DatePrefix.QUARTER2:
-                span.minYear += 250
-                span.maxYear = span.minYear + 250
+                minYear += 250
+                maxYear = minYear + 250
             elif datePrefix == enums.DatePrefix.QUARTER3:
-                span.minYear += 500
-                span.maxYear = span.minYear + 250
+                minYear += 500
+                maxYear = minYear + 250
             elif datePrefix == enums.DatePrefix.QUARTER4:
-                span.minYear += 750
-                span.maxYear = span.minYear + 249
+                minYear += 750
+                maxYear = minYear + 249
             else:  # There is no year zero...
-                span.maxYear = span.minYear + 999
+                maxYear = minYear + 999
         else:  # AD, CE or NONE
-            span.minYear = (millenniumNo * 1000) - 999
+            minYear = (millenniumNo * 1000) - 999
             if datePrefix == enums.DatePrefix.HALF1:
-                span.maxYear = span.minYear + 499
+                maxYear = minYear + 499
             elif datePrefix == enums.DatePrefix.HALF2:
-                span.minYear += 499
-                span.maxYear = span.minYear + 500
+                minYear += 499
+                maxYear = minYear + 500
             elif datePrefix == enums.DatePrefix.EARLY:
-                span.maxYear = span.minYear + 399
+                maxYear = minYear + 399
             elif datePrefix == enums.DatePrefix.MID:
-                span.minYear += 299
-                span.maxYear = span.minYear + 400
+                minYear += 299
+                maxYear = minYear + 400
             elif datePrefix == enums.DatePrefix.LATE:
-                span.minYear += 599
-                span.maxYear = span.minYear + 400
+                minYear += 599
+                maxYear = minYear + 400
             elif datePrefix == enums.DatePrefix.THIRD1:
-                span.maxYear = span.minYear + 333
+                maxYear = minYear + 333
             elif datePrefix == enums.DatePrefix.THIRD2:
-                span.minYear += 333
-                span.maxYear = span.minYear + 333
+                minYear += 333
+                maxYear = minYear + 333
             elif datePrefix == enums.DatePrefix.THIRD3:
-                span.minYear += 666
-                span.maxYear = span.minYear + 333
+                minYear += 666
+                maxYear = minYear + 333
             elif datePrefix == enums.DatePrefix.QUARTER1:
-                span.maxYear = span.minYear + 249
+                maxYear = minYear + 249
             elif datePrefix == enums.DatePrefix.QUARTER2:
-                span.minYear += 249
-                span.maxYear = span.minYear + 250
+                minYear += 249
+                maxYear = minYear + 250
             elif datePrefix == enums.DatePrefix.QUARTER3:
-                span.minYear += 499
-                span.maxYear = span.minYear + 250
+                minYear += 499
+                maxYear = minYear + 250
             elif datePrefix == enums.DatePrefix.QUARTER4:
-                span.minYear += 749
-                span.maxYear = span.minYear + 250
+                minYear += 749
+                maxYear = minYear + 250
             else:
-                span.maxYear = span.minYear + 999
+                maxYear = minYear + 999
         # TODO: not currently accounting for intermediates e.g. earlymid, or midlate
-        return span
+        return YearSpan(minYear, maxYear)

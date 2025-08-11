@@ -20,26 +20,38 @@ History
 =============================================================================
 """
 from __future__ import annotations # to refer to YearSpan in static methods
+from dataclasses import dataclass
+from typing import Optional
 
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    from enums import Allen # for relationship between YearSpan instances
-else:
-    from .enums import Allen 
+from .enums import Allen 
+
+# data class for expressing (and explaining) similarity between YearSpan instances
+# (used as output type for YearSpan.spanSimilarity())
+@dataclass(frozen=True)
+class Similarity:
+    w1: Optional[float] = 1.0   # weighting #1
+    w2: Optional[float] = 1.0   # weighting #2
+    w3: Optional[float] = 1.0   # weighting #3
+    d: Optional[int] = 0        # years elapsed between one period ending and another starting
+    mp: Optional[int] = 0       # matching portion (overlap) - no of years the periods have in common
+    nm: Optional[int] = 0       # non-matching portion – no of years two periods DO NOT have in common  
+    iu: Optional[int] = 0       # duration of period used as the basis for comparison
+    sim: Optional[float] = 0.0  # calculated similarity value
 
 
 class YearSpan(object):
 
     def __init__(self, 
-        minYear: int=None, 
-        maxYear: int=None, 
-        label: str=None,         
+        minYear: int|None, 
+        maxYear: int|None, 
+        label: str="",         
         zeroIsBCE: bool=True, # regard year 0 as 1 BCE (there is no year 0)
         id: str="" # named periods have an ID, other year spans might not 
     ) -> None:
+        
         # init properties with values passed in
-        self.minYear = minYear
-        self.maxYear = maxYear
+        #if minYear is not None: self._minYear = minYear
+        #if maxYear is not None: self._maxYear = maxYear
         self.label = label
         self.zeroIsBCE = zeroIsBCE
         self.id = id        
@@ -47,10 +59,13 @@ class YearSpan(object):
         # ensure minYear and maxYear values are ordered correctly,
         # regardless of how they were passed in. If only one value 
         # is passed it is used for both minYear and maxYear values
-        if (minYear is not None or maxYear is not None):
-            values = list(filter(lambda x: x is not None, [minYear, maxYear]))
-            self.minYear = int(min(values))
-            self.maxYear = int(max(values))
+        #if (minYear is not None or maxYear is not None):
+        values: list[int] = []
+        if minYear is not None: values.append(minYear)
+        if maxYear is not None: values.append(maxYear)
+        #values: list[int] = list(filter(lambda val: val is not None, [minYear, maxYear]))
+        self._minYear = int(min(values))
+        self._maxYear = int(max(values))
     
 
     # id property getter and setter
@@ -114,7 +129,7 @@ class YearSpan(object):
         return YearSpan.spanRelationship(self, span)
 
 
-    def similarityTo(self, span: YearSpan, w1: float=0.4, w2: float=0.2, w3: float=0.4) -> object:
+    def similarityTo(self, span: YearSpan, w1: float=0.4, w2: float=0.2, w3: float=0.4) -> Similarity:
         return YearSpan.spanSimilarity(self, span, w1, w2, w3)
 
 
@@ -127,7 +142,7 @@ class YearSpan(object):
         return self.__str__()
 
 
-    def __eq__(self, other: self.__class__):
+    def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
         else:
@@ -173,7 +188,7 @@ class YearSpan(object):
 
     # ISO8601 string representation of zero-padded year span (e.g. "-0055/0410")
     @staticmethod
-    def spanToISO8601(minYear: int=None, maxYear: int=None, zeroIsBCE: bool=True) -> str:
+    def spanToISO8601(minYear: int, maxYear: int, zeroIsBCE: bool=True) -> str:
         span = YearSpan(minYear=minYear, maxYear=maxYear, zeroIsBCE=zeroIsBCE)
         
         return "{minValue}/{maxValue}".format(
@@ -187,9 +202,11 @@ class YearSpan(object):
     # optionally adjusting returned value to represent that there is no year zero
     # (so 1 ="0001" = 1 CE, 0 = "-0001" = 1 BCE, -1 = "-0002" = 2 BCE etc.)
     @staticmethod
-    def yearToISO8601(year=None, minDigits:int=4, zeroIsBCE: bool=True) -> str:
+    def yearToISO8601(year:int|None=None, minDigits:int=4, zeroIsBCE: bool=True) -> str:
+        value = None
         if year is not None:
             value = YearSpan._tryParseInt(year)
+        if value is not None:
             if value < 0 and zeroIsBCE: value += 1
             sign = "-" if value < 0 else ""
             return f"{sign}{abs(value):0{minDigits}d}"
@@ -272,7 +289,7 @@ class YearSpan(object):
     # get Allen relationship between 2 YearSpan instances
     @staticmethod
     def spanRelationship(spanA: YearSpan, spanB: YearSpan) -> Allen: 	
-        rel = None
+        rel = Allen.EQUALS
         
         if (YearSpan.spanBefore(spanA, spanB)): 
             rel = Allen.BEFORE
@@ -307,7 +324,7 @@ class YearSpan(object):
     # calculating degree of match / similarity between two year spans
     # probably a more elegant/efficient implementation is possible here..
     @staticmethod
-    def spanSimilarity(spanA: YearSpan, spanB: YearSpan, w1: float=0.4, w2: float=0.2, w3: float=0.4) -> object:
+    def spanSimilarity(spanA: YearSpan, spanB: YearSpan, w1: float=0.4, w2: float=0.2, w3: float=0.4) -> Similarity:
         rel = YearSpan.spanRelationship(spanA, spanB)        
         durationA = spanA.duration()
         durationB = spanB.duration()
@@ -360,19 +377,21 @@ class YearSpan(object):
         sim = (w1 * (mp / iu)) + (w2 * (iu / (nm + iu))) + (w3 * (iu / (d + iu)))
 
         # retun all params in result so we can check calcs
-        result = {
-            "w1": w1,
-            "w2": w2,
-            "w3": w3,
-            "d": d,
-            "mp": mp,
-            "nm": nm,
-            "iu": iu,
-            "sim": sim
-        }
+        result = Similarity(
+            w1=w1,
+            w2=w2,
+            w3=w3,
+            d=d,
+            mp=mp,
+            nm=nm,
+            iu=iu,
+            sim=sim
+        )
+        
         return result
 
 # testing the YearSpan class
+# usage: $ python -m yearspanmatcher.yearspan
 if __name__ == "__main__": 
     spans1 = [
         YearSpan(0, 150, "span1"),
@@ -403,13 +422,12 @@ if __name__ == "__main__":
 
     data = spans2
     for span in data:
-        lbl = data[0].label
-        iso = data[0].toISO8601()
-        similarity = data[0].similarityTo(span)
-        rel = "{:^15}".format(data[0].relationshipTo(span).value) 
-        sim = "{:.3f}".format(similarity["sim"])
-
+        lbl: str = data[0].label
+        iso: str = data[0].toISO8601()
+        sim: Similarity = data[0].similarityTo(span)
+        rel: str = "{:^15}".format(data[0].relationshipTo(span).value) 
+        val: str = "{:.3f}".format(sim.sim)
         #print(similarity)
-        print(f"{lbl} ({iso}) {rel} {span.label} ({span.toISO8601()}) {sim}")  
+        print(f"{val} ({iso}) \"{lbl}\" {rel} ({span.toISO8601()}) \"{span.label}\"")  
     
     #print(YearSpan(1,10).similarityTo(YearSpan(3,14)))

@@ -15,22 +15,11 @@ History
 =============================================================================
 """
 import regex
-#from . import enums
-#from .relib import maybe, oneof, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR, patterns
-#from .yearspan import YearSpan
-#from .yearspanmatcher_en import YearSpanMatcherEN
 
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    import enums
-    from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR  
-    from yearspan import YearSpan
-    from yearspanmatcher_en import YearSpanMatcherEN
-else:  
-    from . import enums 
-    from .yearspan import YearSpan    
-    from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
-    from .yearspanmatcher_en import YearSpanMatcherEN
+from . import enums 
+from .yearspan import YearSpan    
+from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
+from .yearspanmatcher_en import YearSpanMatcherEN
 
 
 class YearSpanMatcherCY(YearSpanMatcherEN):
@@ -43,7 +32,7 @@ class YearSpanMatcherCY(YearSpanMatcherEN):
         self.CENTURY = "ganrif"
         self.MILLENNIUM = "mileniwm"
 
-    def matchLoneDecade(self, value: str) -> YearSpan:
+    def matchLoneDecade(self, value: str) -> YearSpan | None:
         # e.g. "1950au"
         #datePrefix = None
         #dateSuffix = None
@@ -66,7 +55,7 @@ class YearSpanMatcherCY(YearSpanMatcherEN):
         span = YearSpan(decade, decade + 9, value)
         return span
 
-    def matchDecadeToDecade(self, value: str) -> YearSpan:
+    def matchDecadeToDecade(self, value: str) -> YearSpan | None:
         # e.g. "1950au i 1960au"
         pattern = r"\s*".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix")),
@@ -76,6 +65,9 @@ class YearSpanMatcherCY(YearSpanMatcherEN):
             maybe(oneof(self.DATESUFFIXES, "dateSuffix"))
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
+        decade1: int = 0
+        decade2: int = 0
+        
         if not match:
             return None
         # if 'datePrefix' in match.groupdict():
@@ -89,7 +81,7 @@ class YearSpanMatcherCY(YearSpanMatcherEN):
         span = YearSpan(decade1, decade2 + 9, value)
         return span
 
-    def matchOrdinalMillennium(self, value: str) -> YearSpan:
+    def matchOrdinalMillennium(self, value: str) -> YearSpan | None:
         # e.g. "diwedd y mileniwm cyntaf OC"
         prefixEnum = None
         suffixEnum = None

@@ -50,6 +50,8 @@ def main():
     args = parser.parse_args()
 
     # check for required named arguments
+    inputFilePath = ""
+    outputFilePath = ""
     if args.inputfile:
         inputFilePath = args.inputfile.strip()
         outputFilePath = f"{inputFilePath}.output.xml"
@@ -68,6 +70,7 @@ def main():
 
     # read and parse the XML records
     print(f"reading from {inputFilePath}")
+    counter = 0
     try:
         # read XML file
         tree = ET.parse(inputFilePath)
@@ -75,7 +78,6 @@ def main():
     except:
         print(f"Could not read from {inputFilePath}")
     else:
-        counter = 0
         # declare and register required namespaces for XML data handling
         ns = {
             "ads": "https://archaeologydataservice.ac.uk/",
@@ -97,7 +99,7 @@ def main():
             for temporal in element.findall("dcterms:temporal", ns):
                 # derive new minYear and maxYear values
                 #span = relib.en.dateSpanMatcher(temporal.text)
-                span = matcher.match(temporal.text)
+                span = matcher.match(temporal.text or "")
                 if span is not None:
                     # create minYear element appended as child of current dc:subjectPeriod element, sibling of dcterms:temporal
                     minYearElement = ET.SubElement(element, 'minYear')

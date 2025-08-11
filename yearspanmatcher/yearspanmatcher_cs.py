@@ -15,24 +15,11 @@ History
 =============================================================================
 """
 import regex
-#from . import enums
-#from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR, patterns
-#from .yearspan import YearSpan
-#from .yearspanmatcher_en import YearSpanMatcherEN
 
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    import enums  # Useful enumerations for use in ReMatch 
-    #from enums import *
-    from yearspan import YearSpan    
-    from relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR   
-    from yearspanmatcher_en import YearSpanMatcherEN
-else:   
-    from . import enums    
-    #from .enums import *   
-    from .yearspan import YearSpan    
-    from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
-    from .yearspanmatcher_en import YearSpanMatcherEN
+from . import enums    
+from .yearspan import YearSpan    
+from .relib import maybe, oneof, group, zeroormore, oneormore, SPACEORDASH, NUMERICYEAR
+from .yearspanmatcher_en import YearSpanMatcherEN
 
 
 class YearSpanMatcherCS(YearSpanMatcherEN):
@@ -46,8 +33,9 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
         self.CENTURY = r"století"
 
 
-    def matchSeasonYear(self, value: str) -> YearSpan:
+    def matchSeasonYear(self, value: str) -> YearSpan | None:
         year = 0
+        suffixEnum = enums.DateSuffix.CE
 
         pattern = r"\s*".join([
             maybe(oneof(self.DATEPREFIXES, "datePrefix")),
@@ -58,7 +46,7 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
         ])
         match = regex.fullmatch(pattern, value, regex.IGNORECASE)
         if not match:
-            return None
+            return None 
 
         if "year" in match.groupdict():
             year = int(match.group("year"))
@@ -71,7 +59,7 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
         span = YearSpan(year, year, value)
         return span
 
-    def matchYearWithPrefix(self, value: str) -> YearSpan:
+    def matchYearWithPrefix(self, value: str) -> YearSpan | None:
         # e.g. "early 1950"
         year = 0
         prefixEnum = None
@@ -100,7 +88,7 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
         return span
 
 
-    def matchLoneDecade(self, value: str) -> YearSpan:
+    def matchLoneDecade(self, value: str) -> YearSpan | None:
         # e.g. "1950er"
         decade = 0
 
@@ -123,7 +111,7 @@ class YearSpanMatcherCS(YearSpanMatcherEN):
         span = YearSpan(decade, decade + 9, value)
         return span
 
-    def matchDecadeToDecade(self, value: str) -> YearSpan:
+    def matchDecadeToDecade(self, value: str) -> YearSpan | None:
         decade1 = 0
         decade2 = 0
         pattern = r"\s*".join([

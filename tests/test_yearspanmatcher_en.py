@@ -24,192 +24,264 @@ class TestYearSpanMatcherEN(unittest.TestCase):
     def test_matchMonthYearAD(self):
         span = self.matcher.match("January 1066 AD")
         expected = "1066/1066"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
 
     def test_matchMonthYearBC(self):
         span = self.matcher.match("January 1066 BC")
         expected = "-1065/-1065"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
 
     def test_matchMonthYearBP2000(self):
         span = self.matcher.match("January 1066 BP")
         expected = "0934/0934"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchMonthYearBP1950(self):
         span = self.matcher2.match("January 1066 BP")
         expected = "0884/0884"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchSeasonYearAD(self):
         span = self.matcher.match("Spring 1066 AD")
         expected = "1066/1066"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchSeasonYearBC(self):
         span = self.matcher.match("Spring 1066 BC")
         expected = "-1065/-1065"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchSeasonYearBP2000(self):
         span = self.matcher.match("Spring 1066 BP")
         expected = "0934/0934"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchCardinalCenturyAD(self):
         span = self.matcher.match("Early 11th Century AD")
         expected = "1001/1040"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchCardinalCenturyBC(self):
         span = self.matcher.match("Early 11th Century BC")
         expected = "-1099/-1059"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchOrdinalCenturyAD(self):
         span = self.matcher.match("Early Eleventh Century AD")
         expected = "1001/1040"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchOrdinalCenturyBC(self):
         span = self.matcher.match("Early Eleventh Century BC")
         expected = "-1099/-1059"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchCardinalToCardinalCenturyAD(self):
         span = self.matcher.match("early 11th to late 12th century AD")
         expected = "1001/1200"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchCardinalToCardinalCenturyBC(self):
         span = self.matcher.match("early 12th to late 11th century BC")
         expected = "-1199/-1000"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchOrdinalToOrdinalCenturyAD(self):
         span = self.matcher.match("early eleventh to late twelfth century AD")
         expected = "1001/1200"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchOrdinalToOrdinalCenturyBC(self):
         span = self.matcher.match("early twelfth to late eleventh century BC")
         expected = "-1199/-1000"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchOrdinalMillenniumAD(self):
         span = self.matcher.match("late 1st millennium AD")
         expected = "0600/1000"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchOrdinalMillenniumBC(self):
         span = self.matcher.match("late 1st millennium BC")
         expected = "-0399/0000"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchOrdinalToOrdinalMillenniumAD(self):
         span = self.matcher.match("late 1st to early 2nd millennium AD")
         expected = "0600/1400"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearWithPrefixAD(self):
         span = self.matcher.match("early 1950 AD")
         expected = "1950/1950"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearWithPrefixBC(self):
         span = self.matcher.match("early 1950 BC")
         expected = "-1949/-1949"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearWithPrefixBP2000(self):
         span = self.matcher.match("early 1950 BP")
         expected = "0050/0050"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearWithPrefixBP1950(self):
         span = self.matcher2.match("early 1920 BP")
         expected = "0030/0030"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearWithSuffixAD(self):
         span = self.matcher.match("1950 AD")
         expected = "1950/1950"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearWithSuffixBC(self):
         span = self.matcher.match("1950 BC")
         expected = "-1949/-1949"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearWithSuffixBP2000(self):
         span = self.matcher.match("1950 BP")
         expected = "0050/0050"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearWithSuffixBP1950(self):
         span = self.matcher2.match("1920 BP")
         expected = "0030/0030"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearWithTolerance1(self):
         span = self.matcher.match("1600-25+17")
         expected = "1575/1617"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
 
     def test_matchYearWithTolerance2(self):
         span = self.matcher.match("1600±17")
         expected = "1583/1617"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
 
     def test_matchYearToYear1AD(self):
         span = self.matcher.match("1255 - 7 AD")
         expected = "1255/1257"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearToYear2AD(self):
         span = self.matcher.match("1250 - 57 AD")
         expected = "1250/1257"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearToYear4AD(self):
         span = self.matcher.match("1200 - 1500 AD")
         expected = "1200/1500"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearToYearBC(self):
         span = self.matcher.match("1500 - 1200 BC")
         expected = "-1499/-1199"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearToYearBP2000(self):
         span = self.matcher.match("1200 - 1500 BP")
         expected = "0500/0800"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchYearToYearBP1950(self):
         span = self.matcher2.match("1200 - 1500 BP")
         expected = "0450/0750"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchLoneDecade(self):
         span = self.matcher.match("1950's")
         expected = "1950/1959"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchDecadeToDecade(self):
         span = self.matcher.match("1950's to 1960's")
         expected = "1950/1969"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchNamedPeriod(self):
         span = self.matcher.match("Edwardian")
         expected = "1902/1910"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
     def test_matchNamedToNamedPeriod(self):
         span = self.matcher.match("Medieval to Edwardian")
         expected = "1066/1910"
-        self.assertEqual(expected, (span or YearSpan()).toISO8601())
+        self.assertTrue(span is not None, msg="span is None")
+        if span is not None: self.assertEqual(expected, span.toISO8601())
+
 
 
 if __name__ == '__main__':

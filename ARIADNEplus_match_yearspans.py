@@ -58,7 +58,7 @@ def main() -> None:
                         required=False,
                         nargs='?',                       
                         help="Perio.do authority ID. If not supplied a default is used for each language (see docs)")
-
+    language = ""
     inputFilePath = ""
     outputFilePath = ""
     periodoAuthorityID = ""

@@ -20,13 +20,8 @@ History
 from collections import defaultdict # for patterns lists
 import regex
 
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    from yearspan import YearSpan
-    import enums  
-else:
-    from .yearspan import YearSpan
-    from . import enums
+from .yearspan import YearSpan
+from . import enums
 
 # common regex patterns as constant strings
 START = r"^"

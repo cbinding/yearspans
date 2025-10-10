@@ -745,17 +745,17 @@ patterns["es"]["ordinals"] = [
     # sixth
     {"value": 6, "pattern": r"(?:6\s?°|VI|6to|sext[oa])"},
     # seventh
-    {"value": 7, "pattern": r"(?:7\s?°|VII|7mo|séptim[oa])"},
+    {"value": 7, "pattern": r"(?:7\s?°|VII|7mo|s[eé]ptim[oa])"},
     # eighth
     {"value": 8, "pattern": r"(?:8\s?°|VIII|8vo|octav[oa])"},
     # ninth
     {"value": 9, "pattern": r"(?:9\s?°|IX|9no|noven[oa])"},
     # tenth
-    {"value": 10, "pattern": r"(?:10\s?°|X|10mo|décim[oa])"},
+    {"value": 10, "pattern": r"(?:10\s?°|X|10mo|d[eé]cim[oa])"},
     # eleventh
-    {"value": 11, "pattern": r"(?:11\s?°|XI|11mo|undécim[oa])"},
+    {"value": 11, "pattern": r"(?:11\s?°|XI|11mo|und[eé]cim[oa])"},
     # twelfth
-    {"value": 12, "pattern": r"(?:12\s?°|XII|12mo|duodécim[oa])"},
+    {"value": 12, "pattern": r"(?:12\s?°|XII|12mo|duod[eé]cim[oa])"},
     # thirteenth
     {"value": 13, "pattern": r"(?:13\s?°|XIII|13ro|decimotercer[oa])"},
     # fourteenth
@@ -765,44 +765,44 @@ patterns["es"]["ordinals"] = [
     # sixteenth
     {"value": 16, "pattern": r"(?:16\s?°|XVI|16to|decimosext[oa])"},
     # seventeenth
-    {"value": 17, "pattern": r"(?:17\s?°|XVII|17mo|decimoséptim[oa])"},
+    {"value": 17, "pattern": r"(?:17\s?°|XVII|17mo|decimos[eé]ptim[oa])"},
     # eighteenth
     {"value": 18, "pattern": r"(?:18\s?°|XVIII|18vo|decimoctav[oa])"},
     # nineteenth
     {"value": 19, "pattern": r"(?:19\s?°|XIX|19no|decimonoven[oa])"},
     # twentieth
-    {"value": 20, "pattern": r"(?:20\s?°|XX|20mo|vigésim[oa])"},
+    {"value": 20, "pattern": r"(?:20\s?°|XX|20mo|vig[eé]sim[oa])"},
     # twenty first
-    {"value": 21, "pattern": r"(?:21\s?°|XXI|21ro|vigésimoprimer[oa])"},
+    {"value": 21, "pattern": r"(?:21\s?°|XXI|21ro|vig[eé]simoprimer[oa])"},
     # twenty second
-    {"value": 22, "pattern": r"(?:22\s?°|XXII|22do|vigésimosegund[oa])"},
+    {"value": 22, "pattern": r"(?:22\s?°|XXII|22do|vig[eé]simosegund[oa])"},
     # twenty third
-    {"value": 23, "pattern": r"(?:23\s?°|XXIII|23ro|vigésimotercer[oa])"},
+    {"value": 23, "pattern": r"(?:23\s?°|XXIII|23ro|vig[eé]simotercer[oa])"},
     # twenty fourth
-    {"value": 24, "pattern": r"(?:24\s?°|XXIV|24to|vigésimocuart[oa])"},
+    {"value": 24, "pattern": r"(?:24\s?°|XXIV|24to|vig[eé]simocuart[oa])"},
     # twenty fifth
-    {"value": 25, "pattern": r"(?:25\s?°|XXV|25to|vigésimoquint[oa])"},
+    {"value": 25, "pattern": r"(?:25\s?°|XXV|25to|vig[eé]simoquint[oa])"},
     # twenty sixth
-    {"value": 26, "pattern": r"(?:26\s?°|XXVI|26to|vigésimosext[oa])"},
+    {"value": 26, "pattern": r"(?:26\s?°|XXVI|26to|vig[eé]simosext[oa])"},
     # twenty seventh
-    {"value": 27, "pattern": r"(?:27\s?°|XXVII|27mo|vigésimoséptim[oa])"},
+    {"value": 27, "pattern": r"(?:27\s?°|XXVII|27mo|vig[eé]simos[eé]ptim[oa])"},
     # twenty eighth
-    {"value": 28, "pattern": r"(?:28\s?°|XXVIII|28vo|vigésimooctav[oa])"},
+    {"value": 28, "pattern": r"(?:28\s?°|XXVIII|28vo|vig[eé]simooctav[oa])"},
     # twenty ninth
-    {"value": 29, "pattern": r"(?:29\s?°|XXIX|29no|vigésimonoven[oa])"},
+    {"value": 29, "pattern": r"(?:29\s?°|XXIX|29no|vig[eé]simonoven[oa])"},
     # thirtieth
-    {"value": 30, "pattern": r"(?:30\s?°|XXX|30mo|trigésim[oa])"},
+    {"value": 30, "pattern": r"(?:30\s?°|XXX|30mo|trig[eé]sim[oa])"},
     # thirty first
-    {"value": 31, "pattern": r"(?:31\s?°|XXXI|31ro|trigésimoprimer[oa])"}
+    {"value": 31, "pattern": r"(?:31\s?°|XXXI|31ro|trig[eé]simoprimer[oa])"}
 ]
 
 patterns["es"]["daynames"] = [
     {"value": enums.Day.MON, "pattern": r"(?:L|Lun|lunes)\b"},      # Monday
     {"value": enums.Day.TUE, "pattern": r"(?:M|Mar|martes)\b"},     # Tuesday
-    {"value": enums.Day.WED, "pattern": r"(?:X|Mie|miércoles)\b"},  # Wednesday
+    {"value": enums.Day.WED, "pattern": r"(?:X|Mie|mi[eé]rcoles)\b"},  # Wednesday
     {"value": enums.Day.THU, "pattern": r"(?:J|Jue|jueves)\b"},     # Thursday
     {"value": enums.Day.FRI, "pattern": r"(?:V|Vie|viernes)\b"},    # Friday
-    {"value": enums.Day.SAT, "pattern": r"(?:S|Sáb|sábado)\b"},     # Saturday
+    {"value": enums.Day.SAT, "pattern": r"(?:S|S[aá]b|s[aá]bado)\b"},     # Saturday
     {"value": enums.Day.SUN, "pattern": r"(?:D|Dom|domingo)\b"}     # Sunday
 ]
 
@@ -824,7 +824,7 @@ patterns["es"]["monthnames"] = [
 patterns["es"]["seasonnames"] = [
     {"value": enums.Season.SPRING, "pattern": r"Primavera"},    # Spring
     {"value": enums.Season.SUMMER, "pattern": r"Verano"},       # Summer
-    {"value": enums.Season.AUTUMN, "pattern": r"Otoño"},        # Autumn
+    {"value": enums.Season.AUTUMN, "pattern": r"Oto[nñ]o"},        # Autumn
     {"value": enums.Season.WINTER, "pattern": r"Invierno"}      # Winter
 ]
 
@@ -832,7 +832,7 @@ patterns["es"]["dateprefix"] = [
     {"value": enums.DatePrefix.CIRCA, "pattern": r"hacia"},
     {"value": enums.DatePrefix.CIRCA, "pattern": r"aprox(?:\.|imadamente)?"},
     {"value": enums.DatePrefix.CIRCA, "pattern": r"aproximadamente"},
-    {"value": enums.DatePrefix.CIRCA, "pattern": r"Alrededor de(?:l año)?"},
+    {"value": enums.DatePrefix.CIRCA, "pattern": r"Alrededor de(?:l a[nñ]o)?"},
     {"value": enums.DatePrefix.EARLY,
         "pattern": r"(?:principios|inicio) del?"},  # beginning of
     {"value": enums.DatePrefix.MID, "pattern": r"Mediados del?"},
@@ -846,7 +846,7 @@ patterns["es"]["dateprefix"] = [
     {"pattern": r"de"},                       # from
     {"pattern": r"antes de"},                 # before
     {"pattern": r"durante"},                  # During
-    {"pattern": r"(?:post|después de|desde)"},  # post / after / since
+    {"pattern": r"(?:post|despu[eé]s de|desde)"},  # post / after / since
     {"pattern": r"(?:hasta|para)"}              # until / by
 ]
 
@@ -868,88 +868,88 @@ patterns["es"]["directions"] = [
     {"value": enums.Direction.E, "pattern": r"Este"},
     {"value": enums.Direction.SE, "pattern": r"Sureste"},
     {"value": enums.Direction.S, "pattern": r"Sur"},
-    {"value": enums.Direction.SW, "pattern": fr"Sur oeste"},
+    {"value": enums.Direction.SW, "pattern": r"Sur oeste"},
     {"value": enums.Direction.W, "pattern": r"Oeste"},
-    {"value": enums.Direction.NW, "pattern": fr"Noroeste"}
+    {"value": enums.Direction.NW, "pattern": r"Noroeste"}
 ]
 
 # French patterns
 patterns["fr"]["ordinals"] = [
     # zeroth
-    {"value": 0, "pattern": r"zéro[iï]ème"},
+    {"value": 0, "pattern": r"z[eé]ro[iï][eè]me"},
     # first
-    {"value": 1, "pattern": r"(?:(?:1|I)er?|premi(?:er|ère))"},
+    {"value": 1, "pattern": r"(?:(?:1|I)er?|premi[eè]re?)"},
     # second
-    {"value": 2, "pattern": r"(?:(?:2|II)(?:e|ème)|deuxième|seconde?)"},
+    {"value": 2, "pattern": r"(?:(?:2|II)(?:e|[eè]me)|deuxi[eè]me|seconde?)"},
     # third
-    {"value": 3, "pattern": r"(?:(?:3|III)(?:e|ème)|troisième)"},
+    {"value": 3, "pattern": r"(?:(?:3|III)(?:e|[eè]me)|troisi[eè]me)"},
     # fourth
-    {"value": 4, "pattern": r"(?:(?:4|IV)(?:e|ème)|quatrième)"},
+    {"value": 4, "pattern": r"(?:(?:4|IV)(?:e|[eè]me)|quatri[eè]me)"},
     # fifth
-    {"value": 5, "pattern": r"(?:(?:5|V)(?:e|ème)|cinquième)"},
+    {"value": 5, "pattern": r"(?:(?:5|V)(?:e|[eè]me)|cinqui[eè]me)"},
     # sixth
-    {"value": 6, "pattern": r"(?:(?:6|VI)(?:e|ème)|sixième)"},
+    {"value": 6, "pattern": r"(?:(?:6|VI)(?:e|[eè]me)|sixi[eè]me)"},
     # seventh
-    {"value": 7, "pattern": r"(?:(?:7|VII)(?:e|ème)|septième)"},
+    {"value": 7, "pattern": r"(?:(?:7|VII)(?:e|[eè]me)|septi[eè]me)"},
     # eighth
-    {"value": 8, "pattern": r"(?:(?:8|VIII)(?:e|ème)|huitième)"},
+    {"value": 8, "pattern": r"(?:(?:8|VIII)(?:e|[eè]me)|huiti[eè]me)"},
     # ninth
-    {"value": 9, "pattern": r"(?:(?:9|IX)(?:e|ème)|neuvième)"},
+    {"value": 9, "pattern": r"(?:(?:9|IX)(?:e|[eè]me)|neuvi[eè]me)"},
     # tenth
-    {"value": 10, "pattern": r"(?:(?:10|X)(?:e|ème)|dixième)"},
+    {"value": 10, "pattern": r"(?:(?:10|X)(?:e|[eè]me)|dixi[eè]me)"},
     # eleventh
-    {"value": 11, "pattern": r"(?:(?:11|XI)(?:e|ème)|onzième)"},
+    {"value": 11, "pattern": r"(?:(?:11|XI)(?:e|[eè]me)|onzi[eè]me)"},
     # twelfth
-    {"value": 12, "pattern": r"(?:(?:12|XII)(?:e|ème)|douzième)"},
+    {"value": 12, "pattern": r"(?:(?:12|XII)(?:e|[eè]me)|douzi[eè]me)"},
     # thirteenth
-    {"value": 13, "pattern": r"(?:(?:13|XIII)(?:e|ème)|treizième)"},
+    {"value": 13, "pattern": r"(?:(?:13|XIII)(?:e|[eè]me)|treizi[eè]me)"},
     # fourteenth
-    {"value": 14, "pattern": r"(?:(?:14|XIV)(?:e|ème)|quatorzième)"},
+    {"value": 14, "pattern": r"(?:(?:14|XIV)(?:e|[eè]me)|quatorzi[eè]me)"},
     # fifteenth
-    {"value": 15, "pattern": r"(?:(?:15|XV)(?:e|ème)|quinzième)"},
+    {"value": 15, "pattern": r"(?:(?:15|XV)(?:e|[eè]me)|quinzi[eè]me)"},
     # sixteenth
-    {"value": 16, "pattern": r"(?:(?:16|XVI)(?:e|ème)|seizième)"},
+    {"value": 16, "pattern": r"(?:(?:16|XVI)(?:e|[eè]me)|seizi[eè]me)"},
     # seventeenth
     {"value": 17,
-        "pattern": fr"(?:(?:17|XVII)(?:e|ème)|dix{SPACEORDASH}septième)"},
+        "pattern": fr"(?:(?:17|XVII)(?:e|[eè]me)|dix{SPACEORDASH}septi[eè]me)"},
     # eighteenth
     {"value": 18,
-        "pattern": fr"(?:(?:18|XVIII)(?:e|ème)|dix{SPACEORDASH}huitième)"},
+        "pattern": fr"(?:(?:18|XVIII)(?:e|[eè]me)|dix{SPACEORDASH}huiti[eè]me)"},
     # nineteenth
     {"value": 19,
-        "pattern": fr"(?:(?:19|XIX)(?:e|ème)|dix{SPACEORDASH}neuvième)"},
+        "pattern": fr"(?:(?:19|XIX)(?:e|[eè]me)|dix{SPACEORDASH}neuvi[eè]me)"},
     # twentieth
-    {"value": 20, "pattern": r"(?:(?:20|XX)(?:e|ème)|vingtième)"},
+    {"value": 20, "pattern": r"(?:(?:20|XX)(?:e|[eè]me)|vingti[eè]me)"},
     # twenty first
-    {"value": 21, "pattern": r"(?:(?:21|XXI)(?:e|ème)|vingt et unième)"},
+    {"value": 21, "pattern": r"(?:(?:21|XXI)(?:e|[eè]me)|vingt et uni[eè]me)"},
     # twenty second
     {"value": 22,
-        "pattern": fr"(?:(?:22|XXII)(?:e|ème)|vingt{SPACEORDASH}deuxième)"},
+        "pattern": fr"(?:(?:22|XXII)(?:e|[eè]me)|vingt{SPACEORDASH}deuxi[eè]me)"},
     # twenty third
     {"value": 23,
-        "pattern": fr"(?:(?:23|XXIII)(?:e|ème)|vingt{SPACEORDASH}troisième)"},
+        "pattern": fr"(?:(?:23|XXIII)(?:e|[eè]me)|vingt{SPACEORDASH}troisi[eè]me)"},
     # twenty fourth
     {"value": 24,
-        "pattern": fr"(?:(?:24|XXIV)(?:e|ème)|vingt{SPACEORDASH}quatrième)"},
+        "pattern": fr"(?:(?:24|XXIV)(?:e|[eè]me)|vingt{SPACEORDASH}quatri[eè]me)"},
     # twenty fifth
     {"value": 25,
-        "pattern": fr"(?:(?:25|XXV)(?:e|ème)|vingt{SPACEORDASH}cinquième)"},
+        "pattern": fr"(?:(?:25|XXV)(?:e|[eè]me)|vingt{SPACEORDASH}cinqui[eè]me)"},
     # twenty sixth
     {"value": 26,
-        "pattern": fr"(?:(?:26|XXVI)(?:e|ème)|vingt{SPACEORDASH}sixième)"},
+        "pattern": fr"(?:(?:26|XXVI)(?:e|[eè]me)|vingt{SPACEORDASH}sixi[eè]me)"},
     # twenty seventh
     {"value": 27,
-        "pattern": fr"(?:(?:27|XXVII)(?:e|ème)|vingt{SPACEORDASH}septième)"},
+        "pattern": fr"(?:(?:27|XXVII)(?:e|[eè]me)|vingt{SPACEORDASH}septi[eè]me)"},
     # twenty eighth
     {"value": 28,
-        "pattern": fr"(?:(?:28|XXVIII)(?:e|ème)|vingt{SPACEORDASH}huitième)"},
+        "pattern": fr"(?:(?:28|XXVIII)(?:e|[eè]me)|vingt{SPACEORDASH}huiti[eè]me)"},
     # twenty ninth
     {"value": 29,
-        "pattern": fr"(?:(?:29|XXIX)(?:e|ème)|vingt{SPACEORDASH}neuvième)"},
+        "pattern": fr"(?:(?:29|XXIX)(?:e|[eè]me)|vingt{SPACEORDASH}neuvi[eè]me)"},
     # thirtieth
-    {"value": 30, "pattern": r"(?:(?:30|XXX)(?:e|ème)|trentième)"},
+    {"value": 30, "pattern": r"(?:(?:30|XXX)(?:e|[eè]me)|trenti[eè]me)"},
     # thirty first
-    {"value": 31, "pattern": r"(?:(?:31|XXXI)(?:e|ème)|trent et unième)"}
+    {"value": 31, "pattern": r"(?:(?:31|XXXI)(?:e|[eè]me)|trent et uni[eè]me)"}
 ]
 
 patterns["fr"]["daynames"] = [
@@ -964,13 +964,13 @@ patterns["fr"]["daynames"] = [
 
 patterns["fr"]["monthnames"] = [
     {"value": enums.Month.JAN, "pattern": r"Janv(?:\.|ier)?"},    # January
-    {"value": enums.Month.FEB, "pattern": r"Févr(?:\.|ier)?"},    # February
+    {"value": enums.Month.FEB, "pattern": r"F[eé]vr(?:\.|ier)?"},    # February
     {"value": enums.Month.MAR, "pattern": r"Mars"},             # March
     {"value": enums.Month.APR, "pattern": r"Avr(?:\.|il)?"},      # April
     {"value": enums.Month.MAY, "pattern": r"Mai"},              # May
     {"value": enums.Month.JUN, "pattern": r"Juin"},             # June
     {"value": enums.Month.JUL, "pattern": r"Juill(?:\.|et)?"},    # July
-    {"value": enums.Month.AUG, "pattern": r"Août"},             # August
+    {"value": enums.Month.AUG, "pattern": r"Ao[uû]t"},             # August
     {"value": enums.Month.SEP, "pattern": r"Sept(?:\.|embre)?"},  # September
     {"value": enums.Month.OCT, "pattern": r"Oct(?:\.|obre)?"},    # October
     {"value": enums.Month.NOV, "pattern": r"Nov(?:\.|embre)?"},   # November
@@ -979,7 +979,7 @@ patterns["fr"]["monthnames"] = [
 
 patterns["fr"]["seasonnames"] = [
     {"value": enums.Season.SPRING, "pattern": r"printemps"},    # Spring
-    {"value": enums.Season.SUMMER, "pattern": r"été"},          # Summer
+    {"value": enums.Season.SUMMER, "pattern": r"[eé]t[eé]"},          # Summer
     {"value": enums.Season.AUTUMN, "pattern": r"automne"},      # Autumn
     {"value": enums.Season.WINTER, "pattern": r"hiver"}         # Winter
 ]
@@ -989,29 +989,29 @@ patterns["fr"]["dateprefix"] = [
     {"value": enums.DatePrefix.CIRCA, "pattern": r"vers(?:\sle)?"},
     {"value": enums.DatePrefix.CIRCA, "pattern": r"circa"},
     {"value": enums.DatePrefix.EARLY,
-        "pattern": r"(?:le\s)?(?:début(?:\sd[ue])?|ancien)"},
+        "pattern": r"(?:le\s)?(?:d[eé]but(?:\sd[ue])?|ancien)"},
     {"value": enums.DatePrefix.MID,
         "pattern": r"(?:le\s)?(?:milieu d[ue]|moyen)"},
     {"value": enums.DatePrefix.LATE,
-        "pattern": r"(?:la\s)?(fin(?:\sd[ue])?|récent)"},
+        "pattern": r"(?:la\s)?(fin(?:\sd[ue])?|r[eé]cent)"},
     {"value": enums.DatePrefix.HALF1,
-        "pattern": r"(?:Première|1er?) moitié d[ue]"},
+        "pattern": r"(?:Premi[eè]re|1er?) moiti[eé] d[ue]"},
     {"value": enums.DatePrefix.HALF2,
-        "pattern": r"(?:Deuxième|seconde?|2e) moitié d[ue]"},
+        "pattern": r"(?:Deuxi[eè]me|seconde?|2e) moiti[eé] d[ue]"},
     {"value": enums.DatePrefix.THIRD1,
-        "pattern": r"(?:Première|1er?) tiers d[ue]"},          # 1st third
+        "pattern": r"(?:Premi[èe]re|1er?) tiers d[ue]"},          # 1st third
     {"value": enums.DatePrefix.THIRD2,
-        "pattern": r"(?:Deuxième|seconde?|2e) tiers d[ue]"},   # 2nd third
+        "pattern": r"(?:Deuxi[èe]me|seconde?|2e) tiers d[ue]"},   # 2nd third
     {"value": enums.DatePrefix.THIRD3,
-        "pattern": r"(?:troisième|dernier|3e) tiers d[ue]"},   # last third
+        "pattern": r"(?:troisi[eè]me|dernier|3e) tiers d[ue]"},   # last third
     {"value": enums.DatePrefix.QUARTER1,
-        "pattern": r"(?:Première|1er?) quart d[ue]"},          # 1st quarter
+        "pattern": r"(?:Premi[eè]re|1er?) quart d[ue]"},          # 1st quarter
     {"value": enums.DatePrefix.QUARTER2,
-        "pattern": r"(?:Deuxième|seconde?|2e) quart d[ue]"},   # 2nd quarter
+        "pattern": r"(?:Deuxi[eè]me|seconde?|2e) quart d[ue]"},   # 2nd quarter
     {"value": enums.DatePrefix.QUARTER3,
-        "pattern": r"(?:Troisième|3e) quart d[ue]"},           # 3rd quarter
+        "pattern": r"(?:Troisi[eè]me|3e) quart d[ue]"},           # 3rd quarter
     {"value": enums.DatePrefix.QUARTER4,
-        "pattern": r"(?:Quatrième|dernier|4e) quart d[ue]"},   # last quarter
+        "pattern": r"(?:Quatri[eè]me|dernier|4e) quart d[ue]"},   # last quarter
     # pre, post, before, after, during " since
     {"pattern": r"(?:avant|av\.|apr[eè]s|apr?\.|en|depuis)"}
 ]

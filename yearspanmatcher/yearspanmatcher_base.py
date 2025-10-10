@@ -15,7 +15,8 @@ History
 12/04/2024 CFB Added Perio.do support
 =============================================================================
 """
-import abc           # for Abstract Base Classes
+import abc          # for Abstract Base Classes
+import unicodedata  # for normalizign strings
 
 from .PeriodoData import PeriodoData
 from . import enums
@@ -33,8 +34,14 @@ class YearSpanMatcherBase(object):
         self.present = present
         self.periodo_authority_id = (periodo_authority_id or "").strip()
 
+        def remove_diacritics(input_str: str) -> str:
+            nfkd_form = unicodedata.normalize('NFKD', input_str)
+            return ''.join([c for c in nfkd_form if not unicodedata.combining(c)])
+
         # 12/08/2024 override to use period names from Perio.do data instead
         if(self.periodo_authority_id != ""):
+            relib.patterns[self.language]["periods"] = [] 
+
             pd = PeriodoData()
             # list from Perio.do [{id, uri, label, language, minYear, maxYear}]
             periods_from_periodo = pd.get_period_list(self.periodo_authority_id) 
@@ -43,13 +50,34 @@ class YearSpanMatcherBase(object):
             periods_for_language = list(filter(lambda p: p.get("language", "") == self.language, periods_from_periodo))
             # convert to [{id, value, pattern}, {id, value, pattern}]   
             # Note: perio.do year values already account for zeroIsBCE, 
-            # so here we don't want to make any additional adjustments      
-            relib.patterns[self.language]["periods"] = list(map(lambda p: {
-                    "id": p.get("uri", p.get("id", "")),
-                    "value": YearSpan(minYear=p.get("minYear", None), maxYear=p.get("maxYear", None), zeroIsBCE=False),
-                    "pattern": p.get("label", "") 
-                }, periods_for_language))            
-            #print(periods_for_language[0:5])
+            # so here we don't want to make any additional adjustments 
+            
+            for period in periods_for_language:
+                id = period.get("uri", period.get("id", ""))
+                year_span = YearSpan(minYear=period.get("minYear", None), maxYear=period.get("maxYear", None), zeroIsBCE=False)
+
+                # using a set to store all labels for the specified language
+                labels = set()
+
+                # add pref_label and pref_label minus diacritics
+                pref_label = period.get("label", "")
+                pref_label_normalized = remove_diacritics(pref_label)
+                labels.add(pref_label)
+                labels.add(pref_label_normalized)
+
+                # add alt_labels and alt_labels minus diacritics
+                alt_labels = period.get("localizedLabels", {}).get(self.language, []) 
+                alt_labels_normalized = list(map(lambda x: remove_diacritics(x), alt_labels))
+                labels.update(alt_labels)
+                labels.update(alt_labels_normalized)
+
+                # now create pattern item for each (unique) item in the labels set
+                for label in labels:
+                    relib.patterns[self.language]["periods"].append({
+                        "id": id,
+                        "value": year_span,
+                        "pattern": label
+                    })                
 
         def get_pattern(item) -> str: return item.get("pattern", "") 
 

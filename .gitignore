@@ -2,6 +2,8 @@
 # required in source repository
 periodo-cache.json
 
+data/gotriple/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
